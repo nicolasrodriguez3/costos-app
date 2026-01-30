@@ -4,7 +4,7 @@ services:
     container_name: postgres_db
     restart: unless-stopped
     env_file:
-      - .env.production
+      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -21,7 +21,7 @@ services:
     container_name: costos_app
     restart: unless-stopped
     env_file:
-      - .env.production
+      - .env
     ports:
       - "3000:3000"
     depends_on:
@@ -39,5 +39,12 @@ services:
       # Puerto interno de Next
       - "traefik.http.services.app.loadbalancer.server.port=3000"
 
+    networks:
+      - web
+
 volumes:
   postgres_data:
+
+networks:
+  web:
+    external: true
