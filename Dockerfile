@@ -40,6 +40,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup -g 1001 -S nodejs \
  && adduser -S nextjs -u 1001
 
+# prisma
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
+
 # solo lo necesario para standalone
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
