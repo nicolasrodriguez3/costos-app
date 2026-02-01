@@ -53,11 +53,16 @@ services:
       target: builder # Reutiliza la etapa 'builder'
       args:
         DATABASE_URL: ${DATABASE_URL}
+    env_file:
+      - .env
     container_name: costos_migrate
     command: pnpm prisma migrate deploy
     depends_on:
       db:
         condition: service_healthy
+
+    networks:
+      - web
 
 volumes:
   postgres_data:
