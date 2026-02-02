@@ -1,6 +1,7 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { MenuIcon } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 
 interface SidebarToggleProps {
@@ -22,11 +23,7 @@ export function SidebarToggle({
       className={`w-full flex items-center justify-center p-2 hover:bg-gray-100 transition-colors ${className}`}
       title={isCollapsed ? "Expandir sidebar" : "Colapsar sidebar"}
     >
-      {isCollapsed ? (
-        <ChevronRight className="w-4 h-4" />
-      ) : (
-        <ChevronLeft className="w-4 h-4" />
-      )}
+      <MenuIcon className="w-4 h-4" />
     </Button>
   );
 }
