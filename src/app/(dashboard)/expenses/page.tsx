@@ -8,7 +8,7 @@ interface PageProps {
 }
 
 const breadcrumbs = [
-  { href: "/", label: "Inicio" },
+  { href: "/dashboard", label: "Inicio" },
   { href: "/expenses", label: "Gastos Fijos" },
 ];
 
@@ -28,7 +28,7 @@ export default async function ExpensesPage({ searchParams }: PageProps) {
         title="Gastos Fijos"
         gradient="blue"
         breadcrumbs={breadcrumbs}
-        backLink={{ href: "/", label: "Volver al Dashboard" }}
+        backLink={{ href: "/dashboard", label: "Volver al Dashboard" }}
       />
       <div className="mb-4">
         <Link

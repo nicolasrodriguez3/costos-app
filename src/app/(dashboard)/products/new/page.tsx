@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/PageHeader";
 import type { IngredientWithStock } from "@/types";
 
 const breadcrumbs = [
-  { href: "/", label: "Inicio" },
+  { href: "/dashboard", label: "Inicio" },
   { href: "/products", label: "Productos" },
   { href: "/products/new", label: "Nuevo Producto" },
 ];

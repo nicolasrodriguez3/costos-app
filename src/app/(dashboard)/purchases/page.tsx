@@ -1,14 +1,15 @@
+import { Blocks, Receipt } from "lucide-react";
+
+import { getIngredients } from "@/actions/ingredients";
+import { getPurchases } from "@/actions/purchases";
+import { PageHeader } from "@/components/PageHeader";
 import { PurchaseForm } from "@/components/PurchaseForm";
 import { PurchaseHistory } from "@/components/PurchaseHistory";
-import { PageHeader } from "@/components/PageHeader";
-import { getIngredients } from "@/actions/ingredients";
-import type { Purchase, IngredientWithStock } from "@/types";
-import { getPurchases } from "@/actions/purchases";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Receipt, Blocks } from "lucide-react";
+import type { IngredientWithStock, Purchase } from "@/types";
 
 const breadcrumbs = [
-  { href: "/", label: "Dashboard" },
+  { href: "/dashboard", label: "Dashboard" },
   { href: "/purchases", label: "Compras" },
 ];
 
@@ -22,7 +23,7 @@ export default async function PurchasesPage() {
         title="Compras de Ingredientes"
         gradient="orange"
         breadcrumbs={breadcrumbs}
-        backLink={{ href: "/", label: "Volver al Dashboard" }}
+        backLink={{ href: "/dashboard", label: "Volver al Dashboard" }}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 ">

@@ -25,10 +25,8 @@ interface CalculableIngredient extends Ingredient {
   cost: number;
 }
 
-interface CalculableRecipeItem extends Omit<
-  RecipeItem,
-  "ingredient" | "subProduct"
-> {
+interface CalculableRecipeItem
+  extends Omit<RecipeItem, "ingredient" | "subProduct"> {
   ingredient?: CalculableIngredient | null;
   subProduct?: CalculableProduct | null;
 }
@@ -73,7 +71,7 @@ export default async function ProductPage({
   }
 
   const breadcrumbs = [
-    { href: "/", label: "Inicio" },
+    { href: "/dashboard", label: "Inicio" },
     { href: "/products", label: "Productos" },
     { href: `/products/${product.slug}`, label: product.name },
   ];
@@ -90,7 +88,6 @@ export default async function ProductPage({
           title={product.name}
           gradient="purple"
           breadcrumbs={breadcrumbs}
-          // backLink={{ href: "/products", label: "Volver al catálogo" }}
           actions={
             <div className="flex items-center gap-3">
               <Link href={`/products/${product.slug}/edit`}>

@@ -1,9 +1,12 @@
+import { DollarSign, TrendingDown, TrendingUp } from "lucide-react";
+import Link from "next/link";
+
 import { getSalesHistory } from "@/actions/sales";
-import { PageHeader } from "@/components/PageHeader";
 import { FormattedDate } from "@/components/FormattedDate";
+import { PageHeader } from "@/components/PageHeader";
 import { SalesFilters } from "@/components/SalesFilters";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -12,8 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import Link from "next/link";
-import { TrendingUp, TrendingDown, DollarSign } from "lucide-react";
 
 interface PageProps {
   searchParams: Promise<{
@@ -23,6 +24,12 @@ interface PageProps {
     cursor?: string;
   }>;
 }
+
+const breadcrumbs = [
+  { href: "/dashboard", label: "Inicio" },
+  { href: "/sales", label: "Ventas" },
+  { href: "/sales/history", label: "Historial de Ventas" },
+];
 
 export default async function SalesHistoryPage({ searchParams }: PageProps) {
   const params = await searchParams;
@@ -55,6 +62,7 @@ export default async function SalesHistoryPage({ searchParams }: PageProps) {
       <PageHeader
         title="Historial de Ventas"
         gradient="green"
+        breadcrumbs={breadcrumbs}
         backLink={{ href: "/sales", label: "Volver a Ventas" }}
       />
 

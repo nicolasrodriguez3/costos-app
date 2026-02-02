@@ -7,7 +7,7 @@ interface PageProps {
 }
 
 const breadcrumbs = [
-  { href: "/", label: "Inicio" },
+  { href: "/dashboard", label: "Inicio" },
   { href: "/expenses", label: "Gastos Fijos" },
   { href: "/expenses/new", label: "Nuevo Gasto Fijo" },
 ];
@@ -26,7 +26,7 @@ export default async function ExpensesNewPage({ searchParams }: PageProps) {
         title="Gastos Fijos"
         gradient="blue"
         breadcrumbs={breadcrumbs}
-        backLink={{ href: "/", label: "Volver al Dashboard" }}
+        backLink={{ href: "/expenses", label: "Volver a Gastos Fijos" }}
       />
 
       <div className="max-w-4xl mx-auto mt-8">

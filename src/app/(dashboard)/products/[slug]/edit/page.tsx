@@ -24,7 +24,7 @@ export default async function ProductEditPage({
   }
 
   const breadcrumbs = [
-    { href: "/", label: "Inicio" },
+    { href: "/dashboard", label: "Inicio" },
     { href: "/products", label: "Productos" },
     { href: `/products/${product.slug}`, label: product.name },
     { href: `/products/${product.slug}/edit`, label: "Editar" },

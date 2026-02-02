@@ -1,8 +1,9 @@
-import { getDashboardStats } from "@/actions/dashboard";
-import { StatCard } from "@/components/StatCard";
-import { FormattedDate } from "@/components/FormattedDate";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Link from "next/link";
+
+import { getDashboardStats } from "@/actions/dashboard";
+import { FormattedDate } from "@/components/FormattedDate";
+import { StatCard } from "@/components/StatCard";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 export default async function Home() {
   const stats = await getDashboardStats();

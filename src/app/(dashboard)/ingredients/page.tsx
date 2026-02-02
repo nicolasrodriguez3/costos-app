@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getIngredients, deleteIngredient } from "@/actions/ingredients";
+
+import { deleteIngredient, getIngredients } from "@/actions/ingredients";
 import { IngredientForm } from "@/components/IngredientForm";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -9,7 +10,7 @@ interface PageProps {
 }
 
 const breadcrumbs = [
-  { href: "/", label: "Inicio" },
+  { href: "/dashboard", label: "Inicio" },
   { href: "/ingredients", label: "Ingredientes" },
 ];
 
@@ -27,7 +28,7 @@ export default async function IngredientsPage({ searchParams }: PageProps) {
         title="Ingredientes"
         gradient="orange"
         breadcrumbs={breadcrumbs}
-        backLink={{ href: "/", label: "Volver al Dashboard" }}
+        backLink={{ href: "/dashboard", label: "Volver al Dashboard" }}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

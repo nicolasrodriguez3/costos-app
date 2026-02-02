@@ -4,7 +4,7 @@ import { POSInterface } from "@/components/POSInterface";
 import Link from "next/link";
 
 const breadcrumbs = [
-  { href: "/", label: "Inicio" },
+  { href: "/dashboard", label: "Inicio" },
   { href: "/sales", label: "Ventas" },
 ];
 
@@ -25,7 +25,7 @@ export default async function SalesPage() {
           </Link>
         }
         breadcrumbs={breadcrumbs}
-        backLink={{ href: "dashboard/", label: "Volver al Dashboard" }}
+        backLink={{ href: "/dashboard", label: "Volver al Dashboard" }}
       />
 
       <div className="flex-1 min-h-0">

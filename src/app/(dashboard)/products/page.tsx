@@ -1,6 +1,8 @@
-import { ProductTableRow } from "@/components/ProductTableRow";
+import Link from "next/link";
+
 import { getProducts } from "@/actions/products";
 import { PageHeader } from "@/components/PageHeader";
+import { ProductTableRow } from "@/components/ProductTableRow";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -10,10 +12,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import Link from "next/link";
 
 const breadcrumbs = [
-  { href: "/", label: "Inicio" },
+  { href: "/dashboard", label: "Inicio" },
   { href: "/products", label: "Productos" },
 ];
 
@@ -26,7 +27,7 @@ export default async function ProductsPage() {
         title="Productos & Recetas"
         gradient="purple"
         breadcrumbs={breadcrumbs}
-        backLink={{ href: "/", label: "Volver al Dashboard" }}
+        backLink={{ href: "/dashboard", label: "Volver al Dashboard" }}
       />
 
       <div className="mb-4">

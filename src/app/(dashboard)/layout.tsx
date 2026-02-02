@@ -25,7 +25,7 @@ export default async function RootLayout({
 }>) {
   const session = await auth();
 
-  if (!session?.session) {
+  if (!session) {
     redirect("/login");
   }
 
@@ -39,7 +39,7 @@ export default async function RootLayout({
     <SidebarProvider defaultCollapsed={defaultCollapsed}>
       <TopBar title={appTitle} user={session?.user} />
       <div className="relative flex min-h-screen bg-gray-50">
-        <Sidebar user={session?.user} />
+        <Sidebar />
         <MainContentWrapper>
           <main className="flex-1">{children}</main>
         </MainContentWrapper>

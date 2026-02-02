@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { AccountView } from "./account-view";
 
 const breadcrumbs = [
-  { href: "/", label: "Inicio" },
+  { href: "/dashboard", label: "Inicio" },
   { href: "/account", label: "Mi cuenta" },
 ];
 
@@ -23,7 +23,7 @@ export default async function AccountPage() {
       <PageHeader
         title="Mi cuenta"
         subtitle="Gestiona tu perfil y configuración de cuenta"
-        backLink={{ href: "/", label: "Volver al Dashboard" }}
+        backLink={{ href: "/dashboard", label: "Volver al Dashboard" }}
         gradient="blue"
         breadcrumbs={breadcrumbs}
       />
