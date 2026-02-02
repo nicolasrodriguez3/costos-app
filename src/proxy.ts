@@ -13,14 +13,14 @@ export async function proxy(request: NextRequest) {
 
   // Redirect logged-in users away from auth pages
   if (isLoggedIn && isAuthRoute) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   // Protected routes that require authentication
   const protectedPrefixes = ["/ingredients", "/products", "/sales", "/account"];
-  const isProtectedRoute =
-    pathname === "/" ||
-    protectedPrefixes.some((prefix) => pathname.startsWith(prefix));
+  const isProtectedRoute = protectedPrefixes.some((prefix) =>
+    pathname.startsWith(prefix),
+  );
 
   // Redirect unauthenticated users to login
   if (isProtectedRoute && !isLoggedIn) {
