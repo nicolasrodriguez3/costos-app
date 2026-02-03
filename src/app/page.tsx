@@ -42,7 +42,18 @@ const title = envs.NEXT_PUBLIC_APP_TITLE;
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen text-white from-gray-900 via-gray-900 to-black bg-linear-to-br">
+    <div className="overflow-x-hidden relative min-h-screen text-white from-gray-900 via-gray-900 to-black bg-linear-to-br">
+      {/* Global Background Decorations */}
+      <div
+        className="overflow-hidden absolute inset-0 z-0 pointer-events-none"
+        style={{
+          backgroundImage: `
+            radial-gradient(800px circle at top right, rgba(249, 115, 22, 0.12) 0%, transparent 70%),
+            radial-gradient(800px circle at 0% 500px, rgba(239, 68, 68, 0.12) 0%, transparent 70%),
+            radial-gradient(1000px circle at 70% 99%, rgba(239, 68, 68, 0.09) 0%, transparent 70%)
+          `,
+        }}
+      />
       {/* Navigation */}
       <nav className="fixed top-0 right-0 left-0 z-50 border-b backdrop-blur-md bg-gray-900/80 border-white/5">
         <div className="px-4 mx-auto max-w-6xl sm:px-6 lg:px-8">
@@ -66,12 +77,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative px-4 py-32 sm:px-6 lg:px-8">
-        {/* Background decoration */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl bg-orange-500/20" />
-          <div className="absolute -left-40 w-80 h-80 rounded-full blur-3xl -bottom-30 bg-red-500/20" />
-        </div>
+      <section className="relative z-10 px-4 py-32 w-full sm:px-6 lg:px-8">
         <div className="relative mx-auto max-w-4xl text-center">
           <div className="inline-flex gap-2 items-center px-4 py-2 mb-8 text-sm text-gray-300 rounded-full border bg-white/5 border-white/10">
             <span>Disponible muy pronto</span>
@@ -141,11 +147,28 @@ export default function LandingPage() {
         id="waitlist"
         className="overflow-hidden relative px-4 py-20 sm:px-6 lg:px-8"
       >
-        <div className="mx-auto max-w-md transition-transform duration-300 group/card hover:scale-[102%]">
-          <div className="relative p-8 rounded-2xl bg-gray-950/40 border border-white/10 backdrop-blur-md transition-all duration-500 hover:border-orange-500/50 focus-within:border-orange-500/50 hover:shadow-[0_0_40px_rgba(249,115,22,0.15)] focus-within:shadow-[0_0_40px_rgba(249,115,22,0.15)] overflow-hidden">
-            <div className="absolute inset-0 rounded-2xl border border-transparent opacity-0 transition-opacity duration-500 pointer-events-none group-hover/card:opacity-100 group-focus-within/card:opacity-100 mask-[linear-gradient(white,white),linear-gradient(white,white)] [mask-clip:padding-box,border-box] mask-exclude [-webkit-mask-composite:destination-out]">
+        <div
+          className="mx-auto max-w-md transition-transform duration-300 group/card 
+          hover:scale-[102%]"
+        >
+          <div
+            className="relative p-8 rounded-2xl bg-gray-950/40 border 
+            border-white/10 backdrop-blur-md transition-all duration-500 
+            hover:border-orange-500/50 focus-within:border-orange-500/50 
+            hover:shadow-[0_0_40px_rgba(249,115,22,0.15)] 
+            focus-within:shadow-[0_0_40px_rgba(249,115,22,0.15)] overflow-hidden"
+          >
+            <div
+              className="absolute inset-0 rounded-2xl border-2 border-transparent 
+              opacity-0 transition-opacity duration-500 pointer-events-none 
+              group-hover/card:opacity-100 group-focus-within/card:opacity-100 
+              mask-[linear-gradient(white,white),linear-gradient(white,white)] 
+              [mask-clip:padding-box,border-box] mask-exclude 
+              [-webkit-mask-composite:destination-out]"
+            >
               <div
-                className="absolute -inset-full animate-spin-slow bg-[conic-gradient(from_0deg,transparent_0,transparent_45%,rgb(249,115,22)_50%,transparent_55%,transparent_100%)]"
+                className="absolute -inset-full animate-spin-slow 
+                  bg-[conic-gradient(from_0deg,transparent_0,transparent_45%,rgb(249,115,22)_50%,transparent_55%,transparent_100%)]"
                 style={{ animationDuration: "5s" }}
               />
             </div>
