@@ -86,7 +86,7 @@ export function WaitlistForm() {
           className="text-white bg-white/5 border-white/10 placeholder:text-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
         />
         {(errors.name || state.errors?.name) && (
-          <p className="text-sm text-red-400">
+          <p className="text-sm text-red-400 animate-fade-in">
             {errors.name?.message || state.errors?.name?.[0]}
           </p>
         )}
@@ -104,7 +104,7 @@ export function WaitlistForm() {
           className="text-white bg-white/5 border-white/10 placeholder:text-gray-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
         />
         {(errors.email || state.errors?.email) && (
-          <p className="text-sm text-red-400">
+          <p className="text-sm text-red-400 animate-fade-in">
             {errors.email?.message || state.errors?.email?.[0]}
           </p>
         )}
@@ -126,7 +126,9 @@ export function WaitlistForm() {
       </Button>
 
       {!state.success && state.message && (
-        <p className="text-sm text-center text-red-400">{state.message}</p>
+        <p className="text-sm text-center text-red-400 animate-fade-in">
+          {state.message}
+        </p>
       )}
     </form>
   );
