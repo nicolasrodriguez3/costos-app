@@ -1,24 +1,16 @@
 import type { Metadata } from "next";
 
-import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
+import { envs } from "@/config/envs";
+import { fontBody, fontMono, fontTitle } from "@/config/fonts";
+
 import "./globals.css";
 
-import { Toaster } from "@/components/ui/sonner";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
+const title = envs.NEXT_PUBLIC_APP_TITLE;
+const description = envs.NEXT_PUBLIC_APP_DESCRIPTION;
 export const metadata: Metadata = {
-  title: "Pizza Manager",
-  description:
-    "Gestiona tus ingredientes, recetas y ventas de pizzas en tiempo real.",
+  title,
+  description,
 };
 
 export default function RootLayout({
@@ -27,13 +19,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html
+      lang="es"
+      className={`${fontBody.variable} ${fontTitle.variable} ${fontMono.variable}`}
+    >
       <head>
-        <link rel="icon" href="/favicon.svg" />
+        <link rel="icon" href="/logo.svg" />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
-      >
+      <body className="overflow-x-hidden antialiased">
         {children}
         <Toaster position="top-center" />
       </body>

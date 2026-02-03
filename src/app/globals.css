@@ -48,7 +48,15 @@
 }
 
 /* ─── Tailwind Theme Integration ─────────── */
-@theme inline {
+@theme {
+  --font-sans:
+    var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-title: var(--font-geist-sans), var(--font-sans);
+  --font-mono:
+    var(--font-geist-mono), SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -163,11 +171,25 @@
 /* ─── Estilos Base ───────────────────────── */
 body {
   background-color: var(--background);
-  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   min-height: 100vh;
   transition:
     background-color var(--transition-normal),
     color var(--transition-normal);
+}
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: var(--font-title);
+}
+h1 {
+  letter-spacing: -0.02em;
+  font-weight: 900;
+}
+h2 {
+  letter-spacing: -0.01em;
 }
 
 /* ─── Utilidades Personalizadas ──────────── */

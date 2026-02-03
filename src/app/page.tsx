@@ -6,6 +6,7 @@ import {
   ShoppingCart,
   Sparkles,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 import { WaitlistForm } from "@/components/WaitlistForm";
@@ -59,7 +60,9 @@ export default function LandingPage() {
         <div className="px-4 mx-auto max-w-6xl sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex gap-2 items-center">
-              <span className="text-2xl">🍕</span>
+              <span className="text-2xl">
+                <Image src="/logo.svg" alt="Logo" width={32} height={32} />
+              </span>
               <span className="text-xl font-bold text-transparent bg-clip-text from-orange-400 to-red-500 bg-linear-to-r">
                 {title}
               </span>
