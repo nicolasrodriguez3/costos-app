@@ -2,6 +2,7 @@
 
 import { z } from "zod/v4";
 
+import { envs } from "@/config/envs";
 import { prisma } from "@/lib/prisma";
 
 const WaitlistSchema = z.object({
@@ -12,14 +13,15 @@ const WaitlistSchema = z.object({
 export type WaitlistState = {
   success: boolean;
   message: string;
+  name?: string;
   errors?: {
     name?: string[];
     email?: string[];
   };
 };
 
+const title = envs.NEXT_PUBLIC_APP_TITLE;
 export async function subscribeToWaitlist(
-  _prevState: WaitlistState,
   formData: FormData,
 ): Promise<WaitlistState> {
   const rawData = {
@@ -33,7 +35,7 @@ export async function subscribeToWaitlist(
     return {
       success: false,
       message: "Por favor corrige los errores del formulario",
-      errors: validatedFields.error.flatten().fieldErrors,
+      errors: z.flattenError(validatedFields.error).fieldErrors,
     };
   }
 
@@ -62,7 +64,7 @@ export async function subscribeToWaitlist(
 
     return {
       success: true,
-      message: "¡Genial! Te avisaremos cuando Pizza Manager esté disponible.",
+      message: `¡Genial! Te avisaremos cuando ${title} esté disponible.`,
     };
   } catch (error) {
     console.error("Error subscribing to waitlist:", error);

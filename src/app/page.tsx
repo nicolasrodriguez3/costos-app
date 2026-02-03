@@ -137,20 +137,33 @@ export default function LandingPage() {
       </section>
 
       {/* Waitlist Section */}
-      <section id="waitlist" className="px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-md">
-          <div className="p-8 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm transition-all duration-500 hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.3)]">
-            <div className="mb-8 text-center">
-              <span className="block mb-4 text-4xl">🚀</span>
-              <h2 className="mb-2 text-2xl font-bold sm:text-3xl">
-                Sé el primero en probarla
-              </h2>
-              <p className="text-gray-400">
-                Déjanos tu email y te avisaremos cuando {title} esté disponible.
-              </p>
+      <section
+        id="waitlist"
+        className="overflow-hidden relative px-4 py-20 sm:px-6 lg:px-8"
+      >
+        <div className="mx-auto max-w-md transition-transform duration-300 group/card hover:scale-[102%]">
+          <div className="relative p-8 rounded-2xl bg-gray-950/40 border border-white/10 backdrop-blur-md transition-all duration-500 hover:border-orange-500/50 focus-within:border-orange-500/50 hover:shadow-[0_0_40px_rgba(249,115,22,0.15)] focus-within:shadow-[0_0_40px_rgba(249,115,22,0.15)] overflow-hidden">
+            <div className="absolute inset-0 rounded-2xl border border-transparent opacity-0 transition-opacity duration-500 pointer-events-none group-hover/card:opacity-100 group-focus-within/card:opacity-100 mask-[linear-gradient(white,white),linear-gradient(white,white)] [mask-clip:padding-box,border-box] mask-exclude [-webkit-mask-composite:destination-out]">
+              <div
+                className="absolute -inset-full animate-spin-slow bg-[conic-gradient(from_0deg,transparent_0,transparent_45%,rgb(249,115,22)_50%,transparent_55%,transparent_100%)]"
+                style={{ animationDuration: "5s" }}
+              />
             </div>
 
-            <WaitlistForm />
+            <div className="relative z-10">
+              <div className="mb-8 text-center">
+                <span className="block mb-4 text-4xl">🚀</span>
+                <h2 className="mb-2 text-2xl font-bold sm:text-3xl">
+                  Sé el primero en probarla
+                </h2>
+                <p className="text-gray-400">
+                  Déjanos tu email y te avisaremos cuando {title} esté
+                  disponible.
+                </p>
+              </div>
+
+              <WaitlistForm />
+            </div>
           </div>
         </div>
       </section>
