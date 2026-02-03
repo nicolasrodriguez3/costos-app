@@ -6,6 +6,8 @@ import { useActionState } from "react";
 import { authenticate, register, RegisterState } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 
+const isAppReady = false;
+
 export function LoginForm() {
   const [errorMessage, dispatch, isPending] = useActionState(
     authenticate,
@@ -16,13 +18,13 @@ export function LoginForm() {
     <form action={dispatch} className="space-y-4">
       <div>
         <label
-          className="block text-sm font-medium text-gray-300 mb-1"
+          className="block mb-1 text-sm font-medium text-gray-300"
           htmlFor="email"
         >
           Email
         </label>
         <input
-          className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-orange-500 outline-none"
+          className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
           id="email"
           type="email"
           name="email"
@@ -32,13 +34,13 @@ export function LoginForm() {
       </div>
       <div>
         <label
-          className="block text-sm font-medium text-gray-300 mb-1"
+          className="block mb-1 text-sm font-medium text-gray-300"
           htmlFor="password"
         >
           Contraseña
         </label>
         <input
-          className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-orange-500 outline-none"
+          className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
           id="password"
           type="password"
           name="password"
@@ -46,7 +48,7 @@ export function LoginForm() {
           minLength={6}
         />
       </div>
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <div className="text-sm">
           <Link
             href="/register"
@@ -59,7 +61,7 @@ export function LoginForm() {
       <div>
         <Button
           variant="default"
-          className="w-full justify-center bg-orange-600 hover:bg-orange-700 text-white"
+          className="justify-center w-full text-white bg-orange-600 hover:bg-orange-700"
           disabled={isPending}
         >
           {isPending ? "Iniciando sesión..." : "Iniciar sesión"}
@@ -67,7 +69,7 @@ export function LoginForm() {
       </div>
       {errorMessage && (
         <div
-          className="flex h-8 items-end space-x-1"
+          className="flex items-end space-x-1 h-8"
           aria-live="polite"
           aria-atomic="true"
         >
@@ -90,13 +92,13 @@ export function RegisterForm() {
     <form action={dispatch} className="space-y-4">
       <div>
         <label
-          className="block text-sm font-medium text-gray-300 mb-1"
+          className="block mb-1 text-sm font-medium text-gray-300"
           htmlFor="name"
         >
           Nombre
         </label>
         <input
-          className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-orange-500 outline-none"
+          className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
           id="name"
           type="text"
           name="name"
@@ -104,36 +106,36 @@ export function RegisterForm() {
           required
         />
         {state.errors?.name && (
-          <p className="text-sm text-red-500 mt-1">{state.errors.name[0]}</p>
+          <p className="mt-1 text-sm text-red-500">{state.errors.name[0]}</p>
         )}
       </div>
       <div>
         <label
-          className="block text-sm font-medium text-gray-300 mb-1"
+          className="block mb-1 text-sm font-medium text-gray-300"
           htmlFor="email"
         >
           Email
         </label>
         <input
-          className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-orange-500 outline-none"
+          className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
           id="email"
           type="email"
           name="email"
           required
         />
         {state.errors?.email && (
-          <p className="text-sm text-red-500 mt-1">{state.errors.email[0]}</p>
+          <p className="mt-1 text-sm text-red-500">{state.errors.email[0]}</p>
         )}
       </div>
       <div>
         <label
-          className="block text-sm font-medium text-gray-300 mb-1"
+          className="block mb-1 text-sm font-medium text-gray-300"
           htmlFor="password"
         >
           Contraseña
         </label>
         <input
-          className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-orange-500 outline-none"
+          className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
           id="password"
           type="password"
           name="password"
@@ -141,12 +143,12 @@ export function RegisterForm() {
           minLength={6}
         />
         {state.errors?.password && (
-          <p className="text-sm text-red-500 mt-1">
+          <p className="mt-1 text-sm text-red-500">
             {state.errors.password[0]}
           </p>
         )}
       </div>
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <div className="text-sm">
           <Link
             href="/login"
@@ -159,14 +161,14 @@ export function RegisterForm() {
       <div>
         <Button
           variant="default"
-          className="w-full justify-center bg-orange-600 hover:bg-orange-700 text-white"
-          disabled={isPending}
+          className="justify-center w-full text-white bg-orange-600 hover:bg-orange-700"
+          disabled={isPending || !isAppReady}
         >
           {isPending ? "Creando cuenta..." : "Crear cuenta"}
         </Button>
       </div>
       {state.message && (
-        <p className="text-sm text-red-500 text-center">{state.message}</p>
+        <p className="text-sm text-center text-red-500">{state.message}</p>
       )}
     </form>
   );
