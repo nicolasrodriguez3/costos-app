@@ -42,56 +42,60 @@ const title = envs.NEXT_PUBLIC_APP_TITLE;
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-900 to-black text-white">
+    <div className="min-h-screen text-white from-gray-900 via-gray-900 to-black bg-linear-to-br">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-900/80 backdrop-blur-md border-b border-white/5">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2">
+      <nav className="fixed top-0 right-0 left-0 z-50 border-b backdrop-blur-md bg-gray-900/80 border-white/5">
+        <div className="px-4 mx-auto max-w-6xl sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link href="/" className="flex gap-2 items-center">
               <span className="text-2xl">🍕</span>
-              <span className="font-bold text-xl bg-linear-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
+              <span className="text-xl font-bold text-transparent bg-clip-text from-orange-400 to-red-500 bg-linear-to-r">
                 {title}
               </span>
-            </div>
-            <Link
-              href="/login"
-              className="text-sm text-gray-300 hover:text-white transition-colors"
-            >
-              Iniciar sesión
             </Link>
+            <div className="flex relative gap-2 items-center">
+              <div className="relative z-0 text-sm text-gray-300 transition-colors peer">
+                Iniciar sesión
+              </div>
+              <span className="absolute -top-3 left-1/2 z-20 px-2 py-0.5 text-sm text-orange-500 whitespace-nowrap bg-white rounded-full border opacity-0 transition-opacity -translate-x-1/2 pointer-events-none border-white/10 peer-hover:opacity-100">
+                ¡Muy pronto!
+              </span>
+            </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative py-32 px-4 sm:px-6 lg:px-8">
+      <section className="relative px-4 py-32 sm:px-6 lg:px-8">
         {/* Background decoration */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-500/20 rounded-full blur-3xl" />
-          <div className="absolute -bottom-30 -left-40 w-80 h-80 bg-red-500/20 rounded-full blur-3xl" />
+          <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl bg-orange-500/20" />
+          <div className="absolute -left-40 w-80 h-80 rounded-full blur-3xl -bottom-30 bg-red-500/20" />
         </div>
-        <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-gray-300 mb-8">
+        <div className="relative mx-auto max-w-4xl text-center">
+          <div className="inline-flex gap-2 items-center px-4 py-2 mb-8 text-sm text-gray-300 rounded-full border bg-white/5 border-white/10">
+            <span>Disponible muy pronto</span>
             <Sparkles className="w-4 h-4 text-orange-400" />
-            <span>Próximamente disponible</span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
-            <span className="bg-linear-to-r from-orange-400 via-red-500 to-orange-600 bg-clip-text text-transparent">
-              Gestiona tu pizzería
+          <h1 className="mb-6 text-4xl font-extrabold leading-tight sm:text-5xl md:text-6xl">
+            <span className="text-white">Controlá los</span>
+            <br />
+            <span className="text-transparent bg-clip-text from-orange-400 via-red-500 to-orange-600 bg-linear-to-r">
+              números de tu negocio
             </span>
             <br />
             <span className="text-white">como un profesional</span>
           </h1>
 
-          <p className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10">
+          <p className="mx-auto mb-10 max-w-2xl text-lg text-gray-400 sm:text-xl">
             Controla ingredientes, calcula costos automáticamente, registra
             ventas y visualiza el rendimiento de tu negocio en un solo lugar.
           </p>
 
           <a
             href="#waitlist"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-linear-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg shadow-orange-500/25"
+            className="inline-flex gap-2 items-center px-8 py-4 text-lg font-semibold from-orange-500 to-red-600 rounded-xl shadow-lg transition-all duration-300 transform bg-linear-to-r hover:from-orange-600 hover:to-red-700 hover:scale-105 shadow-orange-500/25"
           >
             Únete a la lista de espera
             <ArrowRight className="w-5 h-5" />
@@ -100,31 +104,31 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+      <section className="px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-16 text-center">
+            <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
               Todo lo que necesitas para{" "}
-              <span className="bg-linear-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
+              <span className="text-transparent bg-clip-text from-orange-400 to-red-500 bg-linear-to-r">
                 tu negocio
               </span>
             </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            <p className="mx-auto max-w-2xl text-lg text-gray-400">
               Herramientas diseñadas específicamente para pizzerías y negocios
               de comida.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {features.map((feature) => (
               <div
                 key={feature.title}
-                className="group p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-orange-500/30 transition-all duration-300"
+                className="p-6 rounded-2xl border transition-all duration-300 group bg-white/5 border-white/10 hover:bg-white/10 hover:border-orange-500/30"
               >
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-br from-orange-500/20 to-red-500/20 text-orange-400 mb-4 group-hover:scale-110 transition-transform">
+                <div className="inline-flex justify-center items-center mb-4 w-12 h-12 text-orange-400 rounded-xl transition-transform bg-linear-to-br from-orange-500/20 to-red-500/20 group-hover:scale-110">
                   <feature.icon className="w-6 h-6" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <h3 className="mb-2 text-xl font-semibold">{feature.title}</h3>
                 <p className="text-gray-400">{feature.description}</p>
               </div>
             ))}
@@ -133,17 +137,16 @@ export default function LandingPage() {
       </section>
 
       {/* Waitlist Section */}
-      <section id="waitlist" className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md mx-auto">
+      <section id="waitlist" className="px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-md">
           <div className="p-8 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm transition-all duration-500 hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.3)]">
-            <div className="text-center mb-8">
-              <span className="text-4xl mb-4 block">🚀</span>
-              <h2 className="text-2xl sm:text-3xl font-bold mb-2">
+            <div className="mb-8 text-center">
+              <span className="block mb-4 text-4xl">🚀</span>
+              <h2 className="mb-2 text-2xl font-bold sm:text-3xl">
                 Sé el primero en probarla
               </h2>
               <p className="text-gray-400">
-                Déjanos tu email y te avisaremos cuando Pizza Manager esté
-                disponible.
+                Déjanos tu email y te avisaremos cuando {title} esté disponible.
               </p>
             </div>
 
@@ -153,8 +156,8 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-4 border-t border-white/5">
-        <div className="max-w-6xl mx-auto text-center text-gray-500 text-sm">
+      <footer className="px-4 py-8 border-t border-white/5">
+        <div className="mx-auto max-w-6xl text-sm text-center text-gray-500">
           <p>© 2026 {title}. Todos los derechos reservados.</p>
         </div>
       </footer>
