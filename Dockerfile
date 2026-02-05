@@ -15,13 +15,12 @@ FROM base AS builder
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+COPY .env ./.env
 
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
 # Prisma generate
-ARG DATABASE_URL
-ENV DATABASE_URL=$DATABASE_URL
 RUN pnpm prisma generate
 
 # Build Next.js
@@ -43,7 +42,7 @@ ENV PORT="3000"
 RUN addgroup -g 1001 -S nodejs \
  && adduser -S nextjs -u 1001
 
- # Copiar archivos necesarios
+# Copiar archivos necesarios
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public

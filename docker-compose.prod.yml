@@ -19,8 +19,6 @@ services:
   app:
     build:
       context: .
-      args:
-        DATABASE_URL: ${DATABASE_URL}
     container_name: costos_app
     restart: unless-stopped
     env_file:
@@ -51,8 +49,6 @@ services:
     build:
       context: .
       target: builder # Reutiliza la etapa 'builder'
-      args:
-        DATABASE_URL: ${DATABASE_URL}
     env_file:
       - .env
     container_name: costos_migrate
