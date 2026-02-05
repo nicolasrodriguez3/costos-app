@@ -1,8 +1,6 @@
 "use client";
 
 import { ListIcon } from "@phosphor-icons/react";
-import { User } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { ReactNode } from "react";
 
@@ -11,11 +9,12 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "@/store/sidebar-store";
 import { SidebarToggle } from "./SidebarToggle";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 interface TopBarProps {
   title: string;
   primaryAction?: ReactNode;
-  user?: {
+  user: {
     name?: string | null;
     email?: string | null;
     image?: string | null;
@@ -34,6 +33,15 @@ export function TopBar({ title, primaryAction, user, className }: TopBarProps) {
     toggleCollapseStore();
     await toggleSidebarCookie(!isCollapsed);
   };
+
+  const initials = user.name
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : "U";
 
   return (
     <header
@@ -64,19 +72,12 @@ export function TopBar({ title, primaryAction, user, className }: TopBarProps) {
             href="/account"
             className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-linear-to-br from-orange-400 to-red-500 text-white">
-              {user.image ? (
-                <Image
-                  src={user.image}
-                  alt={user.name || "Usuario"}
-                  width={32}
-                  height={32}
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-              ) : (
-                <User size={16} />
-              )}
-            </div>
+            <Avatar className="h-8 w-8">
+              {user.image && <AvatarImage src={user.image} />}
+              <AvatarFallback className="bg-linear-to-br from-orange-400 to-red-500 text-white text-xl font-bold">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
           </Link>
         )}
       </div>
@@ -103,19 +104,12 @@ export function TopBar({ title, primaryAction, user, className }: TopBarProps) {
               href="/account"
               className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
             >
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-linear-to-br from-orange-400 to-red-500 text-white">
-                {user.image ? (
-                  <Image
-                    src={user.image}
-                    alt={user.name || "Usuario"}
-                    width={40}
-                    height={40}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                ) : (
-                  <User size={20} />
-                )}
-              </div>
+              <Avatar className="h-10 w-10">
+                {user.image && <AvatarImage src={user.image} />}
+                <AvatarFallback className="bg-linear-to-br from-orange-400 to-red-500 text-white text-xl font-bold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
               <div className="hidden lg:block text-left">
                 <p className="text-sm font-medium text-gray-800 truncate max-w-[120px]">
                   {user.name || "Usuario"}

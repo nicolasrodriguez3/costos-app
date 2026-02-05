@@ -32,6 +32,7 @@ export default async function AccountPage() {
         user={{
           name: data.name,
           email: data.email,
+          image: data.image,
         }}
         organization={data.organizationDetails}
         isOwner={isOwner}

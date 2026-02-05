@@ -1,11 +1,19 @@
 "use client";
 
+import {
+  Building2,
+  Loader2,
+  LogOut,
+  Save,
+  User as UserIcon,
+} from "lucide-react";
 import { useState } from "react";
-import { updateProfile, updateOrganization } from "@/actions/user";
-import { handleSignOut } from "@/actions/auth";
+import { toast } from "sonner";
+
+import { signOutAction } from "@/actions/auth";
+import { updateOrganization, updateProfile } from "@/actions/user";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -14,20 +22,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { toast } from "sonner";
-import {
-  Loader2,
-  LogOut,
-  User as UserIcon,
-  Building2,
-  Save,
-} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface AccountViewProps {
   user: {
     name: string | null;
     email: string;
+    image: string | null;
   };
   organization: {
     name: string;
@@ -38,6 +40,7 @@ interface AccountViewProps {
 export function AccountView({ user, organization, isOwner }: AccountViewProps) {
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isUpdatingOrg, setIsUpdatingOrg] = useState(false);
+  const [isClosingSession, setIsClosingSession] = useState(false);
 
   // Helper to get initials
   const initials = user.name
@@ -75,6 +78,12 @@ export function AccountView({ user, organization, isOwner }: AccountViewProps) {
     }
   }
 
+  async function handleSignOut() {
+    setIsClosingSession(true);
+    await signOutAction();
+    setIsClosingSession(false);
+  }
+
   return (
     <div className="grid gap-8 md:grid-cols-2">
       {/* Profile Section */}
@@ -83,6 +92,7 @@ export function AccountView({ user, organization, isOwner }: AccountViewProps) {
           <CardHeader>
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
+                {user.image && <AvatarImage src={user.image} />}
                 <AvatarFallback className="bg-gray-500/10 text-primary text-xl font-bold">
                   {initials}
                 </AvatarFallback>
@@ -154,9 +164,19 @@ export function AccountView({ user, organization, isOwner }: AccountViewProps) {
                 Finalizar tu sesión actual de forma segura.
               </p>
             </div>
-            <form action={handleSignOut}>
-              <Button variant="destructive" size="sm">
-                <LogOut className="mr-2 h-4 w-4" />
+            <form>
+              <Button
+                onClick={handleSignOut}
+                variant="destructive"
+                size="sm"
+                className="cursor-pointer"
+                disabled={isClosingSession}
+              >
+                {isClosingSession ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <LogOut className="mr-2 h-4 w-4" />
+                )}
                 Salir
               </Button>
             </form>

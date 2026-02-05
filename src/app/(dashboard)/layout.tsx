@@ -37,7 +37,7 @@ export default async function RootLayout({
 
   return (
     <SidebarProvider defaultCollapsed={defaultCollapsed}>
-      <TopBar title={appTitle} user={session?.user} />
+      <TopBar title={appTitle} user={session.user} />
       <div className="relative flex min-h-screen bg-gray-50">
         <Sidebar />
         <MainContentWrapper>
