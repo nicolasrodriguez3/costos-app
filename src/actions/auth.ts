@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { AUTH_CONFIG } from "@/config/auth.config";
 import { authConfig } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -49,7 +50,14 @@ export async function authenticate(
     });
   } catch (error) {
     if (error instanceof APIError) {
-      return error.message;
+      console.error("APIERROR:", error);
+      switch (error.status) {
+        case "BAD_REQUEST":
+        case "UNAUTHORIZED":
+          return "Correo electrónico o contraseña inválidos.";
+        default:
+          return error.message;
+      }
     }
     // Next.js redirect throws a specific error that should not be caught
     if (error instanceof Error && error.message === "NEXT_REDIRECT") {
@@ -58,7 +66,7 @@ export async function authenticate(
     console.error("Authentication error:", error);
     return "Algo salió mal al iniciar sesión.";
   }
-  redirect("/");
+  redirect("/dashboard");
 }
 
 /**
@@ -99,27 +107,7 @@ export async function register(
 
     const userId = result.user.id;
 
-    // 2. Auto-create organization and membership
-    const orgName = name ? `${name}'s Business` : "My Business";
-
-    const organization = await prisma.organization.create({
-      data: {
-        name: orgName,
-      },
-    });
-    // 3. Update user with mandatory organizationId
-    await prisma.user.update({
-      where: { id: userId },
-      data: { organizationId: organization.id },
-    });
-    // 4. Create organization membership
-    await prisma.organizationMember.create({
-      data: {
-        organizationId: organization.id,
-        userId: userId,
-        role: "OWNER",
-      },
-    });
+    await createOrganizationAndAddUser(userId, name);
 
     await authConfig.api.signInEmail({
       body: {
@@ -130,7 +118,21 @@ export async function register(
     });
   } catch (error) {
     if (error instanceof APIError) {
-      return { message: error.message };
+      console.log("APIERROR:", error.body);
+      switch (error.body?.code) {
+        case "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL":
+          return { message: "El correo electrónico ya está registrado." };
+        case "PASSWORD_TOO_SHORT":
+          return {
+            message: `La contraseña es muy corta. Mínimo ${AUTH_CONFIG.MIN_PASSWORD_LENGTH} caracteres.`,
+          };
+        case "PASSWORD_TOO_LONG":
+          return {
+            message: `La contraseña es muy larga. Máximo ${AUTH_CONFIG.MAX_PASSWORD_LENGTH} caracteres.`,
+          };
+        default:
+          return { message: error.message };
+      }
     }
     if (error instanceof Error && error.message === "NEXT_REDIRECT") {
       throw error;
@@ -139,13 +141,13 @@ export async function register(
     return { message: "Error de servidor: No se pudo completar el registro." };
   }
 
-  redirect("/");
+  redirect("/dashboard");
 }
 
 /**
  * Server Action to sign out the current user.
  */
-export async function handleSignOut() {
+export async function signOutAction() {
   try {
     await authConfig.api.signOut({
       headers: await headers(),
@@ -157,4 +159,35 @@ export async function handleSignOut() {
     console.error("Sign out error:", error);
   }
   redirect("/login");
+}
+
+export async function createOrganizationAndAddUser(
+  userId: string,
+  name?: string,
+) {
+  try {
+    const orgName = name ? `Empresa de ${name}` : "Mi Empresa";
+
+    return await prisma.$transaction(async (tx) => {
+      const org = await tx.organization.create({
+        data: {
+          name: orgName,
+        },
+      });
+      await tx.user.update({
+        where: { id: userId },
+        data: { organizationId: org.id },
+      });
+      await tx.organizationMember.create({
+        data: {
+          organizationId: org.id,
+          userId: userId,
+          role: "OWNER",
+        },
+      });
+    });
+  } catch (error) {
+    console.error("Failed to create organization and add user:", error);
+    throw error;
+  }
 }

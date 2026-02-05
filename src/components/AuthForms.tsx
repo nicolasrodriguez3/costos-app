@@ -1,21 +1,72 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-import { authenticate, register, RegisterState } from "@/actions/auth";
+import { authenticate, register } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
+import { SignInSocialButton } from "./SingInSocialButton";
 
-const isAppReady = false;
+const isAppReady = true;
+
+// Validation schemas
+const LoginSchema = z.object({
+  email: z
+    .string()
+    .email({ message: "Por favor, ingrese un correo electrónico válido." }),
+  password: z
+    .string()
+    .min(6, { message: "La contraseña debe tener al menos 6 caracteres." }),
+});
+
+const RegisterSchema = z.object({
+  name: z
+    .string()
+    .min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
+  email: z
+    .string()
+    .email({ message: "Por favor, ingrese un correo electrónico válido." }),
+  password: z
+    .string()
+    .min(6, { message: "La contraseña debe tener al menos 6 caracteres." }),
+});
+
+type LoginFormData = z.infer<typeof LoginSchema>;
+type RegisterFormData = z.infer<typeof RegisterSchema>;
 
 export function LoginForm() {
-  const [errorMessage, dispatch, isPending] = useActionState(
-    authenticate,
-    undefined,
-  );
+  const [errorMessage, setErrorMessage] = useState<string | undefined>();
+  const [isPending, startTransition] = useTransition();
+
+  const {
+    register: registerField,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(LoginSchema),
+  });
+
+  const onSubmit = (data: LoginFormData) => {
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+
+      const result = await authenticate(undefined, formData);
+      if (result) {
+        setErrorMessage(result);
+      }
+    });
+  };
 
   return (
-    <form action={dispatch} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div>
+        <SignInSocialButton provider="google" />
+      </div>
       <div>
         <label
           className="block mb-1 text-sm font-medium text-gray-300"
@@ -24,13 +75,15 @@ export function LoginForm() {
           Email
         </label>
         <input
+          {...registerField("email")}
           className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
           id="email"
           type="email"
-          name="email"
-          placeholder="user@example.com"
-          required
+          placeholder="tu@correo.com.ar"
         />
+        {errors.email && (
+          <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
+        )}
       </div>
       <div>
         <label
@@ -40,13 +93,14 @@ export function LoginForm() {
           Contraseña
         </label>
         <input
+          {...registerField("password")}
           className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
           id="password"
           type="password"
-          name="password"
-          required
-          minLength={6}
         />
+        {errors.password && (
+          <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
+        )}
       </div>
       <div className="flex justify-between items-center">
         <div className="text-sm">
@@ -60,6 +114,7 @@ export function LoginForm() {
       </div>
       <div>
         <Button
+          type="submit"
           variant="default"
           className="justify-center w-full text-white bg-orange-600 hover:bg-orange-700"
           disabled={isPending}
@@ -80,16 +135,37 @@ export function LoginForm() {
   );
 }
 
-const initialRegisterState: RegisterState = { message: "", errors: {} };
-
 export function RegisterForm() {
-  const [state, dispatch, isPending] = useActionState(
-    register,
-    initialRegisterState,
-  );
+  const [serverError, setServerError] = useState<string | undefined>();
+  const [isPending, startTransition] = useTransition();
+
+  const {
+    register: registerField,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(RegisterSchema),
+  });
+
+  const onSubmit = (data: RegisterFormData) => {
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+
+      const result = await register({ message: "", errors: {} }, formData);
+      if (result.message || result.errors) {
+        setServerError(result.message);
+      }
+    });
+  };
 
   return (
-    <form action={dispatch} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div>
+        <SignInSocialButton provider="google" signUp />
+      </div>
       <div>
         <label
           className="block mb-1 text-sm font-medium text-gray-300"
@@ -98,15 +174,14 @@ export function RegisterForm() {
           Nombre
         </label>
         <input
+          {...registerField("name")}
           className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
           id="name"
           type="text"
-          name="name"
-          placeholder="John Doe"
-          required
+          placeholder="Tu nombre"
         />
-        {state.errors?.name && (
-          <p className="mt-1 text-sm text-red-500">{state.errors.name[0]}</p>
+        {errors.name && (
+          <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>
         )}
       </div>
       <div>
@@ -117,14 +192,14 @@ export function RegisterForm() {
           Email
         </label>
         <input
+          {...registerField("email")}
           className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
           id="email"
           type="email"
-          name="email"
-          required
+          placeholder="tu@correo.com.ar"
         />
-        {state.errors?.email && (
-          <p className="mt-1 text-sm text-red-500">{state.errors.email[0]}</p>
+        {errors.email && (
+          <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
         )}
       </div>
       <div>
@@ -135,17 +210,13 @@ export function RegisterForm() {
           Contraseña
         </label>
         <input
+          {...registerField("password")}
           className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
           id="password"
           type="password"
-          name="password"
-          required
-          minLength={6}
         />
-        {state.errors?.password && (
-          <p className="mt-1 text-sm text-red-500">
-            {state.errors.password[0]}
-          </p>
+        {errors.password && (
+          <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
         )}
       </div>
       <div className="flex justify-between items-center">
@@ -160,6 +231,7 @@ export function RegisterForm() {
       </div>
       <div>
         <Button
+          type="submit"
           variant="default"
           className="justify-center w-full text-white bg-orange-600 hover:bg-orange-700"
           disabled={isPending || !isAppReady}
@@ -167,8 +239,8 @@ export function RegisterForm() {
           {isPending ? "Creando cuenta..." : "Crear cuenta"}
         </Button>
       </div>
-      {state.message && (
-        <p className="text-sm text-center text-red-500">{state.message}</p>
+      {serverError && (
+        <p className="text-sm text-center text-red-500">{serverError}</p>
       )}
     </form>
   );

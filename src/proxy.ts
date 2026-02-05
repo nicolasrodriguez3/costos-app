@@ -2,6 +2,9 @@ import { getSessionCookie } from "better-auth/cookies";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
+import { authConfig } from "@/lib/auth";
+import { createOrganizationAndAddUser } from "./actions/auth";
+
 export async function proxy(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
   const isLoggedIn = !!sessionCookie;
@@ -25,6 +28,21 @@ export async function proxy(request: NextRequest) {
   // Redirect unauthenticated users to login
   if (isProtectedRoute && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  // Redirect users without organization to onboarding
+  if (isLoggedIn && pathname !== "/onboarding" && pathname !== "/login") {
+    const session = await authConfig.api.getSession({
+      headers: request.headers,
+    });
+    if (!session?.user.id) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+    if (!session?.user.organizationId) {
+      // return NextResponse.redirect(new URL("/onboarding", request.url));
+      console.log("User without organization");
+      await createOrganizationAndAddUser(session.user.id, session.user.name);
+    }
   }
 
   return NextResponse.next();
