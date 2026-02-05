@@ -5,6 +5,12 @@ const nextConfig: NextConfig = {
   output: "standalone",
   images: {
     path: "/",
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+      },
+    ],
   },
 };
 
