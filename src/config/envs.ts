@@ -2,14 +2,15 @@ import "dotenv/config";
 
 import { z } from "zod";
 
-const nodeEnvSchema = z.enum(["development", "test", "production"]);
-const baseEnvSchema = {
-  NODE_ENV: nodeEnvSchema,
-  PORT: z.coerce.number().int().positive(),
+const publicEnvSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.url(),
   NEXT_PUBLIC_APP_TITLE: z.string().min(1),
   NEXT_PUBLIC_APP_DESCRIPTION: z.string().optional(),
+});
 
+const serverEnvSchema = z.object({
+  PORT: z.coerce.number().optional(),
+  NODE_ENV: z.enum(["development", "test", "production"]),
   DATABASE_URL: z.string().min(1),
   POSTGRES_DB: z.string().min(1),
   POSTGRES_USER: z.string().min(1),
@@ -17,34 +18,53 @@ const baseEnvSchema = {
 
   BETTER_AUTH_SECRET: z.string().min(1),
   BETTER_AUTH_URL: z.url(),
+
+  GOOGLE_CLIENT_ID: z.string().min(1),
+  GOOGLE_CLIENT_SECRET: z.string().min(1),
+});
+
+const allEnvSchema = publicEnvSchema.merge(serverEnvSchema);
+
+// Infer the full type (Server + Client)
+type ServerEnv = z.infer<typeof allEnvSchema>;
+
+const getEnvs = (): ServerEnv => {
+  const isServer = typeof window === "undefined";
+
+  if (isServer) {
+    // Server: Validate everything
+    const parsed = allEnvSchema.safeParse(process.env);
+
+    if (!parsed.success) {
+      console.error(
+        "❌ Invalid server environment variables:",
+        z.treeifyError(parsed.error),
+      );
+      throw new Error("Invalid environment variables");
+    }
+    return parsed.data;
+  } else {
+    // Client: Validate public only
+    const clientEnv = {
+      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+      NEXT_PUBLIC_APP_TITLE: process.env.NEXT_PUBLIC_APP_TITLE,
+      NEXT_PUBLIC_APP_DESCRIPTION: process.env.NEXT_PUBLIC_APP_DESCRIPTION,
+    };
+
+    const parsed = publicEnvSchema.safeParse(clientEnv);
+
+    if (!parsed.success) {
+      console.error(
+        "❌ Invalid client environment variables:",
+        z.treeifyError(parsed.error),
+      );
+      throw new Error("Invalid environment variables");
+    }
+
+    // Cast to ServerEnv (the full type) for consistent types across the app.
+    // In the browser, only public keys will be available at runtime.
+    return parsed.data as ServerEnv;
+  }
 };
-const devEnvSchema = z.object({
-  ...baseEnvSchema,
-  NODE_ENV: z.literal("development"),
-});
 
-const testEnvSchema = z.object({
-  ...baseEnvSchema,
-  NODE_ENV: z.literal("test"),
-});
-
-const prodEnvSchema = z.object({
-  ...baseEnvSchema,
-  NODE_ENV: z.literal("production"),
-});
-const envSchema = z.discriminatedUnion("NODE_ENV", [
-  devEnvSchema,
-  testEnvSchema,
-  prodEnvSchema,
-]);
-
-const parsedEnv = envSchema.safeParse(process.env);
-
-if (!parsedEnv.success) {
-  // console.error(z.treeifyError(parsedEnv.error));
-  console.error(parsedEnv.error.issues);
-
-  throw new Error("Invalid environment variables");
-}
-
-export const envs = parsedEnv.data;
+export const envs = getEnvs();
