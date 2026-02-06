@@ -75,69 +75,15 @@ services:
     env_file:
       - .env
     volumes:
-      - /backups:/backups  # Montar directorio del HOST
+      - /backups:/backups
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-    environment:
-      - TZ=America/Argentina/Buenos_Aires
-      - PGPASSWORD=${POSTGRES_PASSWORD}
-    entrypoint: ["/bin/sh", "-c"]
-    command: |
-      # Crear directorio si no existe
-      mkdir -p /backups
-      
-      # Variables
-      DB_HOST="db"
-      DB_USER="${POSTGRES_USER}"
-      DB_NAME="${POSTGRES_DB}"
-      DATE=$(date +%Y%m%d_%H%M%S)
-      BACKUP_FILE="/backups/${DB_NAME}_backup_$${DATE}.sql.gz"
-      
-      echo "=== INICIANDO BACKUP PRODUCCIÓN ==="
-      echo "Hora: $(date)"
-      echo "Base de datos: $${DB_NAME}"
-      echo "Usuario: $${DB_USER}"
-      echo "Archivo: $${BACKUP_FILE}"
-      
-      # Ejecutar backup comprimido
-      if pg_dump -h $${DB_HOST} -U $${DB_USER} -d $${DB_NAME} --clean --if-exists | gzip -9 > $${BACKUP_FILE}; then
-          BACKUP_SIZE=$(du -h $${BACKUP_FILE} | cut -f1)
-          echo "✅ Backup completado: $${BACKUP_SIZE}"
-          
-          # Limpiar backups antiguos
-          RETENTION=${RETENTION_DAYS:-7}
-          find /backups -name "*.sql.gz" -mtime +$${RETENTION} -delete 2>/dev/null || true
-          
-          # Mantener máximo número de backups
-          MAX=${MAX_BACKUPS:-10}
-          BACKUP_COUNT=$(ls -1 /backups/*.sql.gz 2>/dev/null | wc -l)
-          if [ $${BACKUP_COUNT} -gt $${MAX} ]; then
-              ls -1t /backups/*.sql.gz | tail -n $((${BACKUP_COUNT} - ${MAX})) | xargs rm -f
-          fi
-          
-          # Listar backups actuales
-          echo "=== BACKUPS DISPONIBLES ==="
-          ls -lh /backups/*.sql.gz 2>/dev/null || echo "No hay backups"
-          
-          # Enviar notificación si está configurado
-          if [ -n "$${TELEGRAM_BOT_TOKEN}" ] && [ -n "$${TELEGRAM_CHAT_ID}" ] && [ "$${ENABLE_NOTIFICATIONS}" = "true" ]; then
-              curl -s -X POST "https://api.telegram.org/bot$${TELEGRAM_BOT_TOKEN}/sendMessage" \
-                -d chat_id="$${TELEGRAM_CHAT_ID}" \
-                -d text="✅ *BACKUP COMPLETADO*\n\nBase: \`$${DB_NAME}\`\nArchivo: \`$(basename $${BACKUP_FILE})\`\nTamaño: $${BACKUP_SIZE}\nHora: $(date '+%d/%m/%Y %H:%M:%S')\n\n💾 Retención: $${RETENTION} días" \
-                -d parse_mode="Markdown" > /dev/null 2>&1
-          fi
-          
-      else
-          echo "❌ ERROR en el backup"
-          # Notificación de error
-          if [ -n "$${TELEGRAM_BOT_TOKEN}" ] && [ -n "$${TELEGRAM_CHAT_ID}" ] && [ "$${ENABLE_NOTIFICATIONS}" = "true" ]; then
-              curl -s -X POST "https://api.telegram.org/bot$${TELEGRAM_BOT_TOKEN}/sendMessage" \
-                -d chat_id="$${TELEGRAM_CHAT_ID}" \
-                -d text="❌ *ERROR EN BACKUP*\n\nFallo el backup de \`$${DB_NAME}\`\nHora: $(date '+%d/%m/%Y %H:%M:%S')" \
-                -d parse_mode="Markdown" > /dev/null 2>&1
-          fi
-          exit 1
-      fi
+      - ./scripts/backup/backup.sh:/backup.sh:ro
+    command: >
+      sh -c "
+        chmod +x /backup.sh &&
+        /backup.sh
+      "
     depends_on:
       db:
         condition: service_healthy
