@@ -16,7 +16,7 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 15s
       timeout: 10s
       retries: 5
@@ -78,11 +78,23 @@ services:
       - /backups:/backups
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - ./scripts/backup/backup.sh:/backup.sh:ro
+      - ./scripts/backup/backup.sh:/scripts/backup.sh:ro
     command: >
       sh -c "
-        chmod +x /backup.sh &&
-        /backup.sh
+        if [ -f /scripts/backup.sh ]; then  # Y aquí también
+          if [ -x /scripts/backup.sh ]; then
+            echo '✅ Script encontrado y ejecutable'
+            /scripts/backup.sh
+          else
+            echo '⚠️  Script no es ejecutable, intentando dar permisos...'
+            chmod +x /scripts/backup.sh 2>/dev/null || echo 'No se pudo dar permisos'
+            /scripts/backup.sh
+          fi
+        else
+          echo '❌ ERROR: No se encontró /scripts/backup.sh'
+          ls -la /scripts/ 2>/dev/null || echo 'Directorio /scripts/ no existe'
+          exit 1
+        fi
       "
     depends_on:
       db:
