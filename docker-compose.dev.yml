@@ -1,15 +1,46 @@
 services:
   db:
-    image: postgres:16-alpine
+    image: postgres:16
     container_name: postgres_local
-    environment:
-      POSTGRES_DB: costos
-      POSTGRES_USER: costos_user
-      POSTGRES_PASSWORD: costos_pass
+    env_file:
+      - .env
     ports:
       - "5432:5432"
     volumes:
       - postgres_local_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U costos_user -d costos"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backup:
+    image: postgres:16
+    container_name: postgres_backup
+    restart: "no"  # No reiniciar automáticamente, se ejecuta por cron
+    env_file:
+      - .env
+    environment:
+      PGPASSWORD: costos_pass
+    volumes:
+      - ./backups:/backups  # Montar carpeta local, NO volumen Docker
+      - ./scripts/backup:/scripts
+    command: >
+      bash -c "
+        echo '=== INICIANDO BACKUP ===' &&
+        echo 'Base de datos: costos' &&
+        echo 'Usuario: costos_user' &&
+        echo 'Host: db' &&
+        pg_dump -h db -U costos_user -d costos --clean --if-exists > /backups/backup_$(date +%Y%m%d_%H%M%S).sql &&
+        echo '✅ Backup completado' &&
+        echo '=== ARCHIVOS CREADOS ===' &&
+        ls -lh /backups/*.sql 2>/dev/null || echo 'No hay backups aún'
+      "
+    depends_on:
+      db:
+        condition: service_healthy
+
 
 volumes:
   postgres_local_data:
+
