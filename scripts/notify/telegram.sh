@@ -10,6 +10,11 @@ if [ -z "$TOKEN" ] || [ -z "$CHAT_ID" ] || [ -z "$MESSAGE" ]; then
     exit 0
 fi
 
+# Cargar variables
+if [ -f .env ]; then
+    export $(grep -v '^#' .env | xargs)
+fi
+
 # Usar timeout para evitar bloqueos
 timeout $TIMEOUT curl --silent \
   -X POST "https://api.telegram.org/bot${TOKEN}/sendMessage" \
