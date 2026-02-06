@@ -44,12 +44,18 @@ if [ $? -eq 0 ]; then
     if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ] && [ "${ENABLE_NOTIFICATIONS:-false}" = "true" ]; then
         echo "📱 Enviando notificación a Telegram..."
         
-        MESSAGE="✅ *BACKUP COMPLETADO*%0A%0A🏷️ Base: ${DB_NAME}%0A📁 Archivo: $(basename "${BACKUP_FILE}")%0A💾 Tamaño: ${BACKUP_SIZE}%0A🕐 Hora: $(date '+%d/%m/%Y %H:%M:%S')"
+        TITLE="BACKUP COMPLETADO"
+        MESSAGE="🏷️ Base: ${DB_NAME}
+📁 Archivo: $(basename "${BACKUP_FILE}")
+💾 Tamaño: ${BACKUP_SIZE}
+🕐 Hora: $(date '+%d/%m/%Y %H:%M:%S')
+🗓️ Retención: ${RETENTION_DAYS} días"
         
-        # Ejecutar script separado
-        /scripts/notify/telegram.sh "$TELEGRAM_BOT_TOKEN" "$TELEGRAM_CHAT_ID" "$MESSAGE" 5 &
-        
-        echo "   ✅ Notificación en proceso"
+        /scripts/notify/telegram-notify.sh \
+            "$TELEGRAM_BOT_TOKEN" \
+            "$TELEGRAM_CHAT_ID" \
+            "$TITLE" \
+            "$MESSAGE" || echo "⚠️  No se pudo enviar notificación"
     fi
     echo "🎉 BACKUP FINALIZADO CON ÉXITO"
 else
@@ -57,8 +63,16 @@ else
 
     # Notificación de error a Telegram
     if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ] && [ "${ENABLE_NOTIFICATIONS:-false}" = "true" ]; then
-        MESSAGE="❌ *ERROR EN BACKUP*%0A%0A🏷️ Base: ${DB_NAME}%0A🕐 Hora: $(date '+%d/%m/%Y %H:%M:%S')%0A⚠️ Error al crear backup%0A🔧 Verificar logs del servidor"
-        /scripts/notify/telegram.sh "$TELEGRAM_BOT_TOKEN" "$TELEGRAM_CHAT_ID" "$MESSAGE" 5 &
+        TITLE="ERROR EN BACKUP"
+        MESSAGE="
+🕐 Hora: $(date '+%d/%m/%Y %H:%M:%S')
+⚠️ Error al crear backup
+🔧 Verificar logs del servidor"
+        /scripts/notify/telegram-notify.sh \
+            "$TELEGRAM_BOT_TOKEN" \
+            "$TELEGRAM_CHAT_ID" \
+            "$TITLE" \
+            "$MESSAGE" || echo "⚠️  No se pudo enviar notificación"
     fi
 
     exit 1
