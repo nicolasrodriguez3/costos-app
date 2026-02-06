@@ -40,13 +40,16 @@ if [ $? -eq 0 ]; then
     echo "=== BACKUPS ==="
     ls -lh "$BACKUP_DIR"/*.sql.gz 2>/dev/null || echo "No hay backups"
 
-    # Enviar notificación a Telegram si está configurado
+    # Enviar notificación
     if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ] && [ "${ENABLE_NOTIFICATIONS:-false}" = "true" ]; then
         echo "📱 Enviando notificación a Telegram..."
-        curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            -d chat_id="${TELEGRAM_CHAT_ID}" \
-            -d text="✅ *BACKUP COMPLETADO*\n\nBase: \`$${DB_NAME}\`\nArchivo: \`$(basename "$${BACKUP_FILE}")\`\nTamaño: $${BACKUP_SIZE}\nHora: $(date '+%d/%m/%Y %H:%M:%S')\n\n💾 Retención: $${RETENTION_DAYS} días" \
-            -d parse_mode="Markdown" > /dev/null 2>&1
+        
+        MESSAGE="✅ *BACKUP COMPLETADO*%0A%0A🏷️ Base: ${DB_NAME}%0A📁 Archivo: $(basename "${BACKUP_FILE}")%0A💾 Tamaño: ${BACKUP_SIZE}%0A🕐 Hora: $(date '+%d/%m/%Y %H:%M:%S')"
+        
+        # Ejecutar script separado
+        /scripts/notify/telegram.sh "$TELEGRAM_BOT_TOKEN" "$TELEGRAM_CHAT_ID" "$MESSAGE" 5 &
+        
+        echo "   ✅ Notificación en proceso"
     fi
     echo "🎉 BACKUP FINALIZADO CON ÉXITO"
 else
@@ -54,15 +57,8 @@ else
 
     # Notificación de error a Telegram
     if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ] && [ "${ENABLE_NOTIFICATIONS:-false}" = "true" ]; then
-        curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            -d chat_id="${TELEGRAM_CHAT_ID}" \
-            -d text="❌ *ERROR EN BACKUP*
-
-🏷️ Base: \`${DB_NAME}\`
-🕐 Hora: $(date '+%d/%m/%Y %H:%M:%S')
-⚠️ Error al crear backup
-🔧 Verificar logs del servidor" \
-            -d parse_mode="Markdown" > /dev/null 2>&1
+        MESSAGE="❌ *ERROR EN BACKUP*%0A%0A🏷️ Base: ${DB_NAME}%0A🕐 Hora: $(date '+%d/%m/%Y %H:%M:%S')%0A⚠️ Error al crear backup%0A🔧 Verificar logs del servidor"
+        /scripts/notify/telegram.sh "$TELEGRAM_BOT_TOKEN" "$TELEGRAM_CHAT_ID" "$MESSAGE" 5 &
     fi
 
     exit 1

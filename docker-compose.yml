@@ -81,18 +81,17 @@ services:
       - ./scripts/backup/backup.sh:/scripts/backup.sh:ro
     command: >
       sh -c "
-        if [ -f /scripts/backup.sh ]; then  # Y aquí también
-          if [ -x /scripts/backup.sh ]; then
-            echo '✅ Script encontrado y ejecutable'
-            /scripts/backup.sh
-          else
-            echo '⚠️  Script no es ejecutable, intentando dar permisos...'
-            chmod +x /scripts/backup.sh 2>/dev/null || echo 'No se pudo dar permisos'
-            /scripts/backup.sh
-          fi
+        if [ -f /scripts/backup.sh ]; then
+          echo '📋 Copiando script a /tmp...'
+          cp /scripts/backup.sh /tmp/backup-run.sh
+          chmod +x /tmp/backup-run.sh
+          
+          echo '🚀 Ejecutando backup...'
+          /tmp/backup-run.sh
         else
           echo '❌ ERROR: No se encontró /scripts/backup.sh'
-          ls -la /scripts/ 2>/dev/null || echo 'Directorio /scripts/ no existe'
+          echo 'Archivos en /scripts/:'
+          ls -la /scripts/
           exit 1
         fi
       "
