@@ -78,22 +78,16 @@ services:
       - /backups:/backups
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - ./scripts/backup/backup.sh:/scripts/backup.sh:ro
+      - ./scripts:/scripts:ro
     command: >
       sh -c "
-        if [ -f /scripts/backup.sh ]; then
-          echo '📋 Copiando script a /tmp...'
-          cp /scripts/backup.sh /tmp/backup-run.sh
-          chmod +x /tmp/backup-run.sh
-          
-          echo '🚀 Ejecutando backup...'
-          /tmp/backup-run.sh
-        else
-          echo '❌ ERROR: No se encontró /scripts/backup.sh'
-          echo 'Archivos en /scripts/:'
-          ls -la /scripts/
-          exit 1
-        fi
+        echo '📋 Copiando scripts a /tmp...'
+        mkdir -p /tmp/scripts
+        cp -r /scripts/* /tmp/scripts/ 2>/dev/null || true
+        find /tmp/scripts -name '*.sh' -exec chmod +x {} \; 2>/dev/null || true
+
+        echo '🚀 Ejecutando backup...'
+        /tmp/scripts/backup/backup.sh
       "
     depends_on:
       db:

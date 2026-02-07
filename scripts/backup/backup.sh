@@ -51,7 +51,7 @@ if [ $? -eq 0 ]; then
 🕐 Hora: $(date '+%d/%m/%Y %H:%M:%S')
 🗓️ Retención: ${RETENTION_DAYS} días"
         
-        /scripts/notify/telegram-notify.sh \
+        ../notify/telegram-notify.sh \
             "$TELEGRAM_BOT_TOKEN" \
             "$TELEGRAM_CHAT_ID" \
             "$TITLE" \
@@ -68,7 +68,7 @@ else
 🕐 Hora: $(date '+%d/%m/%Y %H:%M:%S')
 ⚠️ Error al crear backup
 🔧 Verificar logs del servidor"
-        /scripts/notify/telegram-notify.sh \
+        ../notify/telegram-notify.sh \
             "$TELEGRAM_BOT_TOKEN" \
             "$TELEGRAM_CHAT_ID" \
             "$TITLE" \
