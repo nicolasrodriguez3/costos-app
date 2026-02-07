@@ -4,7 +4,7 @@ services:
     container_name: postgres_db
     restart: unless-stopped
     env_file:
-      - .env    
+      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - /etc/timezone:/etc/timezone:ro  # Para mantener hora correcta
@@ -81,13 +81,45 @@ services:
       - ./scripts:/scripts:ro
     command: >
       sh -c "
-        echo '📋 Copiando scripts a /tmp...'
-        mkdir -p /tmp/scripts
-        cp -r /scripts/* /tmp/scripts/ 2>/dev/null || true
-        find /tmp/scripts -name '*.sh' -exec chmod +x {} \; 2>/dev/null || true
+        apk update && apk add --no-cache curl 2>&1 | grep -v 'fetch http'
 
+        # Verificar instalación
+        if command -v curl > /dev/null 2>&1; then
+          echo '✅ curl instalado:'
+          curl --version | head -1
+        else
+          echo '❌ No se pudo instalar curl'
+          echo 'Continuando sin notificaciones...'
+        fi
+
+        echo '📋 Preparando scripts...'
+
+        # Copiar scripts a /tmp
+        mkdir -p /tmp/app-scripts
+        cp -r /scripts/* /tmp/app-scripts/ 2>/dev/null
+
+        if [ ! -f /tmp/app-scripts/backup/backup.sh ]; then
+          echo '❌ ERROR: No se encontró backup.sh'
+          echo 'Contenido de /scripts/:'
+          ls -la /scripts/
+          exit 1
+        fi
+
+        # Dar permisos de ejecución (forma SEGURA sin find problemático)
+        echo '🔧 Dando permisos...'
+        chmod +x /tmp/app-scripts/backup/backup.sh 2>/dev/null || true
+
+        # También dar permisos a scripts de notificación si existen
+        if [ -f /tmp/app-scripts/notify/telegram-notify.sh ]; then
+          chmod +x /tmp/app-scripts/notify/telegram-notify.sh
+        fi
+
+        echo '✅ Scripts listos'
         echo '🚀 Ejecutando backup...'
-        /tmp/scripts/backup/backup.sh
+
+        # Ejecutar backup
+        cd /tmp/app-scripts/backup
+        ./backup.sh
       "
     depends_on:
       db:

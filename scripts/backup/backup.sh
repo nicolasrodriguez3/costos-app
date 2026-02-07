@@ -32,30 +32,40 @@ pg_dump -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" --clean --if-exists | gzip -9 
 if [ $? -eq 0 ]; then
     BACKUP_SIZE=$(du -h "$BACKUP_FILE" | cut -f1)
     echo "✅ Backup completado: $BACKUP_SIZE"
-    
+
     # Limpieza
     find "$BACKUP_DIR" -name "*.sql.gz" -mtime +$RETENTION_DAYS -delete 2>/dev/null || true
-    
+    # También limpiar por cantidad máxima
+    BACKUP_COUNT=$(ls -1 "$BACKUP_DIR"/*.sql.gz 2>/dev/null | wc -l)
+    echo "   Total de backups: $BACKUP_COUNT"
+
+    if [ "$BACKUP_COUNT" -gt "$MAX_BACKUPS" ]; then
+        TO_DELETE=$((BACKUP_COUNT - MAX_BACKUPS))
+        ls -1t "$BACKUP_DIR"/*.sql.gz | tail -n "$TO_DELETE" | while read -r OLD_BACKUP; do
+            rm -f "$OLD_BACKUP"
+        done
+    fi
+
     # Listar
     echo "=== BACKUPS ==="
     ls -lh "$BACKUP_DIR"/*.sql.gz 2>/dev/null || echo "No hay backups"
 
     # Enviar notificación
     if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ] && [ "${ENABLE_NOTIFICATIONS:-false}" = "true" ]; then
-        echo "📱 Enviando notificación a Telegram..."
-        
-        TITLE="BACKUP COMPLETADO"
-        MESSAGE="🏷️ Base: ${DB_NAME}
+
+	MESSAGE="*BACKUP COMPLETADO*
+
+🏷️ Base: ${DB_NAME}
 📁 Archivo: $(basename "${BACKUP_FILE}")
 💾 Tamaño: ${BACKUP_SIZE}
 🕐 Hora: $(date '+%d/%m/%Y %H:%M:%S')
-🗓️ Retención: ${RETENTION_DAYS} días"
-        
+🗓️ Retención: ${RETENTION_DAYS} días
+📊 Total: ${BACKUP_COUNT} backups"
+
         ../notify/telegram-notify.sh \
             "$TELEGRAM_BOT_TOKEN" \
             "$TELEGRAM_CHAT_ID" \
-            "$TITLE" \
-            "$MESSAGE" || echo "⚠️  No se pudo enviar notificación"
+            "$MESSAGE"
     fi
     echo "🎉 BACKUP FINALIZADO CON ÉXITO"
 else
@@ -63,16 +73,16 @@ else
 
     # Notificación de error a Telegram
     if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ] && [ "${ENABLE_NOTIFICATIONS:-false}" = "true" ]; then
-        TITLE="ERROR EN BACKUP"
-        MESSAGE="
-🕐 Hora: $(date '+%d/%m/%Y %H:%M:%S')
-⚠️ Error al crear backup
-🔧 Verificar logs del servidor"
+        MESSAGE="*ERROR EN BACKUP*
+
+🕐  Hora: $(date '+%d/%m/%Y %H:%M:%S')
+⚠️ EError al crear backup
+🔧  Verificar logs del servidor"
+
         ../notify/telegram-notify.sh \
             "$TELEGRAM_BOT_TOKEN" \
             "$TELEGRAM_CHAT_ID" \
-            "$TITLE" \
-            "$MESSAGE" || echo "⚠️  No se pudo enviar notificación"
+            "$MESSAGE"
     fi
 
     exit 1
