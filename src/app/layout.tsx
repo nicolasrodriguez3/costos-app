@@ -24,7 +24,7 @@ export default function RootLayout({
       className={`${fontBody.variable} ${fontTitle.variable} ${fontMono.variable}`}
     >
       <head>
-        <link rel="icon" href="/logo.svg" />
+        <link rel="icon" href="./icon.svg" />
       </head>
       <body className="overflow-x-hidden antialiased">
         {children}
