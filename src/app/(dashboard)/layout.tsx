@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import "@/app/globals.css";
 
-import { auth } from "@/auth";
 import { MainContentWrapper } from "@/components/MainContentWrapper";
+import { SetActiveOrganization } from "@/components/set-active-org";
 import { Sidebar } from "@/components/Sidebar";
 import { TopBar } from "@/components/TopBar";
 import { envs } from "@/config/envs";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { SidebarProvider } from "@/store/sidebar-store";
 
 export const metadata: Metadata = {
@@ -23,10 +25,34 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
-
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  console.log({ session });
   if (!session) {
     redirect("/login");
+  }
+
+  if (!session.session.activeOrganizationId) {
+    const lastActiveOrg = await prisma.member.findFirst({
+      where: {
+        userId: session.user.id,
+      },
+      select: {
+        organizationId: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    if (lastActiveOrg) {
+      return (
+        <SetActiveOrganization organizationId={lastActiveOrg.organizationId} />
+      );
+    } else {
+      redirect("/onboarding");
+    }
   }
 
   const cookieStore = await cookies();

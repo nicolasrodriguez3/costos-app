@@ -56,7 +56,7 @@ export function LoginForm() {
       formData.append("email", data.email);
       formData.append("password", data.password);
 
-      const result = await authenticate(undefined, formData);
+      const result = await authenticate(formData);
       if (result) {
         setErrorMessage(result);
       }
@@ -64,7 +64,7 @@ export function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <div>
       <div>
         <SignInSocialButton provider="google" disabled={!isAppReady} />
         <div className="relative my-4">
@@ -75,71 +75,75 @@ export function LoginForm() {
           </div>
         </div>
       </div>
-      <div>
-        <label
-          className="block mb-1 text-sm font-medium text-gray-300"
-          htmlFor="email"
-        >
-          Email
-        </label>
-        <input
-          {...registerField("email")}
-          className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
-          id="email"
-          type="email"
-          placeholder="tu@correo.com.ar"
-        />
-        {errors.email && (
-          <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
-        )}
-      </div>
-      <div>
-        <label
-          className="block mb-1 text-sm font-medium text-gray-300"
-          htmlFor="password"
-        >
-          Contraseña
-        </label>
-        <input
-          {...registerField("password")}
-          className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
-          id="password"
-          type="password"
-        />
-        {errors.password && (
-          <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
-        )}
-      </div>
-      <div className="flex justify-between items-center">
-        <div className="text-sm">
-          <Link
-            href="/register"
-            className="font-medium text-orange-400 hover:text-orange-300"
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div>
+          <label
+            className="block mb-1 text-sm font-medium text-gray-300"
+            htmlFor="email"
           >
-            ¿No tienes una cuenta? Regístrate
-          </Link>
+            Email
+          </label>
+          <input
+            {...registerField("email")}
+            className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
+            id="email"
+            type="email"
+            placeholder="tu@correo.com.ar"
+          />
+          {errors.email && (
+            <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
+          )}
         </div>
-      </div>
-      <div>
-        <Button
-          type="submit"
-          variant="default"
-          className="cursor-pointer justify-center w-full text-white bg-orange-600 hover:bg-orange-700"
-          disabled={isPending || !isAppReady}
-        >
-          {isPending ? "Iniciando sesión..." : "Iniciar sesión"}
-        </Button>
-      </div>
-      {errorMessage && (
-        <div
-          className="flex items-end space-x-1 h-8"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          <p className="text-sm text-red-500">{errorMessage}</p>
+        <div>
+          <label
+            className="block mb-1 text-sm font-medium text-gray-300"
+            htmlFor="password"
+          >
+            Contraseña
+          </label>
+          <input
+            {...registerField("password")}
+            className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
+            id="password"
+            type="password"
+          />
+          {errors.password && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.password.message}
+            </p>
+          )}
         </div>
-      )}
-    </form>
+        <div className="flex justify-between items-center">
+          <div className="text-sm">
+            <Link
+              href="/register"
+              className="font-medium text-orange-400 hover:text-orange-300"
+            >
+              ¿No tienes una cuenta? Regístrate
+            </Link>
+          </div>
+        </div>
+        <div>
+          <Button
+            type="submit"
+            variant="default"
+            className="cursor-pointer justify-center w-full text-white bg-orange-600 hover:bg-orange-700"
+            disabled={isPending || !isAppReady}
+          >
+            {isPending ? "Iniciando sesión..." : "Iniciar sesión"}
+          </Button>
+        </div>
+        {errorMessage && (
+          <div
+            className="flex items-end space-x-1 h-8"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <p className="text-sm text-red-500">{errorMessage}</p>
+          </div>
+        )}
+      </form>
+    </div>
   );
 }
 
@@ -162,7 +166,7 @@ export function RegisterForm() {
       formData.append("email", data.email);
       formData.append("password", data.password);
 
-      const result = await register({ message: "", errors: {} }, formData);
+      const result = await register(formData);
       if (result.message || result.errors) {
         setServerError(result.message);
       }
@@ -170,7 +174,7 @@ export function RegisterForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <div>
       <div>
         <SignInSocialButton provider="google" signUp disabled={!isAppReady} />
         <div className="relative my-4">
@@ -181,82 +185,86 @@ export function RegisterForm() {
           </div>
         </div>
       </div>
-      <div>
-        <label
-          className="block mb-1 text-sm font-medium text-gray-300"
-          htmlFor="name"
-        >
-          Nombre
-        </label>
-        <input
-          {...registerField("name")}
-          className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
-          id="name"
-          type="text"
-          placeholder="Tu nombre"
-        />
-        {errors.name && (
-          <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>
-        )}
-      </div>
-      <div>
-        <label
-          className="block mb-1 text-sm font-medium text-gray-300"
-          htmlFor="email"
-        >
-          Email
-        </label>
-        <input
-          {...registerField("email")}
-          className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
-          id="email"
-          type="email"
-          placeholder="tu@correo.com.ar"
-        />
-        {errors.email && (
-          <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
-        )}
-      </div>
-      <div>
-        <label
-          className="block mb-1 text-sm font-medium text-gray-300"
-          htmlFor="password"
-        >
-          Contraseña
-        </label>
-        <input
-          {...registerField("password")}
-          className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
-          id="password"
-          type="password"
-        />
-        {errors.password && (
-          <p className="mt-1 text-sm text-red-500">{errors.password.message}</p>
-        )}
-      </div>
-      <div className="flex justify-between items-center">
-        <div className="text-sm">
-          <Link
-            href="/login"
-            className="font-medium text-orange-400 hover:text-orange-300"
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div>
+          <label
+            className="block mb-1 text-sm font-medium text-gray-300"
+            htmlFor="name"
           >
-            ¿Ya tienes una cuenta? Inicia sesión
-          </Link>
+            Nombre
+          </label>
+          <input
+            {...registerField("name")}
+            className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
+            id="name"
+            type="text"
+            placeholder="Tu nombre"
+          />
+          {errors.name && (
+            <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>
+          )}
         </div>
-      </div>
-      <div>
-        <Button
-          type="submit"
-          variant="default"
-          className="cursor-pointer justify-center w-full text-white bg-orange-600 hover:bg-orange-700"
-          disabled={isPending || !isAppReady}
-        >
-          {isPending ? "Creando cuenta..." : "Crear cuenta"}
-        </Button>
-      </div>
-      {serverError && (
-        <p className="text-sm text-center text-red-500">{serverError}</p>
-      )}
-    </form>
+        <div>
+          <label
+            className="block mb-1 text-sm font-medium text-gray-300"
+            htmlFor="email"
+          >
+            Email
+          </label>
+          <input
+            {...registerField("email")}
+            className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
+            id="email"
+            type="email"
+            placeholder="tu@correo.com.ar"
+          />
+          {errors.email && (
+            <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>
+          )}
+        </div>
+        <div>
+          <label
+            className="block mb-1 text-sm font-medium text-gray-300"
+            htmlFor="password"
+          >
+            Contraseña
+          </label>
+          <input
+            {...registerField("password")}
+            className="px-4 py-2 w-full text-white rounded-lg border outline-none bg-white/5 border-white/10 focus:ring-2 focus:ring-orange-500"
+            id="password"
+            type="password"
+          />
+          {errors.password && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.password.message}
+            </p>
+          )}
+        </div>
+        <div className="flex justify-between items-center">
+          <div className="text-sm">
+            <Link
+              href="/login"
+              className="font-medium text-orange-400 hover:text-orange-300"
+            >
+              ¿Ya tienes una cuenta? Inicia sesión
+            </Link>
+          </div>
+        </div>
+        <div>
+          <Button
+            type="submit"
+            variant="default"
+            className="cursor-pointer justify-center w-full text-white bg-orange-600 hover:bg-orange-700"
+            disabled={isPending || !isAppReady}
+          >
+            {isPending ? "Creando cuenta..." : "Crear cuenta"}
+          </Button>
+        </div>
+        {serverError && (
+          <p className="text-sm text-center text-red-500">{serverError}</p>
+        )}
+      </form>
+    </div>
   );
 }

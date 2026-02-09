@@ -25,9 +25,6 @@ export function SignInSocialButton({ provider, signUp, disabled }: Props) {
         onRequest: () => {
           setIsPending(true);
         },
-        onResponse: () => {
-          setIsPending(false);
-        },
         onError: (ctx) => {
           toast.error(ctx.error.message);
           setIsPending(false);

@@ -1,5 +1,6 @@
+import { redirect } from "next/navigation";
+
 import { getUserInfo } from "@/actions/user";
-import { auth } from "@/auth";
 import { PageHeader } from "@/components/PageHeader";
 import { AccountView } from "./account-view";
 
@@ -9,14 +10,13 @@ const breadcrumbs = [
 ];
 
 export default async function AccountPage() {
-  const session = await auth();
-  if (!session?.user?.organizationId) return null;
-
   const data = await getUserInfo();
 
-  if (!data) return null;
+  if (!data) {
+    redirect("/login");
+  }
 
-  const isOwner = data.membership?.role === "OWNER";
+  const isOwner = data.members?.[0]?.role === "owner";
 
   return (
     <div className="min-h-screen p-8 space-y-8 bg-linear-to-br from-gray-50 to-white text-black">
