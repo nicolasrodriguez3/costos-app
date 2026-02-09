@@ -6,8 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { AUTH_CONFIG } from "@/config/auth.config";
-import { authConfig } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
 const RegisterSchema = z.object({
   name: z
@@ -33,15 +32,12 @@ export type RegisterState = {
 /**
  * Server Action to authenticate a user.
  */
-export async function authenticate(
-  prevState: string | undefined,
-  formData: FormData,
-) {
+export async function authenticate(formData: FormData) {
   try {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    await authConfig.api.signInEmail({
+    await auth.api.signInEmail({
       body: {
         email,
         password,
@@ -72,10 +68,7 @@ export async function authenticate(
 /**
  * Server Action to register a new user and create their organization.
  */
-export async function register(
-  prevState: RegisterState,
-  formData: FormData,
-): Promise<RegisterState> {
+export async function register(formData: FormData): Promise<RegisterState> {
   const validatedFields = RegisterSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -93,7 +86,7 @@ export async function register(
 
   try {
     // 1. Create user with BetterAuth (auto-signs in by default if configured)
-    const result = await authConfig.api.signUpEmail({
+    const result = await auth.api.signUpEmail({
       body: {
         email,
         password,
@@ -105,11 +98,7 @@ export async function register(
       return { message: "Error al registrar usuario." };
     }
 
-    const userId = result.user.id;
-
-    await createOrganizationAndAddUser(userId, name);
-
-    await authConfig.api.signInEmail({
+    await auth.api.signInEmail({
       body: {
         email,
         password,
@@ -137,11 +126,11 @@ export async function register(
     if (error instanceof Error && error.message === "NEXT_REDIRECT") {
       throw error;
     }
-    console.error("Failed to create user/organization:", error);
+    console.error("Failed to create user:", error);
     return { message: "Error de servidor: No se pudo completar el registro." };
   }
 
-  redirect("/dashboard");
+  redirect("/onboarding");
 }
 
 /**
@@ -149,7 +138,7 @@ export async function register(
  */
 export async function signOutAction() {
   try {
-    await authConfig.api.signOut({
+    await auth.api.signOut({
       headers: await headers(),
     });
   } catch (error) {
@@ -159,35 +148,4 @@ export async function signOutAction() {
     console.error("Sign out error:", error);
   }
   redirect("/login");
-}
-
-export async function createOrganizationAndAddUser(
-  userId: string,
-  name?: string,
-) {
-  try {
-    const orgName = name ? `Empresa de ${name}` : "Mi Empresa";
-
-    return await prisma.$transaction(async (tx) => {
-      const org = await tx.organization.create({
-        data: {
-          name: orgName,
-        },
-      });
-      await tx.user.update({
-        where: { id: userId },
-        data: { organizationId: org.id },
-      });
-      await tx.organizationMember.create({
-        data: {
-          organizationId: org.id,
-          userId: userId,
-          role: "OWNER",
-        },
-      });
-    });
-  } catch (error) {
-    console.error("Failed to create organization and add user:", error);
-    throw error;
-  }
 }

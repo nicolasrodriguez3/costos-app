@@ -2,24 +2,17 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { createAuthMiddleware } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
+import { organization } from "better-auth/plugins";
 
 import { AUTH_CONFIG } from "@/config/auth.config";
 import { envs } from "@/config/envs";
 import { prisma } from "@/lib/prisma";
 
-export const authConfig = betterAuth({
+export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
   appName: envs.NEXT_PUBLIC_APP_TITLE,
-  user: {
-    additionalFields: {
-      organizationId: {
-        type: "string",
-        required: false,
-      },
-    },
-  },
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
@@ -53,7 +46,17 @@ export const authConfig = betterAuth({
       maxAge: 5 * 60, // 5 minutes
     },
   },
-  plugins: [nextCookies()], // nextCookies debe ser el último plugin
+  plugins: [
+    organization({
+      organizationHooks: {
+        afterCreateOrganization: async (data) => {
+          console.log("Organization created", data);
+        },
+      },
+    }),
+    nextCookies(), // nextCookies debe ser el último plugin
+  ],
 });
 
-export type Session = typeof authConfig.$Infer.Session;
+export type Session = typeof auth.$Infer.Session;
+// export default auth;

@@ -1,15 +1,19 @@
 "use server";
 
-import { auth } from "@/auth";
+import { headers } from "next/headers";
+
 import { PAGINATION } from "@/config/constants";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import type { DashboardStats } from "@/types";
 
 export async function getDashboardStats(): Promise<DashboardStats> {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
   // Default safe return if no session
-  if (!session?.user?.id) {
+  if (!session) {
     return {
       totalRevenue: 0,
       totalCost: 0,
@@ -60,7 +64,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   // Get fixed costs for the current month
   const fixedCosts = await prisma.fixedCost.findMany({
     where: {
-      organizationId: session.user.organizationId as string,
+      organizationId: session.session.activeOrganizationId as string,
       isActive: true,
     },
   });

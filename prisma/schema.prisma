@@ -21,29 +21,31 @@ model User {
   organizationId String?
 
   // BetterAuth relations
-  sessions Session[]
-  accounts Account[]
+  sessions    Session[]
+  accounts    Account[]
+  members     Member[]
+  invitations Invitation[]
 
   // Application relations
-  organization OrganizationMember?
-  ingredients  Ingredient[]
-  products     Product[]
-  sales        Sale[]
+  ingredients Ingredient[]
+  products    Product[]
+  sales       Sale[]
 
   @@unique([email])
   @@map("user")
 }
 
 model Session {
-  id        String   @id @default(cuid())
-  expiresAt DateTime
-  token     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ipAddress String?
-  userAgent String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                   String   @id @default(cuid())
+  expiresAt            DateTime
+  token                String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  ipAddress            String?
+  userAgent            String?
+  userId               String
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activeOrganizationId String?
 
   @@unique([token])
   @@index([userId])
@@ -86,11 +88,13 @@ model Verification {
 model Organization {
   id        String   @id @default(cuid())
   name      String
-  slug      String?  @unique
+  slug      String   @unique
+  logo      String?
+  metadata  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  members             OrganizationMember[]
+  members             Member[]
   products            Product[]
   ingredients         Ingredient[]
   sales               Sale[]
@@ -98,20 +102,40 @@ model Organization {
   purchases           Purchase[]
   ingredientPurchases IngredientPurchase[]
   stockMovements      StockMovement[]
+  invitations         Invitation[]
+
+  @@map("organization")
 }
 
-model OrganizationMember {
-  id             String       @id @default(cuid())
+model Member {
+  id             String   @id @default(cuid())
+  userId         String
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  userId         String       @unique
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role           Role         @default(OWNER)
+  role           String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([organizationId, userId])
+  @@map("member")
+}
+
+model Invitation {
+  id             String   @id @default(cuid())
+  email          String
+  inviterId      String
+  organizationId String
+  role           String
+  status         String
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user         User         @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("invitation")
 }
 
 // Ingredients that go into Pizzas or are sold directly (if applicable, though usually Products are sold)
@@ -340,11 +364,6 @@ model StockMovement {
   @@index([ingredientId])
   @@index([type])
   @@index([movementDate])
-}
-
-enum Role {
-  OWNER
-  MEMBER
 }
 
 enum ProductType {
