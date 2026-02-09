@@ -8,15 +8,16 @@ import { z } from "zod";
 
 import { authenticate, register } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
+import { envs } from "@/config/envs";
 import { SignInSocialButton } from "./SingInSocialButton";
 
-const isAppReady = true;
+const isAppReady = envs.NEXT_PUBLIC_APP_LAUNCHED;
 
 // Validation schemas
 const LoginSchema = z.object({
-  email: z
-    .string()
-    .email({ message: "Por favor, ingrese un correo electrónico válido." }),
+  email: z.email({
+    message: "Por favor, ingrese un correo electrónico válido.",
+  }),
   password: z
     .string()
     .min(6, { message: "La contraseña debe tener al menos 6 caracteres." }),
@@ -26,9 +27,9 @@ const RegisterSchema = z.object({
   name: z
     .string()
     .min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
-  email: z
-    .string()
-    .email({ message: "Por favor, ingrese un correo electrónico válido." }),
+  email: z.email({
+    message: "Por favor, ingrese un correo electrónico válido.",
+  }),
   password: z
     .string()
     .min(6, { message: "La contraseña debe tener al menos 6 caracteres." }),
@@ -65,7 +66,14 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
-        <SignInSocialButton provider="google" />
+        <SignInSocialButton provider="google" disabled={!isAppReady} />
+        <div className="relative my-4">
+          <div className="relative flex justify-center items-center text-xs uppercase">
+            <span className="w-full border-t border-white/10" />
+            <span className="px-2 text-white">O</span>
+            <span className="w-full border-t border-white/10" />
+          </div>
+        </div>
       </div>
       <div>
         <label
@@ -116,8 +124,8 @@ export function LoginForm() {
         <Button
           type="submit"
           variant="default"
-          className="justify-center w-full text-white bg-orange-600 hover:bg-orange-700"
-          disabled={isPending}
+          className="cursor-pointer justify-center w-full text-white bg-orange-600 hover:bg-orange-700"
+          disabled={isPending || !isAppReady}
         >
           {isPending ? "Iniciando sesión..." : "Iniciar sesión"}
         </Button>
@@ -164,7 +172,14 @@ export function RegisterForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
-        <SignInSocialButton provider="google" signUp />
+        <SignInSocialButton provider="google" signUp disabled={!isAppReady} />
+        <div className="relative my-4">
+          <div className="relative flex justify-center items-center text-xs uppercase">
+            <span className="w-full border-t border-white/10" />
+            <span className="px-2 text-white">O</span>
+            <span className="w-full border-t border-white/10" />
+          </div>
+        </div>
       </div>
       <div>
         <label
@@ -233,7 +248,7 @@ export function RegisterForm() {
         <Button
           type="submit"
           variant="default"
-          className="justify-center w-full text-white bg-orange-600 hover:bg-orange-700"
+          className="cursor-pointer justify-center w-full text-white bg-orange-600 hover:bg-orange-700"
           disabled={isPending || !isAppReady}
         >
           {isPending ? "Creando cuenta..." : "Crear cuenta"}

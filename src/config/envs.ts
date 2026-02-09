@@ -6,6 +6,7 @@ const publicEnvSchema = z.object({
   NEXT_PUBLIC_APP_URL: z.url(),
   NEXT_PUBLIC_APP_TITLE: z.string().min(1),
   NEXT_PUBLIC_APP_DESCRIPTION: z.string().optional(),
+  NEXT_PUBLIC_APP_LAUNCHED: z.string().transform((val) => val === "true"),
 });
 
 const serverEnvSchema = z.object({
@@ -23,7 +24,7 @@ const serverEnvSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string().min(1),
 });
 
-const allEnvSchema = publicEnvSchema.merge(serverEnvSchema);
+const allEnvSchema = publicEnvSchema.extend(serverEnvSchema.shape);
 
 // Infer the full type (Server + Client)
 type ServerEnv = z.infer<typeof allEnvSchema>;
@@ -49,6 +50,7 @@ const getEnvs = (): ServerEnv => {
       NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
       NEXT_PUBLIC_APP_TITLE: process.env.NEXT_PUBLIC_APP_TITLE,
       NEXT_PUBLIC_APP_DESCRIPTION: process.env.NEXT_PUBLIC_APP_DESCRIPTION,
+      NEXT_PUBLIC_APP_LAUNCHED: process.env.NEXT_PUBLIC_APP_LAUNCHED,
     };
 
     const parsed = publicEnvSchema.safeParse(clientEnv);
