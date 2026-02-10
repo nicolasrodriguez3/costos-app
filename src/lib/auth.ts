@@ -9,6 +9,10 @@ import { envs } from "@/config/envs";
 import { prisma } from "@/lib/prisma";
 
 export const auth = betterAuth({
+  logger: {
+    disabled: envs.NODE_ENV === "production",
+    level: "debug",
+  },
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
@@ -16,7 +20,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
-    autoSignIn: false,
+    autoSignIn: true,
     minPasswordLength: AUTH_CONFIG.MIN_PASSWORD_LENGTH,
     maxPasswordLength: AUTH_CONFIG.MAX_PASSWORD_LENGTH,
   },

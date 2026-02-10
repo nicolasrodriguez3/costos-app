@@ -97,14 +97,6 @@ export async function register(formData: FormData): Promise<RegisterState> {
     if (!result || !result.user) {
       return { message: "Error al registrar usuario." };
     }
-
-    await auth.api.signInEmail({
-      body: {
-        email,
-        password,
-      },
-      headers: await headers(),
-    });
   } catch (error) {
     if (error instanceof APIError) {
       console.log("APIERROR:", error.body);

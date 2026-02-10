@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import "@/app/globals.css";
@@ -10,8 +10,8 @@ import { SetActiveOrganization } from "@/components/set-active-org";
 import { Sidebar } from "@/components/Sidebar";
 import { TopBar } from "@/components/TopBar";
 import { envs } from "@/config/envs";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "@/lib/serverSession";
 import { SidebarProvider } from "@/store/sidebar-store";
 
 export const metadata: Metadata = {
@@ -25,18 +25,16 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  console.log({ session });
+  const { session, user } = await getServerSession();
+
   if (!session) {
     redirect("/login");
   }
 
-  if (!session.session.activeOrganizationId) {
+  if (!session.activeOrganizationId) {
     const lastActiveOrg = await prisma.member.findFirst({
       where: {
-        userId: session.user.id,
+        userId: session.userId,
       },
       select: {
         organizationId: true,
@@ -63,7 +61,7 @@ export default async function RootLayout({
 
   return (
     <SidebarProvider defaultCollapsed={defaultCollapsed}>
-      <TopBar title={appTitle} user={session.user} />
+      <TopBar title={appTitle} user={user} />
       <div className="relative flex min-h-screen bg-gray-50">
         <Sidebar />
         <MainContentWrapper>
