@@ -2,19 +2,19 @@
 
 import { revalidatePath } from "next/cache";
 
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { ActionState, PurchaseInput } from "@/types";
 
 export async function createPurchase(
   prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const session = await auth();
-  if (!session?.user?.organizationId) {
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+  if (!activeOrganizationId) {
     return { message: "Unauthorized" };
   }
-  const organizationId = session.user.organizationId;
+  const organizationId = activeOrganizationId;
 
   // Parse form data for PurchaseInput
   const purchaseDate = formData.get("purchaseDate") as string;
@@ -114,11 +114,11 @@ export async function createPurchase(
 }
 
 export async function getPurchases() {
-  const session = await auth();
-  if (!session?.user?.organizationId) return [];
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+  if (!activeOrganizationId) return [];
 
   return await prisma.purchase.findMany({
-    where: { organizationId: session.user.organizationId },
+    where: { organizationId: activeOrganizationId },
     include: {
       ingredientPurchases: {
         include: {
@@ -140,11 +140,10 @@ export async function updatePurchase(
   prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const session = await auth();
-  if (!session?.user?.organizationId) {
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+  if (!activeOrganizationId) {
     return { message: "Unauthorized" };
   }
-  const organizationId = session.user.organizationId;
 
   const purchaseId = formData.get("purchaseId") as string;
   const purchaseDate = formData.get("purchaseDate") as string;
@@ -185,7 +184,7 @@ export async function updatePurchase(
   try {
     // Update Purchase
     await prisma.purchase.update({
-      where: { id: purchaseId, organizationId },
+      where: { id: purchaseId, organizationId: activeOrganizationId },
       data: {
         purchaseDate: purchaseDate ? new Date(purchaseDate) : new Date(),
         invoiceNumber: invoiceNumber?.trim() || null,
@@ -196,7 +195,7 @@ export async function updatePurchase(
 
     // Get existing IngredientPurchases
     const existingPurchases = await prisma.ingredientPurchase.findMany({
-      where: { purchaseId, organizationId },
+      where: { purchaseId, organizationId: activeOrganizationId },
     });
 
     const newIngredientIds = ingredients.map((ing) => ing.ingredientId);
@@ -251,7 +250,7 @@ export async function updatePurchase(
       } else {
         const newPurchase = await prisma.ingredientPurchase.create({
           data: {
-            organizationId,
+            organizationId: activeOrganizationId,
             purchaseId,
             ingredientId: ing.ingredientId,
             quantity: ing.quantity,
@@ -265,7 +264,7 @@ export async function updatePurchase(
         });
         await prisma.stockMovement.create({
           data: {
-            organizationId,
+            organizationId: activeOrganizationId,
             ingredientId: ing.ingredientId,
             type: "COMPRA",
             quantity: ing.quantity,
@@ -292,14 +291,14 @@ export async function updatePurchase(
 }
 
 export async function deletePurchase(purchaseId: string) {
-  const session = await auth();
-  if (!session?.user?.organizationId) return;
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+  if (!activeOrganizationId) return;
 
   try {
     const ingredientPurchases = await prisma.ingredientPurchase.findMany({
       where: {
         purchaseId,
-        organizationId: session.user.organizationId,
+        organizationId: activeOrganizationId,
       },
     });
 
@@ -327,7 +326,7 @@ export async function deletePurchase(purchaseId: string) {
     await prisma.ingredientPurchase.deleteMany({
       where: {
         purchaseId,
-        organizationId: session.user.organizationId,
+        organizationId: activeOrganizationId,
       },
     });
 
@@ -335,7 +334,7 @@ export async function deletePurchase(purchaseId: string) {
     await prisma.purchase.delete({
       where: {
         id: purchaseId,
-        organizationId: session.user.organizationId,
+        organizationId: activeOrganizationId,
       },
     });
 

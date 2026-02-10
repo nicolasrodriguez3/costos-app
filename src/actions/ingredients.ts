@@ -2,21 +2,20 @@
 
 import { revalidatePath } from "next/cache";
 
-import { auth } from "@/auth";
 import { ReferenceType, StockMovementType } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { ActionState } from "@/types";
 
 export async function getIngredients() {
-  const session = await auth();
-  if (!session?.user?.organizationId) return [];
+  const { activeOrganizationId } = await getServerSessionWithOrg();
 
   const ingredients = await prisma.ingredient.findMany({
-    where: { organizationId: session.user.organizationId },
+    where: { organizationId: activeOrganizationId },
     orderBy: { name: "asc" },
     include: {
       purchases: {
-        where: { organizationId: session.user.organizationId },
+        where: { organizationId: activeOrganizationId },
         include: { purchase: true },
         orderBy: { purchase: { purchaseDate: "desc" } },
         take: 1,
@@ -37,11 +36,10 @@ export async function createIngredient(
   prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const session = await auth();
-  if (!session?.user?.organizationId || !session?.user?.id) {
-    return { message: "Unauthorized" };
-  }
-  const organizationId = session.user.organizationId;
+  const {
+    activeOrganizationId,
+    session: { userId },
+  } = await getServerSessionWithOrg();
 
   const name = formData.get("name") as string;
   const unit = formData.get("unit") as string;
@@ -63,7 +61,7 @@ export async function createIngredient(
   const existing = await prisma.ingredient.findFirst({
     where: {
       name: { equals: name.trim() },
-      organizationId,
+      organizationId: activeOrganizationId,
     },
   });
 
@@ -79,8 +77,8 @@ export async function createIngredient(
       minStock,
       description: description ? description.trim() : null,
       isActive,
-      userId: session.user.id,
-      organizationId,
+      userId,
+      organizationId: activeOrganizationId,
     },
   });
 
@@ -94,14 +92,14 @@ export async function createIngredient(
 }
 
 export async function deleteIngredient(id: string) {
-  const session = await auth();
-  if (!session?.user?.organizationId) return;
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+  if (!activeOrganizationId) return;
 
   try {
     await prisma.ingredient.deleteMany({
       where: {
         id,
-        organizationId: session.user.organizationId,
+        organizationId: activeOrganizationId,
       },
     });
     revalidatePath("/ingredients");
@@ -114,11 +112,10 @@ export async function updateIngredient(
   prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const session = await auth();
-  if (!session?.user?.organizationId) {
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+  if (!activeOrganizationId) {
     return { message: "Unauthorized" };
   }
-  const organizationId = session.user.organizationId;
 
   const id = formData.get("id") as string;
   const name = formData.get("name") as string;
@@ -145,7 +142,7 @@ export async function updateIngredient(
   const existing = await prisma.ingredient.findFirst({
     where: {
       name: { equals: name.trim() },
-      organizationId,
+      organizationId: activeOrganizationId,
       NOT: { id },
     },
   });
@@ -158,7 +155,7 @@ export async function updateIngredient(
     await prisma.ingredient.update({
       where: {
         id,
-        organizationId,
+        organizationId: activeOrganizationId,
       },
       data: {
         name: name.trim(),
@@ -179,13 +176,13 @@ export async function updateIngredient(
 // NUEVAS FUNCIONES
 
 export async function getIngredientStock(id: string) {
-  const session = await auth();
-  if (!session?.user?.organizationId) return null;
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+  if (!activeOrganizationId) return null;
 
   return await prisma.ingredient.findFirst({
     where: {
       id,
-      organizationId: session.user.organizationId,
+      organizationId: activeOrganizationId,
     },
     include: {
       purchases: {
@@ -205,8 +202,8 @@ export async function updateIngredientStock(
   prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const session = await auth();
-  if (!session?.user?.organizationId) {
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+  if (!activeOrganizationId) {
     return { message: "Unauthorized" };
   }
 
@@ -227,7 +224,7 @@ export async function updateIngredientStock(
     const ingredient = await prisma.ingredient.findFirst({
       where: {
         id,
-        organizationId: session.user.organizationId,
+        organizationId: activeOrganizationId,
       },
     });
 
@@ -247,7 +244,7 @@ export async function updateIngredientStock(
     if (Math.abs(stockDifference) > 0.001) {
       await prisma.stockMovement.create({
         data: {
-          organizationId: session.user.organizationId,
+          organizationId: activeOrganizationId,
           ingredientId: id,
           type: "AJUSTE" as StockMovementType,
           quantity: stockDifference,

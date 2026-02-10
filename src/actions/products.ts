@@ -3,18 +3,18 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { auth } from "@/auth";
 import { ProductType } from "@/generated/prisma/client";
 import { calculateProductCost } from "@/lib/costs";
 import { prisma } from "@/lib/prisma";
+import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { ActionState, RecipeItemInput } from "@/types";
 
 export async function getProducts() {
-  const session = await auth();
-  if (!session?.user?.organizationId) return [];
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+  if (!activeOrganizationId) return [];
 
   const products = await prisma.product.findMany({
-    where: { organizationId: session.user.organizationId },
+    where: { organizationId: activeOrganizationId },
     include: {
       receipeItems: {
         include: {
@@ -47,13 +47,13 @@ export async function getProducts() {
 }
 
 export async function getProductBySlug(slug: string) {
-  const session = await auth();
-  if (!session?.user?.organizationId) return null;
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+  if (!activeOrganizationId) return null;
 
   const product = await prisma.product.findFirst({
     where: {
       slug,
-      organizationId: session.user.organizationId,
+      organizationId: activeOrganizationId,
       isActive: true,
     },
     include: {
@@ -62,7 +62,7 @@ export async function getProductBySlug(slug: string) {
           ingredient: {
             include: {
               purchases: {
-                where: { organizationId: session.user.organizationId },
+                where: { organizationId: activeOrganizationId },
                 orderBy: { purchase: { purchaseDate: "desc" } },
                 take: 1,
               },
@@ -75,7 +75,7 @@ export async function getProductBySlug(slug: string) {
                   ingredient: {
                     include: {
                       purchases: {
-                        where: { organizationId: session.user.organizationId },
+                        where: { organizationId: activeOrganizationId },
                         orderBy: { purchase: { purchaseDate: "desc" } },
                         take: 1,
                       },
@@ -136,11 +136,10 @@ export async function createProduct(
   prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const session = await auth();
-  if (!session?.user?.organizationId || !session?.user?.id) {
+  const { activeOrganizationId, session } = await getServerSessionWithOrg();
+  if (!activeOrganizationId || !session.userId) {
     return { message: "Unauthorized" };
   }
-  const organizationId = session.user.organizationId;
 
   const name = formData.get("name") as string;
   const type = formData.get("type") as ProductType;
@@ -172,7 +171,7 @@ export async function createProduct(
   const existing = await prisma.product.findFirst({
     where: {
       name: { equals: name.trim() },
-      organizationId,
+      organizationId: activeOrganizationId,
     },
   });
 
@@ -190,8 +189,8 @@ export async function createProduct(
       description: description ? description.trim() : null,
       basePrice,
       manualCost: type !== "ELABORADO" ? manualCost : null,
-      userId: session.user.id,
-      organizationId,
+      userId: session.userId,
+      organizationId: activeOrganizationId,
       receipeItems:
         type === "ELABORADO"
           ? {
@@ -215,11 +214,10 @@ export async function updateProduct(
   prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const session = await auth();
-  if (!session?.user?.organizationId) {
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+  if (!activeOrganizationId) {
     return { message: "Unauthorized" };
   }
-  const organizationId = session.user.organizationId;
 
   const name = formData.get("name") as string;
   const type = formData.get("type") as ProductType;
@@ -251,7 +249,7 @@ export async function updateProduct(
   const existing = await prisma.product.findFirst({
     where: {
       name: { equals: name.trim() },
-      organizationId,
+      organizationId: activeOrganizationId,
       NOT: {
         id: id,
       },
@@ -269,7 +267,7 @@ export async function updateProduct(
       await tx.product.update({
         where: {
           id,
-          organizationId,
+          organizationId: activeOrganizationId,
         },
         data: {
           name: name.trim(),
@@ -316,14 +314,14 @@ export async function updateProduct(
 }
 
 export async function deleteProduct(id: string) {
-  const session = await auth();
-  if (!session?.user?.organizationId) return;
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+  if (!activeOrganizationId) return;
 
   try {
     await prisma.product.updateMany({
       where: {
         id,
-        organizationId: session.user.organizationId,
+        organizationId: activeOrganizationId,
       },
       data: {
         isActive: false,
@@ -336,12 +334,12 @@ export async function deleteProduct(id: string) {
 }
 
 export async function getProductsForPOS() {
-  const session = await auth();
-  if (!session?.user?.organizationId) return [];
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+  if (!activeOrganizationId) return [];
 
   const products = await prisma.product.findMany({
     where: {
-      organizationId: session.user.organizationId,
+      organizationId: activeOrganizationId,
       isActive: true,
       basePrice: {
         gt: 0,

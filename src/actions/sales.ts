@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { PAGINATION } from "@/config/constants";
 import { calculateProductCost } from "@/lib/costs";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "@/lib/serverSession";
+import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type {
   SaleItemInput,
   SalesHistoryParams,
@@ -13,8 +13,11 @@ import type {
 } from "@/types";
 
 export async function recordSale(items: SaleItemInput[]) {
-  const { session } = await getServerSession();
-  if (!session?.activeOrganizationId || !session?.userId) return;
+  const {
+    session: { userId },
+    activeOrganizationId,
+  } = await getServerSessionWithOrg();
+  if (!activeOrganizationId || !userId) return;
 
   if (items.length === 0) return;
 
@@ -22,7 +25,7 @@ export async function recordSale(items: SaleItemInput[]) {
   const products = await prisma.product.findMany({
     where: {
       id: { in: items.map((i) => i.productId) },
-      organizationId: session.activeOrganizationId,
+      organizationId: activeOrganizationId,
     },
     include: {
       receipeItems: {
@@ -66,8 +69,8 @@ export async function recordSale(items: SaleItemInput[]) {
   await prisma.sale.create({
     data: {
       totalAmount,
-      userId: session.userId,
-      organizationId: session.activeOrganizationId,
+      userId,
+      organizationId: activeOrganizationId,
       items: {
         create: saleItemsData,
       },
@@ -79,11 +82,11 @@ export async function recordSale(items: SaleItemInput[]) {
 }
 
 export async function getRecentSales() {
-  const { session } = await getServerSession();
-  if (!session?.activeOrganizationId) return [];
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+  if (!activeOrganizationId) return [];
 
   return await prisma.sale.findMany({
-    where: { organizationId: session.activeOrganizationId },
+    where: { organizationId: activeOrganizationId },
     take: PAGINATION.recentSalesLimit,
     orderBy: {
       dateTime: "desc",
@@ -101,15 +104,7 @@ export async function getRecentSales() {
 export async function getSalesHistory(
   params: SalesHistoryParams,
 ): Promise<SalesHistoryResult> {
-  const { session } = await getServerSession();
-  if (!session?.activeOrganizationId) {
-    return {
-      sales: [],
-      hasMore: false,
-      totalCount: 0,
-      periodStats: { revenue: 0, cost: 0, profit: 0 },
-    };
-  }
+  const { activeOrganizationId } = await getServerSessionWithOrg();
 
   const {
     startDate,
@@ -125,7 +120,7 @@ export async function getSalesHistory(
     dateTime?: { gte?: Date; lte?: Date };
     items?: { some: { product: { name: { contains: string } } } };
   } = {
-    organizationId: session.activeOrganizationId,
+    organizationId: activeOrganizationId,
   };
 
   // Date filters
@@ -202,7 +197,7 @@ export async function getSalesHistory(
 
     const monthlyFixedCosts = await prisma.fixedCost.findMany({
       where: {
-        organizationId: session.activeOrganizationId,
+        organizationId: activeOrganizationId,
         isActive: true,
       },
     });
