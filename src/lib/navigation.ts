@@ -29,7 +29,7 @@ export interface QuickAction {
 export const navigationItems: NavItem[] = [
   {
     name: "Dashboard",
-    href: "/",
+    href: "/dashboard",
     icon: LayoutDashboard,
     description: "Resumen general del negocio",
   },
