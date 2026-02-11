@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/tooltip";
 import { NavItem } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
+import { useSidebar } from "@/store/sidebar-store";
 
 interface NavItemProps {
   item: NavItem;
@@ -26,6 +27,7 @@ export function NavItemComponent({
 }: NavItemProps) {
   const pathname = usePathname();
   const [isExpanded, setIsExpanded] = useState(false);
+  const closeSidebar = useSidebar((state) => state.closeSidebar);
 
   const isActive = pathname === item.href;
   const hasSubmenu = item.quickActions && item.quickActions.length > 0;
@@ -49,6 +51,7 @@ export function NavItemComponent({
           <TooltipTrigger asChild>
             <Link
               href={item.href}
+              onClick={closeSidebar}
               className={cn(
                 "flex grow items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 group",
                 isActive
