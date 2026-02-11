@@ -243,3 +243,15 @@ export type SalesHistoryResult = {
     operatingProfit?: number;
   };
 };
+
+export type ProductInput = {
+  id?: string;
+  name: string;
+  type: ProductType;
+  category?: string | null;
+  subCategory?: string | null;
+  description?: string | null;
+  basePrice: number;
+  manualCost?: number | null;
+  recipeItems?: RecipeItemInput[];
+};

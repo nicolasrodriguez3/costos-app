@@ -1,6 +1,9 @@
-import Link from "next/link";
-
+import { getIngredients } from "@/actions/ingredients";
 import { getProducts } from "@/actions/products";
+import {
+  CreateProductModal,
+  EditProductModal,
+} from "@/components/modals/ProductModals";
 import { PageHeader } from "@/components/PageHeader";
 import { ProductTableRow } from "@/components/ProductTableRow";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,8 +21,16 @@ const breadcrumbs = [
   { href: "/products", label: "Productos" },
 ];
 
-export default async function ProductsPage() {
+interface PageProps {
+  searchParams: Promise<{ edit?: string }>;
+}
+
+export default async function ProductsPage({ searchParams }: PageProps) {
+  const { edit } = await searchParams;
   const products = await getProducts();
+  const ingredients = await getIngredients();
+
+  const editingProduct = edit ? products.find((p) => p.id === edit) : undefined;
 
   return (
     <div className="min-h-screen p-8 space-y-8 bg-linear-to-br from-gray-50 to-white text-black">
@@ -28,16 +39,13 @@ export default async function ProductsPage() {
         gradient="purple"
         breadcrumbs={breadcrumbs}
         backLink={{ href: "/dashboard", label: "Volver al Dashboard" }}
+        actions={
+          <CreateProductModal
+            ingredients={ingredients}
+            subProducts={products}
+          />
+        }
       />
-
-      <div className="mb-4">
-        <Link
-          href="/products/new"
-          className="text-sm px-3 py-1 rounded bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 transition opacity-80 group-hover:opacity-100 focus:opacity-100"
-        >
-          Agregar Producto
-        </Link>
-      </div>
 
       <div className="">
         <Card className="rounded-2xl shadow-xl border-gray-100">
@@ -91,6 +99,14 @@ export default async function ProductsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {editingProduct && (
+        <EditProductModal
+          product={editingProduct}
+          ingredients={ingredients}
+          subProducts={products}
+        />
+      )}
     </div>
   );
 }

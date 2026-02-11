@@ -1,9 +1,12 @@
 import Link from "next/link";
 
 import { deleteIngredient, getIngredients } from "@/actions/ingredients";
-import { IngredientForm } from "@/components/IngredientForm";
+import {
+  CreateIngredientModal,
+  EditIngredientModal,
+} from "@/components/IngredientFormModal";
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 interface PageProps {
   searchParams: Promise<{ edit?: string }>;
@@ -28,22 +31,17 @@ export default async function IngredientsPage({ searchParams }: PageProps) {
         title="Ingredientes"
         gradient="orange"
         breadcrumbs={breadcrumbs}
-        backLink={{ href: "/dashboard", label: "Volver al Dashboard" }}
+        actions={<CreateIngredientModal />}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-1">
-          <IngredientForm ingredient={editingIngredient} />
-        </div>
-
-        <div className="lg:col-span-2">
-          <Card className="border-gray-500/10 shadow-sm">
-            <CardHeader>
-              <h2 className="text-2xl font-bold mb-6 text-gray-900">
-                Stock & Costos
-              </h2>
-            </CardHeader>
-
+      <div className="max-w-7xl mx-auto space-y-8">
+        <Card className="border-gray-500/10 shadow-sm">
+          <CardHeader>
+            <h2 className="text-2xl font-bold text-gray-900">
+              Inventario de Ingredientes
+            </h2>
+          </CardHeader>
+          <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -59,10 +57,8 @@ export default async function IngredientsPage({ searchParams }: PageProps) {
                   {ingredients.map((ing) => (
                     <tr
                       key={ing.id}
-                      className={`border-b border-white/5 hover:bg-white/5 transition-colors group ${
-                        editingIngredient?.id === ing.id
-                          ? "bg-orange-500/10"
-                          : ""
+                      className={`border-b border-gray-100 hover:bg-gray-50 transition-colors group ${
+                        editingIngredient?.id === ing.id ? "bg-orange-50" : ""
                       }`}
                     >
                       <td className="p-3 font-medium text-gray-900">
@@ -71,27 +67,32 @@ export default async function IngredientsPage({ searchParams }: PageProps) {
                       <td className="p-3 text-gray-900">{ing.unit}</td>
                       <td className="p-3">
                         <span
-                          className={`font-mono text-sm ${ing.isLowStock ? "text-red-400" : "text-green-400"}`}
+                          className={`font-mono text-sm ${
+                            ing.isLowStock
+                              ? "text-red-500 font-bold"
+                              : "text-green-600"
+                          }`}
                         >
                           {ing.currentStock.toFixed(2)}
                         </span>
                       </td>
-                      <td className="p-3 text-green-400 font-mono">
+                      <td className="p-3 text-gray-600 font-mono">
                         ${(ing.lastCost || 0).toFixed(2)}
                       </td>
                       <td className="p-3 text-right">
                         <div className="flex justify-end gap-2 items-center">
                           <Link
                             href={`/ingredients?edit=${ing.id}`}
-                            className="text-sm px-3 py-1 rounded bg-orange-500/10 text-orange-600 hover:bg-orange-500/20 transition opacity-80 group-hover:opacity-100 focus:opacity-100"
+                            scroll={false}
+                            className="text-sm px-3 py-1 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition opacity-80 group-hover:opacity-100 focus:opacity-100"
                           >
                             Editar
                           </Link>
-                          <button className="text-sm px-3 py-1 rounded bg-green-500/10 text-green-600 hover:bg-green-500/20 transition opacity-80 group-hover:opacity-100 focus:opacity-100">
+                          <button className="text-sm px-3 py-1 rounded bg-green-50 text-green-600 hover:bg-green-100 transition opacity-80 group-hover:opacity-100 focus:opacity-100">
                             Comprar
                           </button>
                           <form action={deleteIngredient.bind(null, ing.id)}>
-                            <button className="text-sm px-3 py-1 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 transition opacity-80 group-hover:opacity-100 focus:opacity-100">
+                            <button className="text-sm px-3 py-1 rounded bg-red-50 text-red-500 hover:bg-red-100 transition opacity-80 group-hover:opacity-100 focus:opacity-100">
                               Borrar
                             </button>
                           </form>
@@ -102,7 +103,7 @@ export default async function IngredientsPage({ searchParams }: PageProps) {
                   {ingredients.length === 0 && (
                     <tr>
                       <td
-                        colSpan={4}
+                        colSpan={5}
                         className="p-8 text-center text-gray-500 italic"
                       >
                         No se encontraron ingredientes. Agrega uno para
@@ -113,9 +114,14 @@ export default async function IngredientsPage({ searchParams }: PageProps) {
                 </tbody>
               </table>
             </div>
-          </Card>
-        </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Edit Modal (Rendered if ID matches) */}
+      {editingIngredient && (
+        <EditIngredientModal ingredient={editingIngredient} />
+      )}
     </div>
   );
 }

@@ -32,28 +32,29 @@ export async function getIngredients() {
   }));
 }
 
+export type IngredientInput = {
+  id?: string;
+  name: string;
+  unit: string;
+  minStock?: number | null;
+  description?: string | null;
+};
+
 export async function createIngredient(
-  prevState: ActionState,
-  formData: FormData,
+  data: IngredientInput,
 ): Promise<ActionState> {
   const {
     activeOrganizationId,
     session: { userId },
   } = await getServerSessionWithOrg();
 
-  const name = formData.get("name") as string;
-  const unit = formData.get("unit") as string;
-  const minStock = formData.get("minStock")
-    ? parseFloat(formData.get("minStock") as string)
-    : null;
-  const description = formData.get("description") as string | null;
-  const isActive = formData.get("isActive") !== "false";
+  const { name, unit, minStock, description } = data;
 
   if (!name || name.trim() === "") {
     return { message: "El nombre es requerido" };
   }
 
-  if (minStock !== null && minStock < 0) {
+  if (minStock !== undefined && minStock !== null && minStock < 0) {
     return { message: "El stock mínimo no puede ser negativo" };
   }
 
@@ -73,10 +74,10 @@ export async function createIngredient(
     data: {
       name: name.trim(),
       unit,
-      currentStock: 0, // Inicializar sin stock
-      minStock,
+      currentStock: 0,
+      minStock: minStock ?? null,
       description: description ? description.trim() : null,
-      isActive,
+      isActive: true,
       userId,
       organizationId: activeOrganizationId,
     },
@@ -109,22 +110,14 @@ export async function deleteIngredient(id: string) {
 }
 
 export async function updateIngredient(
-  prevState: ActionState,
-  formData: FormData,
+  data: IngredientInput,
 ): Promise<ActionState> {
   const { activeOrganizationId } = await getServerSessionWithOrg();
   if (!activeOrganizationId) {
     return { message: "Unauthorized" };
   }
 
-  const id = formData.get("id") as string;
-  const name = formData.get("name") as string;
-  const unit = formData.get("unit") as string;
-  const minStock = formData.get("minStock")
-    ? parseFloat(formData.get("minStock") as string)
-    : null;
-  const description = formData.get("description") as string | null;
-  const isActive = formData.get("isActive") !== "false";
+  const { id, name, unit, minStock, description } = data;
 
   if (!id) {
     return { message: "ID de ingrediente faltante" };
@@ -134,7 +127,7 @@ export async function updateIngredient(
     return { message: "El nombre es requerido" };
   }
 
-  if (minStock !== null && minStock < 0) {
+  if (minStock !== undefined && minStock !== null && minStock < 0) {
     return { message: "El stock mínimo no puede ser negativo" };
   }
 
@@ -160,9 +153,8 @@ export async function updateIngredient(
       data: {
         name: name.trim(),
         unit,
-        minStock,
+        minStock: minStock ?? null,
         description: description ? description.trim() : null,
-        isActive,
       },
     });
     revalidatePath("/ingredients");

@@ -1,13 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
-import { ProductType } from "@/generated/prisma/client";
 import { calculateProductCost } from "@/lib/costs";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
-import type { ActionState, RecipeItemInput } from "@/types";
+import type { ActionState, ProductInput, RecipeItemInput } from "@/types";
 
 export async function getProducts() {
   const { activeOrganizationId } = await getServerSessionWithOrg();
@@ -132,30 +130,22 @@ export async function getProductBySlug(slug: string) {
   return productWithCosts;
 }
 
-export async function createProduct(
-  prevState: ActionState,
-  formData: FormData,
-): Promise<ActionState> {
+export async function createProduct(data: ProductInput): Promise<ActionState> {
   const { activeOrganizationId, session } = await getServerSessionWithOrg();
   if (!activeOrganizationId || !session.userId) {
     return { message: "Unauthorized" };
   }
 
-  const name = formData.get("name") as string;
-  const type = formData.get("type") as ProductType;
-  const category = formData.get("category") as string | null;
-  const subCategory = formData.get("subCategory") as string | null;
-  const description = formData.get("description") as string | null;
-  const basePrice = parseFloat(formData.get("basePrice") as string);
-
-  // Manual cost is only for REVENTA and OTHER products
-  const manualCostStr = formData.get("manualCost") as string | null;
-  const manualCost = manualCostStr ? parseFloat(manualCostStr) : null;
-
-  // Recipe items are only for ELABORADO products
-  const recipeItemsJson = formData.get("recipeItems") as string;
-  const recipeItems =
-    type === "ELABORADO" && recipeItemsJson ? JSON.parse(recipeItemsJson) : [];
+  const {
+    name,
+    type,
+    category,
+    subCategory,
+    description,
+    basePrice,
+    manualCost,
+    recipeItems,
+  } = data;
 
   if (!name || name.trim() === "") {
     return { message: "El nombre es requerido" };
@@ -192,7 +182,7 @@ export async function createProduct(
       userId: session.userId,
       organizationId: activeOrganizationId,
       receipeItems:
-        type === "ELABORADO"
+        type === "ELABORADO" && recipeItems && recipeItems.length > 0
           ? {
               create: recipeItems.map((item: RecipeItemInput) => ({
                 ingredientId: item.ingredientId || null,
@@ -209,31 +199,27 @@ export async function createProduct(
   return { success: true, message: "Producto creado correctamente" };
 }
 
-export async function updateProduct(
-  id: string,
-  prevState: ActionState,
-  formData: FormData,
-): Promise<ActionState> {
+export async function updateProduct(data: ProductInput): Promise<ActionState> {
   const { activeOrganizationId } = await getServerSessionWithOrg();
   if (!activeOrganizationId) {
     return { message: "Unauthorized" };
   }
 
-  const name = formData.get("name") as string;
-  const type = formData.get("type") as ProductType;
-  const category = formData.get("category") as string | null;
-  const subCategory = formData.get("subCategory") as string | null;
-  const description = formData.get("description") as string | null;
-  const basePrice = parseFloat(formData.get("basePrice") as string);
+  const {
+    id,
+    name,
+    type,
+    category,
+    subCategory,
+    description,
+    basePrice,
+    manualCost,
+    recipeItems,
+  } = data;
 
-  // Manual cost is only for REVENTA and OTHER products
-  const manualCostStr = formData.get("manualCost") as string | null;
-  const manualCost = manualCostStr ? parseFloat(manualCostStr) : null;
-
-  // Recipe items are only for ELABORADO products
-  const recipeItemsJson = formData.get("recipeItems") as string;
-  const recipeItems =
-    type === "ELABORADO" && recipeItemsJson ? JSON.parse(recipeItemsJson) : [];
+  if (!id) {
+    return { message: "ID de producto es requerido para actualizar" };
+  }
 
   if (!name || name.trim() === "") {
     return { message: "El nombre es requerido" };
@@ -290,7 +276,7 @@ export async function updateProduct(
       });
 
       // Then create new ones if type is ELABORADO
-      if (type === "ELABORADO" && recipeItems.length > 0) {
+      if (type === "ELABORADO" && recipeItems && recipeItems.length > 0) {
         await tx.recipeItem.createMany({
           data: recipeItems.map((item: RecipeItemInput) => ({
             productId: id,
@@ -305,12 +291,11 @@ export async function updateProduct(
 
     revalidatePath("/products");
     revalidatePath(`/products/${slug}`);
+    return { success: true, message: "Producto actualizado correctamente" };
   } catch (error) {
     console.error("Failed to update product:", error);
     return { message: "Error al actualizar el producto" };
   }
-
-  redirect(`/products/${slug}`);
 }
 
 export async function deleteProduct(id: string) {
