@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ReactNode } from "react";
+
 import { Breadcrumbs } from "./Breadcrumbs";
 
 type GradientPreset = "orange" | "purple" | "green" | "blue";
@@ -32,13 +33,13 @@ export function PageHeader({
   breadcrumbs,
 }: PageHeaderProps) {
   return (
-    <header>
+    <header className="max-w-5xl mx-auto">
       {breadcrumbs && (
         <div className="mb-4">
           <Breadcrumbs breadcrumbs={breadcrumbs} />
         </div>
       )}
-      <div className="flex justify-between items-center mb-12">
+      <div className="flex justify-between items-center flex-wrap mb-12 gap-4">
         <div>
           <h1
             className={`pb-1 text-4xl font-extrabold text-transparent bg-clip-text bg-linear-to-r ${gradientStyles[gradient]}`}
