@@ -65,7 +65,7 @@ export default async function RootLayout({
       <div className="relative flex min-h-screen bg-gray-50">
         <Sidebar />
         <MainContentWrapper>
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 w-full">{children}</main>
         </MainContentWrapper>
       </div>
     </SidebarProvider>
