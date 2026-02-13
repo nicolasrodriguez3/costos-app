@@ -85,9 +85,6 @@ export default async function IngredientsPage({ searchParams }: PageProps) {
                             >
                               Editar
                             </Link>
-                            <button className="text-sm px-3 py-1 rounded bg-green-500/10 text-green-600 hover:bg-green-500/20 transition opacity-80 group-hover:opacity-100 focus:opacity-100">
-                              Comprar
-                            </button>
                             <form action={deleteIngredient.bind(null, ing.id)}>
                               <button className="text-sm px-3 py-1 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 transition opacity-80 group-hover:opacity-100 focus:opacity-100">
                                 Borrar
