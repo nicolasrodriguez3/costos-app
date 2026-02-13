@@ -1,18 +1,42 @@
 "use client";
 
 import { Calendar, DollarSign, Package, Trash2 } from "lucide-react";
+import { useState } from "react";
 
 import { deletePurchase } from "@/actions/purchases";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import type { Purchase } from "@/types";
 import { FormattedDate } from "./FormattedDate";
 
 export function PurchaseHistory({ purchases }: { purchases: Purchase[] }) {
+  const [purchaseToDelete, setPurchaseToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const handleDelete = async (id: string) => {
-    if (confirm("¿Está seguro de eliminar esta compra completa?")) {
-      await deletePurchase(id);
+    setPurchaseToDelete(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!purchaseToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      await deletePurchase(purchaseToDelete);
+      setPurchaseToDelete(null);
+    } catch (error) {
+      console.error("Error deleting purchase:", error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -34,7 +58,7 @@ export function PurchaseHistory({ purchases }: { purchases: Purchase[] }) {
           <div className="space-y-4">
             {purchases.map((purchase) => (
               <Card key={purchase.id} className="border border-gray-200">
-                <CardHeader className="pb-2">
+                <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
@@ -71,11 +95,11 @@ export function PurchaseHistory({ purchases }: { purchases: Purchase[] }) {
                   )}
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
+                  <div className="mb-4">
                     {purchase.ingredientPurchases?.map((ip) => (
                       <div
                         key={ip.id}
-                        className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
+                        className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
                       >
                         <div className="flex items-center gap-3">
                           <div className="font-medium">
@@ -95,17 +119,17 @@ export function PurchaseHistory({ purchases }: { purchases: Purchase[] }) {
                         </div>
                       </div>
                     ))}
-                    <div className="flex justify-end pt-2 border-t border-gray-200">
-                      <div className="flex items-center gap-2 text-lg font-bold">
-                        <DollarSign className="w-5 h-5" />
-                        Total: $
-                        {purchase.ingredientPurchases
-                          ?.reduce(
-                            (sum, ip) => sum + ip.quantity * ip.unitCost,
-                            0,
-                          )
-                          .toFixed(2)}
-                      </div>
+                  </div>
+                  <div className="flex justify-end pt-2 border-t border-gray-200">
+                    <div className="flex items-center gap-2 text-lg font-bold">
+                      <DollarSign className="w-5 h-5" />
+                      Total: $
+                      {purchase.ingredientPurchases
+                        ?.reduce(
+                          (sum, ip) => sum + ip.quantity * ip.unitCost,
+                          0,
+                        )
+                        .toFixed(2)}
                     </div>
                   </div>
                 </CardContent>
@@ -114,6 +138,37 @@ export function PurchaseHistory({ purchases }: { purchases: Purchase[] }) {
           </div>
         )}
       </CardContent>
+
+      <Dialog
+        open={!!purchaseToDelete}
+        onOpenChange={(open) => !open && setPurchaseToDelete(null)}
+      >
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle>¿Está seguro de eliminar esta compra?</DialogTitle>
+            <DialogDescription>
+              Esta acción eliminará la compra y todos sus ingredientes asociados
+              del stock. Esta acción no se puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setPurchaseToDelete(null)}
+              disabled={isDeleting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Eliminando..." : "Eliminar Compra"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
