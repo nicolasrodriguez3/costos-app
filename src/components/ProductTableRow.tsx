@@ -1,8 +1,9 @@
 "use client";
 
+import { DotsThreeIcon, TrashSimpleIcon } from "@phosphor-icons/react";
+import Link from "next/link";
+
 import { deleteProduct } from "@/actions/products";
-import { TrashSimpleIcon, DotsThreeIcon } from "@phosphor-icons/react";
-import { TableRow, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Link from "next/link";
+import { TableCell, TableRow } from "@/components/ui/table";
 import type { RecipeItem } from "@/types";
 
 interface Props {
@@ -69,6 +70,16 @@ export const ProductTableRow = ({ product }: Props) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link
+                href={`/products?edit=${id}`}
+                scroll={false}
+                className="w-full flex items-center gap-2 cursor-pointer"
+              >
+                <DotsThreeIcon size={16} />
+                Editar
+              </Link>
+            </DropdownMenuItem>
             <form action={deleteProduct.bind(null, id)}>
               <DropdownMenuItem asChild>
                 <button
