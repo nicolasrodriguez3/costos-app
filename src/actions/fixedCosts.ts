@@ -1,17 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/auth";
+import { getServerSessionWithOrg } from "@/lib/serverSession";
 import { ActionState } from "@/types";
 
 export async function getFixedCosts() {
-  const session = await auth();
-  if (!session?.user?.organizationId) return [];
+  const { activeOrganizationId } = await getServerSessionWithOrg();
 
   return await prisma.fixedCost.findMany({
     where: {
-      organizationId: session.user.organizationId,
+      organizationId: activeOrganizationId,
       isActive: true,
     },
     orderBy: {
@@ -24,9 +24,7 @@ export async function createFixedCost(
   prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const session = await auth();
-  if (!session?.user?.organizationId)
-    return { success: false, message: "No autorizado" };
+  const { activeOrganizationId } = await getServerSessionWithOrg();
 
   const name = formData.get("name") as string;
   const amount = parseFloat(formData.get("amount") as string);
@@ -44,7 +42,7 @@ export async function createFixedCost(
         amount,
         category,
         description,
-        organizationId: session.user.organizationId,
+        organizationId: activeOrganizationId,
       },
     });
 
@@ -61,9 +59,7 @@ export async function updateFixedCost(
   prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const session = await auth();
-  if (!session?.user?.organizationId)
-    return { success: false, message: "No autorizado" };
+  const { activeOrganizationId } = await getServerSessionWithOrg();
 
   const id = formData.get("id") as string;
   const name = formData.get("name") as string;
@@ -80,7 +76,7 @@ export async function updateFixedCost(
     await prisma.fixedCost.update({
       where: {
         id,
-        organizationId: session.user.organizationId,
+        organizationId: activeOrganizationId,
       },
       data: {
         name,
@@ -101,13 +97,12 @@ export async function updateFixedCost(
 }
 
 export async function deleteFixedCost(id: string) {
-  const session = await auth();
-  if (!session?.user?.organizationId) throw new Error("Unauthorized");
+  const { activeOrganizationId } = await getServerSessionWithOrg();
 
   await prisma.fixedCost.delete({
     where: {
       id,
-      organizationId: session.user.organizationId,
+      organizationId: activeOrganizationId,
     },
   });
 
@@ -116,12 +111,11 @@ export async function deleteFixedCost(id: string) {
 }
 
 export async function getTotalMonthlyFixedCosts() {
-  const session = await auth();
-  if (!session?.user?.organizationId) return 0;
+  const { activeOrganizationId } = await getServerSessionWithOrg();
 
   const costs = await prisma.fixedCost.findMany({
     where: {
-      organizationId: session.user.organizationId,
+      organizationId: activeOrganizationId,
       isActive: true,
     },
     select: {
