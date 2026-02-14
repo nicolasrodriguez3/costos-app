@@ -5,6 +5,7 @@ import {
   CreateIngredientModal,
   EditIngredientModal,
 } from "@/components/IngredientFormModal";
+import { DeleteModal } from "@/components/modals/DeleteModal";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
@@ -26,7 +27,7 @@ export default async function IngredientsPage({ searchParams }: PageProps) {
     : undefined;
 
   return (
-    <div className="min-h-screen p-4 space-y-8 bg-linear-to-br from-gray-50 to-white text-black">
+    <div className="p-4 space-y-8 ">
       <PageHeader
         title="Ingredientes"
         gradient="orange"
@@ -34,7 +35,7 @@ export default async function IngredientsPage({ searchParams }: PageProps) {
         actions={<CreateIngredientModal />}
       />
 
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className="max-w-5xl mx-auto space-y-8">
         <Card className="border-gray-500/10 shadow-sm">
           <CardHeader>
             <h2 className="text-2xl font-bold text-gray-900">
@@ -68,13 +69,18 @@ export default async function IngredientsPage({ searchParams }: PageProps) {
                       <td className="p-3">
                         <span
                           className={`font-mono text-sm ${
-                            ing.isLowStock
+                            ing.currentStock <= 0 || ing.isLowStock
                               ? "text-red-500 font-bold"
                               : "text-green-600"
                           }`}
                         >
                           {ing.currentStock.toFixed(2)}
                         </span>
+                        {Boolean(ing.minStock) && (
+                          <span className="text-xs text-gray-500 ml-2">
+                            ({ing.minStock} min)
+                          </span>
+                        )}
                       </td>
                       <td className="p-3 text-gray-600 font-mono">
                         ${(ing.lastCost || 0).toFixed(2)}
@@ -88,14 +94,12 @@ export default async function IngredientsPage({ searchParams }: PageProps) {
                           >
                             Editar
                           </Link>
-                          <button className="text-sm px-3 py-1 rounded bg-green-50 text-green-600 hover:bg-green-100 transition opacity-80 group-hover:opacity-100 focus:opacity-100">
-                            Comprar
-                          </button>
-                          <form action={deleteIngredient.bind(null, ing.id)}>
-                            <button className="text-sm px-3 py-1 rounded bg-red-50 text-red-500 hover:bg-red-100 transition opacity-80 group-hover:opacity-100 focus:opacity-100">
-                              Borrar
-                            </button>
-                          </form>
+                          <DeleteModal
+                            id={ing.id}
+                            name={ing.name}
+                            type="ingrediente"
+                            action={deleteIngredient}
+                          />
                         </div>
                       </td>
                     </tr>
