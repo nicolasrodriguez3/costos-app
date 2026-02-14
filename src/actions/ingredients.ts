@@ -11,7 +11,7 @@ export async function getIngredients() {
   const { activeOrganizationId } = await getServerSessionWithOrg();
 
   const ingredients = await prisma.ingredient.findMany({
-    where: { organizationId: activeOrganizationId },
+    where: { organizationId: activeOrganizationId, isActive: true },
     orderBy: { name: "asc" },
     include: {
       purchases: {
@@ -92,20 +92,36 @@ export async function createIngredient(
   };
 }
 
-export async function deleteIngredient(id: string) {
+export async function deleteIngredient(id: string): Promise<ActionState> {
   const { activeOrganizationId } = await getServerSessionWithOrg();
-  if (!activeOrganizationId) return;
+  if (!activeOrganizationId)
+    return {
+      success: false,
+      message: "No tienes autorización para ejecutar está acción",
+    };
 
   try {
-    await prisma.ingredient.deleteMany({
+    throw new Error("Error al eliminar el ingrediente");
+    await prisma.ingredient.update({
       where: {
         id,
         organizationId: activeOrganizationId,
       },
+      data: {
+        isActive: false,
+      },
     });
     revalidatePath("/ingredients");
+    return {
+      success: true,
+      message: "Ingrediente eliminado correctamente",
+    };
   } catch (error) {
     console.error("Failed to delete ingredient:", error);
+    return {
+      success: false,
+      message: "Error al eliminar el ingrediente",
+    };
   }
 }
 
