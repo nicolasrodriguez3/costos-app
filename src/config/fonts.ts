@@ -1,16 +1,18 @@
-import { DM_Sans, Geist, Geist_Mono } from "next/font/google";
+import { DM_Sans, Geist_Mono, Space_Grotesk } from "next/font/google";
 
-export const fontTitle = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// Sora
+
+export const fontTitle = Space_Grotesk({
+  variable: "--font-title",
+  weight: "variable",
 });
 
 export const fontMono = Geist_Mono({
-  variable: "--font-geist-mono",
+  variable: "--font-mono",
   subsets: ["latin"],
 });
 
 export const fontBody = DM_Sans({
-  variable: "--font-dm-sans",
+  variable: "--font-sans",
   subsets: ["latin"],
 });

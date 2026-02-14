@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ReactNode } from "react";
 
+import { fontTitle } from "@/config/fonts";
 import { Breadcrumbs } from "./Breadcrumbs";
 
 type GradientPreset = "orange" | "purple" | "green" | "blue";
@@ -42,7 +43,7 @@ export function PageHeader({
       <div className="flex justify-between items-center flex-wrap mb-12 gap-4">
         <div>
           <h1
-            className={`pb-1 text-4xl font-extrabold text-transparent bg-clip-text bg-linear-to-r ${gradientStyles[gradient]}`}
+            className={`${fontTitle.className} pb-1 text-4xl font-extrabold text-transparent bg-clip-text bg-linear-to-r ${gradientStyles[gradient]}`}
           >
             {title}
           </h1>
