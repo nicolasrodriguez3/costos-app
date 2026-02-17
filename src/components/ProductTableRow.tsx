@@ -1,6 +1,10 @@
 "use client";
 
-import { DotsThreeIcon, TrashSimpleIcon } from "@phosphor-icons/react";
+import {
+  DotsThreeIcon,
+  PencilSimpleIcon,
+  TrashSimpleIcon,
+} from "@phosphor-icons/react";
 import Link from "next/link";
 
 import { deleteProduct } from "@/actions/products";
@@ -61,7 +65,7 @@ export const ProductTableRow = ({ product }: Props) => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
+              <span className="sr-only">Ver opciones</span>
               <DotsThreeIcon
                 size={24}
                 weight="bold"
@@ -70,23 +74,23 @@ export const ProductTableRow = ({ product }: Props) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem asChild className="hover:bg-gray-100">
               <Link
-                href={`/products?edit=${id}`}
+                href={`/products/${slug}/edit`}
                 scroll={false}
                 className="w-full flex items-center gap-2 cursor-pointer"
               >
-                <DotsThreeIcon size={16} />
+                <PencilSimpleIcon size={16} />
                 Editar
               </Link>
             </DropdownMenuItem>
             <form action={deleteProduct.bind(null, id)}>
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem asChild className="hover:bg-red-100">
                 <button
                   type="submit"
                   className="w-full flex items-center gap-2 text-red-600 cursor-pointer"
                 >
-                  <TrashSimpleIcon size={16} />
+                  <TrashSimpleIcon size={16} className="text-inherit" />
                   Borrar
                 </button>
               </DropdownMenuItem>

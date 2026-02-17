@@ -132,30 +132,34 @@ export async function getProductBySlug(slug: string) {
   return productWithCosts;
 }
 
+export type ProductFormData = {
+  id?: string;
+  name: string;
+  type: string;
+  category: string;
+  subCategory?: string | null;
+  basePrice: number;
+  manualCost?: number | null;
+  recipeItems?: RecipeItemInput[];
+};
+
 export async function createProduct(
-  prevState: ActionState,
-  formData: FormData,
+  data: ProductFormData,
 ): Promise<ActionState> {
   const { activeOrganizationId, session } = await getServerSessionWithOrg();
   if (!activeOrganizationId || !session.userId) {
     return { message: "Unauthorized" };
   }
 
-  const name = formData.get("name") as string;
-  const type = formData.get("type") as ProductType;
-  const category = formData.get("category") as string | null;
-  const subCategory = formData.get("subCategory") as string | null;
-  const description = formData.get("description") as string | null;
-  const basePrice = parseFloat(formData.get("basePrice") as string);
-
-  // Manual cost is only for REVENTA and OTHER products
-  const manualCostStr = formData.get("manualCost") as string | null;
-  const manualCost = manualCostStr ? parseFloat(manualCostStr) : null;
-
-  // Recipe items are only for ELABORADO products
-  const recipeItemsJson = formData.get("recipeItems") as string;
-  const recipeItems =
-    type === "ELABORADO" && recipeItemsJson ? JSON.parse(recipeItemsJson) : [];
+  const {
+    name,
+    type,
+    category,
+    subCategory,
+    basePrice,
+    manualCost,
+    recipeItems = [],
+  } = data;
 
   if (!name || name.trim() === "") {
     return { message: "El nombre es requerido" };
@@ -183,12 +187,11 @@ export async function createProduct(
     data: {
       name: name.trim(),
       slug,
-      type,
+      type: type as ProductType,
       category: category ? category.trim() : null,
       subCategory: subCategory ? subCategory.trim() : null,
-      description: description ? description.trim() : null,
       basePrice,
-      manualCost: type !== "ELABORADO" ? manualCost : null,
+      manualCost: type !== "ELABORADO" ? (manualCost ?? null) : null,
       userId: session.userId,
       organizationId: activeOrganizationId,
       receipeItems:
@@ -210,30 +213,27 @@ export async function createProduct(
 }
 
 export async function updateProduct(
-  id: string,
-  prevState: ActionState,
-  formData: FormData,
+  data: ProductFormData,
 ): Promise<ActionState> {
   const { activeOrganizationId } = await getServerSessionWithOrg();
   if (!activeOrganizationId) {
     return { message: "Unauthorized" };
   }
 
-  const name = formData.get("name") as string;
-  const type = formData.get("type") as ProductType;
-  const category = formData.get("category") as string | null;
-  const subCategory = formData.get("subCategory") as string | null;
-  const description = formData.get("description") as string | null;
-  const basePrice = parseFloat(formData.get("basePrice") as string);
+  const {
+    id,
+    name,
+    type,
+    category,
+    subCategory,
+    basePrice,
+    manualCost,
+    recipeItems = [],
+  } = data;
 
-  // Manual cost is only for REVENTA and OTHER products
-  const manualCostStr = formData.get("manualCost") as string | null;
-  const manualCost = manualCostStr ? parseFloat(manualCostStr) : null;
-
-  // Recipe items are only for ELABORADO products
-  const recipeItemsJson = formData.get("recipeItems") as string;
-  const recipeItems =
-    type === "ELABORADO" && recipeItemsJson ? JSON.parse(recipeItemsJson) : [];
+  if (!id) {
+    return { message: "El ID del producto es requerido" };
+  }
 
   if (!name || name.trim() === "") {
     return { message: "El nombre es requerido" };
@@ -272,17 +272,15 @@ export async function updateProduct(
         data: {
           name: name.trim(),
           slug,
-          type,
+          type: type as ProductType,
           category: category ? category.trim() : null,
           subCategory: subCategory ? subCategory.trim() : null,
-          description: description ? description.trim() : null,
           basePrice,
-          manualCost: type !== "ELABORADO" ? manualCost : null,
+          manualCost: type !== "ELABORADO" ? (manualCost ?? null) : null,
         },
       });
 
       // 2. Handle Recipe Items (Delete all and recreate)
-      // First, delete existing items
       await tx.recipeItem.deleteMany({
         where: {
           productId: id,
