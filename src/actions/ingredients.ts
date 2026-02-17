@@ -36,6 +36,9 @@ export type IngredientInput = {
   id?: string;
   name: string;
   unit: string;
+  category?: string | null;
+  initialStock?: number | null;
+  currentStock?: number | null;
   minStock?: number | null;
   description?: string | null;
 };
@@ -48,7 +51,7 @@ export async function createIngredient(
     session: { userId },
   } = await getServerSessionWithOrg();
 
-  const { name, unit, minStock, description } = data;
+  const { name, unit, category, initialStock, minStock, description } = data;
 
   if (!name || name.trim() === "") {
     return { message: "El nombre es requerido" };
@@ -70,26 +73,35 @@ export async function createIngredient(
     return { message: "Ya existe un ingrediente con este nombre" };
   }
 
-  const newIngredient = await prisma.ingredient.create({
-    data: {
-      name: name.trim(),
-      unit,
-      currentStock: 0,
-      minStock: minStock ?? null,
-      description: description ? description.trim() : null,
-      isActive: true,
-      userId,
-      organizationId: activeOrganizationId,
-    },
-  });
+  try {
+    const newIngredient = await prisma.ingredient.create({
+      data: {
+        name: name.trim(),
+        unit,
+        category,
+        currentStock: initialStock ?? 0,
+        minStock: minStock ?? null,
+        description: description ? description.trim() : null,
+        isActive: true,
+        userId,
+        organizationId: activeOrganizationId,
+      },
+    });
 
-  revalidatePath("/ingredients");
-  revalidatePath("/products");
-  return {
-    success: true,
-    message: "Ingrediente creado correctamente",
-    data: newIngredient,
-  };
+    revalidatePath("/ingredients");
+    revalidatePath("/products");
+    return {
+      success: true,
+      message: "Ingrediente creado correctamente",
+      data: newIngredient,
+    };
+  } catch (error) {
+    console.error("Error al crear el ingrediente:", error);
+    return {
+      success: false,
+      message: "Error al crear el ingrediente",
+    };
+  }
 }
 
 export async function deleteIngredient(id: string): Promise<ActionState> {
@@ -101,7 +113,6 @@ export async function deleteIngredient(id: string): Promise<ActionState> {
     };
 
   try {
-    throw new Error("Error al eliminar el ingrediente");
     await prisma.ingredient.update({
       where: {
         id,
@@ -133,7 +144,8 @@ export async function updateIngredient(
     return { message: "Unauthorized" };
   }
 
-  const { id, name, unit, minStock, description } = data;
+  const { id, name, unit, category, currentStock, minStock, description } =
+    data;
 
   if (!id) {
     return { message: "ID de ingrediente faltante" };
@@ -159,6 +171,14 @@ export async function updateIngredient(
   if (existing) {
     return { message: "Ya existe otro ingrediente con este nombre" };
   }
+  console.log("currentStock", currentStock);
+  if (currentStock !== undefined && currentStock !== null) {
+    if (currentStock < 0) {
+      return { message: "El stock no puede ser negativo" };
+    }
+    const stockResult = await updateIngredientStock(id, currentStock);
+    console.log("stockResult", stockResult);
+  }
 
   try {
     await prisma.ingredient.update({
@@ -169,6 +189,7 @@ export async function updateIngredient(
       data: {
         name: name.trim(),
         unit,
+        category,
         minStock: minStock ?? null,
         description: description ? description.trim() : null,
       },
@@ -207,6 +228,55 @@ export async function getIngredientStock(id: string) {
 }
 
 export async function updateIngredientStock(
+  id: string,
+  newStock: number,
+): Promise<ActionState> {
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+  if (!activeOrganizationId) {
+    return { message: "Unauthorized" };
+  }
+
+  try {
+    const ingredient = await prisma.ingredient.findFirst({
+      where: {
+        id,
+        organizationId: activeOrganizationId,
+      },
+    });
+    if (!ingredient) {
+      return { message: "Ingrediente no encontrado" };
+    }
+    const stockDifference = newStock - ingredient.currentStock;
+
+    // Actualizar stock
+    await prisma.ingredient.update({
+      where: { id, organizationId: activeOrganizationId },
+      data: { currentStock: newStock },
+    });
+
+    // Crear movimiento de ajuste si hay diferencia
+    if (Math.abs(stockDifference) > 0.001) {
+      await prisma.stockMovement.create({
+        data: {
+          organizationId: activeOrganizationId,
+          ingredientId: id,
+          unit: ingredient.unit,
+          type: "AJUSTE" as StockMovementType,
+          quantity: stockDifference,
+          reason: "Ajuste manual de stock",
+          referenceType: "ADJUSTMENT" as ReferenceType,
+        },
+      });
+    }
+
+    return { success: true, message: "Stock actualizado correctamente" };
+  } catch (error) {
+    console.error("Failed to update ingredient stock:", error);
+    return { message: "Error al actualizar el stock del ingrediente" };
+  }
+}
+
+export async function updateIngredientStockAction(
   prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {

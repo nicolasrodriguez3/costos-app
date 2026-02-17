@@ -69,7 +69,7 @@ export const navigationItems: NavItem[] = [
     quickActions: [
       {
         name: "Nueva compra",
-        href: "/purchases",
+        href: "/purchases/new",
         icon: Plus,
         description: "Registrar compra",
       },

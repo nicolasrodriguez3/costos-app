@@ -25,19 +25,6 @@ export const DEFAULT_CATEGORIES: Record<ProductType, string[]> = {
   OTHER: ["Otros"],
 };
 
-// Units of measurement available
-export const UNITS = ["kg", "g", "l", "ml", "unit"] as const;
-export type UnitType = (typeof UNITS)[number];
-
-// Display labels for units (Spanish)
-export const UNIT_LABELS: Record<UnitType, string> = {
-  kg: "kilogramos",
-  g: "gramos",
-  l: "litros",
-  ml: "mililitros",
-  unit: "unidad",
-};
-
 // Currency configuration
 export const CURRENCY = {
   symbol: "$",
@@ -51,3 +38,56 @@ export const PAGINATION = {
   recentSalesLimit: 5,
   salesHistoryPerPage: 20,
 } as const;
+
+// Units of measurement available
+export const UNITS = {
+  kg: {
+    name: "kilogramos",
+    symbol: "kg",
+    type: "masa",
+    conversionFactor: 1000,
+  },
+  g: {
+    name: "gramos",
+    symbol: "g",
+    type: "masa",
+    conversionFactor: 1,
+  },
+  ml: {
+    name: "mililitros",
+    symbol: "ml",
+    type: "volumen",
+    conversionFactor: 1,
+  },
+  l: {
+    name: "litros",
+    symbol: "l",
+    type: "volumen",
+    conversionFactor: 1000,
+  },
+  unit: {
+    name: "unidad",
+    symbol: "ud.",
+    type: "unidad",
+    conversionFactor: 1,
+  },
+  docena: {
+    name: "docena",
+    symbol: "doc.",
+    type: "unidad",
+    conversionFactor: 12,
+  },
+} as const;
+export type UnitType = keyof typeof UNITS;
+
+export const CATEGORIES = [
+  "Sin categoría",
+  "Proteinas",
+  "Frutas y Verduras",
+  "Lacteos",
+  "Secos/Almacen",
+  "Congelados",
+  "Condimentos y Salsas",
+  "Insumos no alimenticios",
+  "Otros",
+];

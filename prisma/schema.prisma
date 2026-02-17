@@ -151,6 +151,7 @@ model Ingredient {
 
   name         String
   unit         String // e.g., "kg", "grams", "liters", "units"
+  category     String?
   currentStock Float    @default(0) // Stock actual
   minStock     Float? // Stock mínimo para alertas
   isActive     Boolean  @default(true)
