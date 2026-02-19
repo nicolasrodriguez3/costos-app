@@ -1,9 +1,9 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { createAuthMiddleware } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { organization } from "better-auth/plugins";
 
+import { getActiveOrganization } from "@/actions/organization";
 import { AUTH_CONFIG } from "@/config/auth.config";
 import { envs } from "@/config/envs";
 import { prisma } from "@/lib/prisma";
@@ -31,16 +31,21 @@ export const auth = betterAuth({
       clientSecret: envs.GOOGLE_CLIENT_SECRET,
     },
   },
-  hooks: {
-    after: createAuthMiddleware(async (ctx) => {
-      if (ctx.path.startsWith("/sign-in-social")) {
-        const newSession = ctx.context.newSession;
-        if (newSession) {
-          // TODO: Avisarme que alguien se registro, enviar un correo, etc
-          console.log("user registered", newSession.user.name);
-        }
-      }
-    }),
+  databaseHooks: {
+    session: {
+      create: {
+        before: async (session) => {
+          // Implement your custom logic to set initial active organization
+          const organization = await getActiveOrganization(session.userId);
+          return {
+            data: {
+              ...session,
+              activeOrganizationId: organization?.id,
+            },
+          };
+        },
+      },
+    },
   },
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
