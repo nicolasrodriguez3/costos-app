@@ -35,7 +35,7 @@ export type Ingredient = {
   minStock?: number | null;
   isActive: boolean;
   description?: string | null;
-  cost?: number; // Last purchase cost
+  lastCost?: number; // Last purchase cost
   category?: string | null;
   createdAt: Date;
   updatedAt: Date;

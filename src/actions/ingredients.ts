@@ -6,6 +6,7 @@ import { ReferenceType, StockMovementType } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { ActionState } from "@/types";
+import { createStockMovement } from "./purchases";
 
 export async function getIngredients() {
   const { activeOrganizationId } = await getServerSessionWithOrg();
@@ -40,6 +41,7 @@ export type IngredientInput = {
   initialStock?: number | null;
   currentStock?: number | null;
   minStock?: number | null;
+  initialCost?: number | null;
   description?: string | null;
 };
 
@@ -51,7 +53,15 @@ export async function createIngredient(
     session: { userId },
   } = await getServerSessionWithOrg();
 
-  const { name, unit, category, initialStock, minStock, description } = data;
+  const {
+    name,
+    unit,
+    category,
+    initialStock,
+    minStock,
+    initialCost,
+    description,
+  } = data;
 
   if (!name || name.trim() === "") {
     return { message: "El nombre es requerido" };
@@ -87,6 +97,15 @@ export async function createIngredient(
         organizationId: activeOrganizationId,
       },
     });
+
+    if (initialCost) {
+      await createStockMovement({
+        ingredientId: newIngredient.id,
+        quantity: initialStock ?? 0,
+        unit,
+        unitCost: initialCost,
+      });
+    }
 
     revalidatePath("/ingredients");
     revalidatePath("/products");

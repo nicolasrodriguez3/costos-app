@@ -344,3 +344,50 @@ export async function deletePurchase(purchaseId: string) {
     console.error("Failed to delete purchase:", error);
   }
 }
+
+export async function createStockMovement({
+  ingredientId,
+  quantity,
+  unit,
+  unitCost,
+}: {
+  ingredientId: string;
+  quantity: number;
+  unit: string;
+  unitCost: number;
+}) {
+  const { activeOrganizationId: organizationId } =
+    await getServerSessionWithOrg();
+
+  try {
+    await prisma.purchase.create({
+      data: {
+        organizationId,
+        ingredientPurchases: {
+          create: {
+            ingredientId,
+            organizationId,
+            quantity,
+            unit,
+            unitCost,
+          },
+        },
+      },
+    });
+
+    // Create stock movement
+    await prisma.stockMovement.create({
+      data: {
+        organizationId,
+        ingredientId,
+        type: "AJUSTE",
+        quantity,
+        unit,
+        reason: `Stock inicial`,
+        referenceType: "ADJUSTMENT",
+      },
+    });
+  } catch (error) {
+    console.error("Failed to create stock movement:", error);
+  }
+}

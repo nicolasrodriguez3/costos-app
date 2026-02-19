@@ -45,6 +45,10 @@ const ingredientSchema = z.object({
     .number()
     .min(0, "El stock actual no puede ser negativo")
     .optional(),
+  initialCost: z.coerce
+    .number()
+    .min(0, "El costo inicial no puede ser negativo")
+    .optional(),
 });
 
 type IngredientFormValues = z.infer<typeof ingredientSchema>;
@@ -73,6 +77,7 @@ export function IngredientForm({
       category: ingredient?.category ?? CATEGORIES[0],
       minStock: ingredient?.minStock ?? undefined,
       currentStock: ingredient?.currentStock ?? undefined,
+      initialCost: undefined,
     },
   });
 
@@ -91,12 +96,15 @@ export function IngredientForm({
       const action = isEditing ? updateIngredient : createIngredient;
       const result = await action({
         ...(isEditing && { id: ingredient.id }),
-        ...(isEditing && { currentStock: data.currentStock }),
+        ...(isEditing
+          ? { currentStock: data.currentStock }
+          : { initialStock: data.initialStock }),
         name: data.name,
         unit: data.unit,
         category: data.category,
         minStock: data.minStock ?? null,
         description: data.description || null,
+        initialCost: data.initialCost ?? null,
       });
 
       if (result.success) {
@@ -195,43 +203,80 @@ export function IngredientForm({
             )}
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          {isEditing ? (
-            <FormField
-              control={form.control}
-              name="currentStock"
-              render={({ field }) => (
-                <FormItem className="text-gray-900 w-full">
-                  <FormLabel>Stock Actual (Opcional)</FormLabel>
-                  <FormControl>
+
+        {/* Datos iniciales */}
+        <div className="flex flex-col gap-2">
+          {!isEditing && (
+            <p className="text-md text-gray-700">Datos iniciales</p>
+          )}
+          <div className="grid grid-cols-2 gap-4">
+            {isEditing ? (
+              <FormField
+                control={form.control}
+                name="currentStock"
+                render={({ field }) => (
+                  <FormItem className="text-gray-900 w-full">
+                    <FormLabel>Stock Actual (Opcional)</FormLabel>
                     <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        className="w-full"
-                        placeholder={`0.00 ${UNITS[form.watch("unit") as UnitType].symbol}`}
-                        {...field}
-                        value={field.value ?? ""}
-                      />
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          className="w-full"
+                          placeholder={`0.00 ${UNITS[form.watch("unit") as UnitType].symbol}`}
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
                       <span className="text-gray-500">
                         {UNITS[form.watch("unit") as UnitType].symbol}
                       </span>
                     </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          ) : (
-            <FormField
-              control={form.control}
-              name="initialStock"
-              render={({ field }) => (
-                <FormItem className="text-gray-900">
-                  <FormLabel>Stock Inicial (Opcional)</FormLabel>
-                  <FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : (
+              <FormField
+                control={form.control}
+                name="initialStock"
+                render={({ field }) => (
+                  <FormItem className="text-gray-900">
+                    <FormLabel>Stock Inicial (Opcional)</FormLabel>
                     <div className="flex items-center gap-2">
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          className="w-full"
+                          placeholder="0.00"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <span className="text-gray-500">
+                        {UNITS[form.watch("unit") as UnitType].symbol}
+                      </span>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+            {/* Costo */}
+            {!isEditing && (
+              <FormField
+                control={form.control}
+                name="initialCost"
+                render={({ field }) => (
+                  <FormItem className="text-gray-900 w-full">
+                    <FormLabel>
+                      Costo por {UNITS[form.watch("unit") as UnitType].symbol}{" "}
+                      (Opcional)
+                    </FormLabel>
+                    <FormControl>
                       <Input
                         type="number"
                         step="0.01"
@@ -241,42 +286,44 @@ export function IngredientForm({
                         {...field}
                         value={field.value ?? ""}
                       />
-                      <span className="text-gray-500">
-                        {UNITS[form.watch("unit") as UnitType].symbol}
-                      </span>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-          <FormField
-            control={form.control}
-            name="minStock"
-            render={({ field }) => (
-              <FormItem className="text-gray-900">
-                <FormLabel>Stock Mínimo (Opcional)</FormLabel>
-                <FormControl>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+          </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          <p className="text-md text-gray-700">Otros datos</p>
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="minStock"
+              render={({ field }) => (
+                <FormItem className="text-gray-900">
+                  <FormLabel>Stock Mínimo (Opcional)</FormLabel>
                   <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      className="w-full"
-                      placeholder="0.00"
-                      {...field}
-                      value={field.value ?? ""}
-                    />
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        className="w-full"
+                        placeholder="0.00"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    </FormControl>
                     <span className="text-gray-500">
                       {UNITS[form.watch("unit") as UnitType].symbol}
                     </span>
                   </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
 
         {ingredient && (
@@ -290,7 +337,7 @@ export function IngredientForm({
             <div>
               <p className="mb-1 text-gray-600">Último Costo</p>
               <div className="font-semibold text-green-600">
-                ${(ingredient.cost || 0).toFixed(2)}
+                ${(ingredient.lastCost || 0).toFixed(2)}
               </div>
             </div>
           </div>
