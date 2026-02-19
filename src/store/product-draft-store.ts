@@ -1,8 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { DEFAULT_CATEGORIES } from "@/config/constants";
-
 export type DraftRecipeItem = {
   ingredientId?: string | null;
   subProductId?: string | null;
@@ -11,21 +9,23 @@ export type DraftRecipeItem = {
 };
 
 export type ProductDraft = {
+  organizationId: string;
   name: string;
   type: string;
   category: string;
   subCategory?: string;
-  basePrice: number;
+  basePrice?: number | null;
   manualCost?: number;
   recipeItems?: DraftRecipeItem[];
 };
 
 const EMPTY_DRAFT: ProductDraft = {
+  organizationId: "",
   name: "",
   type: "ELABORADO",
-  category: DEFAULT_CATEGORIES.ELABORADO[0],
+  category: "",
   subCategory: "",
-  basePrice: 0,
+  basePrice: null,
   manualCost: undefined,
   recipeItems: [],
 };

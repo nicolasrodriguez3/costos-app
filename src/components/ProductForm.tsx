@@ -57,19 +57,38 @@ const productSchema = z.object({
   type: z.string().min(1, "El tipo es requerido"),
   category: z.string().min(1, "La categoría es requerida"),
   subCategory: z.string().optional(),
-  basePrice: z.coerce.number().min(0, "El precio no puede ser negativo"),
+  basePrice: z.coerce
+    .number()
+    .min(0, "El precio no puede ser negativo")
+    .optional(),
   manualCost: z.coerce.number().min(0).optional(),
   recipeItems: z.array(recipeItemSchema).optional(),
 });
 
-type ProductFormValues = z.infer<typeof productSchema>;
-
+type ProductFormValues = {
+  name: string;
+  type: string;
+  category: string;
+  basePrice?: number | null | undefined;
+  subCategory?: string | undefined;
+  manualCost?: number | undefined;
+  recipeItems?:
+    | {
+        quantity: number;
+        unit: string;
+        ingredientId?: string | null | undefined;
+        subProductId?: string | null | undefined;
+      }[]
+    | undefined;
+};
+type ProductFormValuesWithOrg = ProductFormValues & { organizationId: string };
 // --- Props ---
 
 type ProductFormProps = {
   ingredients: IngredientWithStock[];
   products: (ProductBase & { cost: number })[];
   initialData?: ProductWithRelations;
+  organizationId: string;
 };
 
 // --- Helper ---
@@ -103,6 +122,7 @@ export function ProductForm({
   ingredients,
   products,
   initialData,
+  organizationId,
 }: ProductFormProps) {
   const router = useRouter();
   const isEditing = !!initialData;
@@ -120,7 +140,7 @@ export function ProductForm({
         type: initialData?.type ?? "ELABORADO",
         category: initialData?.category ?? DEFAULT_CATEGORIES.ELABORADO[0],
         subCategory: initialData?.subCategory ?? "",
-        basePrice: initialData?.basePrice ?? 0,
+        basePrice: initialData?.basePrice,
         manualCost: initialData?.manualCost ?? undefined,
         recipeItems:
           initialData?.receipeItems?.map((item) => ({
@@ -132,18 +152,22 @@ export function ProductForm({
       };
     }
 
-    if (initialDraft.current.hasDraft) return initialDraft.current.draft;
+    if (
+      initialDraft.current.hasDraft &&
+      initialDraft.current.draft.organizationId === organizationId
+    )
+      return initialDraft.current.draft;
 
     return {
       name: "",
       type: "ELABORADO",
       category: DEFAULT_CATEGORIES.ELABORADO[0],
       subCategory: "",
-      basePrice: 0,
+      basePrice: undefined,
       manualCost: undefined,
       recipeItems: [],
     };
-  }, [isEditing, initialData]);
+  }, [isEditing, initialData, organizationId]);
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema) as Resolver<ProductFormValues>,
@@ -156,12 +180,13 @@ export function ProductForm({
     if (
       !isEditing &&
       initialDraft.current.hasDraft &&
+      initialDraft.current.draft.organizationId === organizationId &&
       !draftRestoredRef.current
     ) {
       draftRestoredRef.current = true;
       toast.info("Se restauró un borrador guardado.");
     }
-  }, [isEditing]);
+  }, [isEditing, organizationId]);
 
   // Auto-save draft via watch subscription (no re-renders)
   useEffect(() => {
@@ -174,12 +199,15 @@ export function ProductForm({
         (values.basePrice && values.basePrice > 0);
 
       if (hasContent) {
-        saveDraft(values as ProductFormValues);
+        saveDraft({
+          ...values,
+          organizationId,
+        } as ProductFormValuesWithOrg);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [form, isEditing, saveDraft]);
+  }, [form, isEditing, saveDraft, organizationId]);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -270,15 +298,14 @@ export function ProductForm({
     const empty: ProductFormValues = {
       name: "",
       type: "ELABORADO",
-      category: DEFAULT_CATEGORIES.ELABORADO[0],
+      category: "",
       subCategory: "",
-      basePrice: 0,
+      basePrice: null,
       manualCost: undefined,
       recipeItems: [],
     };
     form.reset(empty);
     clearDraft();
-    toast.info("Formulario limpiado.");
   }, [form, clearDraft]);
 
   const onSubmit = (data: ProductFormValues) => {
@@ -290,7 +317,7 @@ export function ProductForm({
         type: data.type,
         category: data.category,
         subCategory: data.subCategory || null,
-        basePrice: data.basePrice,
+        basePrice: data.basePrice ?? 0,
         manualCost: data.manualCost ?? null,
         recipeItems:
           data.type === "ELABORADO"
@@ -306,19 +333,7 @@ export function ProductForm({
       if (result.success) {
         toast.success(result.message);
         router.refresh();
-        if (!isEditing) {
-          const empty: ProductFormValues = {
-            name: "",
-            type: "ELABORADO",
-            category: DEFAULT_CATEGORIES.ELABORADO[0],
-            subCategory: "",
-            basePrice: 0,
-            manualCost: undefined,
-            recipeItems: [],
-          };
-          form.reset(empty);
-        }
-        clearDraft();
+        handleClearForm();
         router.push("/products");
       } else {
         toast.error(result.message);
@@ -453,6 +468,7 @@ export function ProductForm({
                       placeholder="0.00"
                       className="w-full"
                       {...field}
+                      value={field.value ?? ""}
                     />
                   </FormControl>
                   <FormMessage />

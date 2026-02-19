@@ -1,7 +1,8 @@
-import { getProducts } from "@/actions/products";
 import { getIngredients } from "@/actions/ingredients";
-import { ProductForm } from "@/components/ProductForm";
+import { getProducts } from "@/actions/products";
 import { PageHeader } from "@/components/PageHeader";
+import { ProductForm } from "@/components/ProductForm";
+import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { IngredientWithStock } from "@/types";
 
 const breadcrumbs = [
@@ -11,6 +12,9 @@ const breadcrumbs = [
 ];
 
 export default async function ProductsNewPage() {
+  const session = await getServerSessionWithOrg();
+  const organizationId = session.activeOrganizationId;
+
   const [ingredientsRaw, products] = await Promise.all([
     getIngredients(),
     getProducts(),
@@ -28,7 +32,11 @@ export default async function ProductsNewPage() {
       />
 
       <div className="max-w-4xl mx-auto mt-8">
-        <ProductForm ingredients={ingredients} products={products} />
+        <ProductForm
+          ingredients={ingredients}
+          products={products}
+          organizationId={organizationId}
+        />
       </div>
     </div>
   );
