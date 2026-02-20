@@ -168,6 +168,8 @@ export type Sale = {
   id: string;
   totalAmount: number;
   dateTime: Date;
+  notes?: string | null;
+  deletedAt?: Date | null;
   items: SaleItem[];
 };
 

@@ -243,13 +243,16 @@ model Sale {
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   totalAmount Float
-  dateTime    DateTime @default(now())
+  dateTime    DateTime  @default(now())
+  notes       String?
+  deletedAt   DateTime?
 
   items SaleItem[]
 
   @@index([dateTime])
   @@index([userId])
   @@index([organizationId])
+  @@index([deletedAt])
 }
 
 // Individual items in a Sale
