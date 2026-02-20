@@ -46,7 +46,8 @@
       "!.next/**",
       "!out/**",
       "!build/**",
-      "!next-env.d.ts"
+      "!next-env.d.ts",
+      "!tests/**"
     ]
   },
   "javascript": { "formatter": { "quoteStyle": "double" }, "globals": [] },

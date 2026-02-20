@@ -279,12 +279,81 @@ app/
 
 ## 🧪 Testing Guidelines
 
-(TODO: Implement testing framework)
+### Commands
 
-- Use Jest/Vitest for unit tests
-- Testing Library for component tests
-- Prisma test environment for database tests
-- Always test Server Actions with authentication context
+```bash
+pnpm test           # Run tests in watch mode
+pnpm test:run      # Run tests once
+```
+
+### Framework
+
+- **Vitest** - Framework de testing (más rápido que Jest, mejor integración con Vite)
+- **jsdom** - Para testing de componentes React (opcional)
+- **@testing-library/react** - Para testing de componentes (opcional)
+
+### Testing Server Actions
+
+Ubicar tests en `tests/actions/`.
+
+```typescript
+// tests/actions/ingredients.test.ts
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { createIngredient, type IngredientInput } from "@/actions/ingredients";
+import { prisma } from "@/lib/prisma";
+import { getServerSessionWithOrg } from "@/lib/serverSession";
+
+vi.mock("@/lib/prisma", () => ({
+  prisma: {
+    ingredient: {
+      create: vi.fn(),
+      findFirst: vi.fn(),
+    },
+  },
+}));
+
+vi.mock("@/lib/serverSession", () => ({
+  getServerSessionWithOrg: vi.fn(),
+}));
+
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+
+describe("createIngredient", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should create ingredient successfully", async () => {
+    vi.mocked(getServerSessionWithOrg).mockResolvedValue({
+      session: { userId: "user-123" },
+      user: { id: "user-123" },
+      activeOrganizationId: "org-123",
+    } as any);
+
+    vi.mocked(prisma.ingredient.create).mockResolvedValue({
+      id: "ingredient-1",
+      name: "Tomate",
+      unit: "kg",
+    } as any);
+
+    const input: IngredientInput = { name: "Tomate", unit: "kg" };
+    const result = await createIngredient(input);
+
+    expect(result.success).toBe(true);
+    expect(prisma.ingredient.create).toHaveBeenCalled();
+  });
+});
+```
+
+### Patrones de Testing
+
+- **Mockear `getServerSessionWithOrg`** para pruebas de autenticación
+- **Mockear `prisma`** para evitar acceso a base de datos real
+- **Mockear `next/cache`** para evitar revalidación durante tests
+- Usar `vi.mocked()` para tipado correcto de mocks
+- Siempre hacer `vi.clearAllMocks()` en `beforeEach`
 
 ---
 
