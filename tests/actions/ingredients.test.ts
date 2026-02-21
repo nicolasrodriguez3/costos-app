@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createIngredient, type IngredientInput } from "@/actions/ingredients";
+import { createIngredient } from "@/actions/ingredients";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
+import { IngredientInput } from "@/types";
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {

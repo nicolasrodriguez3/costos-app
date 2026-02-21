@@ -3,11 +3,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createProduct,
   deleteProduct,
-  type ProductFormData,
   updateProduct,
 } from "@/actions/products";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
+import { ProductFormData } from "@/types";
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
