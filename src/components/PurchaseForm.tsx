@@ -34,7 +34,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { UNITS } from "@/config/constants";
+import { UNIT_OPTIONS } from "@/config/constants";
 import type {
   IngredientPurchaseInput,
   IngredientWithStock,
@@ -154,11 +154,10 @@ export function PurchaseForm({ purchase, ingredients }: PurchaseFormProps) {
   }
 
   async function onCreateIngredient(data: NewIngredientValues) {
-    const formData = new FormData();
-    formData.set("name", data.name);
-    formData.set("unit", data.unit);
-
-    const result = await createIngredient({}, formData);
+    const result = await createIngredient({
+      name: data.name,
+      unit: data.unit,
+    });
 
     if (result.success) {
       setCreateDialogOpen(false);
@@ -364,7 +363,7 @@ export function PurchaseForm({ purchase, ingredients }: PurchaseFormProps) {
                                 <SelectValue placeholder="Seleccione una unidad" />
                               </SelectTrigger>
                               <SelectContent>
-                                {UNITS.map((unit) => (
+                                {UNIT_OPTIONS.map((unit) => (
                                   <SelectItem key={unit} value={unit}>
                                     {unit}
                                   </SelectItem>
@@ -499,7 +498,7 @@ export function PurchaseForm({ purchase, ingredients }: PurchaseFormProps) {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {UNITS.map((unit: string) => (
+                          {UNIT_OPTIONS.map((unit) => (
                             <SelectItem key={unit} value={unit}>
                               {unit}
                             </SelectItem>

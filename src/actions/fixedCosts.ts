@@ -50,7 +50,7 @@ export async function createFixedCost(
     revalidatePath("/sales/history");
     return { success: true, message: "Gasto fijo creado con éxito" };
   } catch (error) {
-    console.error("Error creating fixed cost:", error);
+    console.error("Error al crear costo fijo:", error);
     return { success: false, message: "Error al crear el gasto fijo" };
   }
 }
@@ -91,23 +91,29 @@ export async function updateFixedCost(
     revalidatePath("/sales/history");
     return { success: true, message: "Gasto fijo actualizado con éxito" };
   } catch (error) {
-    console.error("Error updating fixed cost:", error);
+    console.error("Error al actualizar costo fijo:", error);
     return { success: false, message: "Error al actualizar el gasto fijo" };
   }
 }
 
-export async function deleteFixedCost(id: string) {
+export async function deleteFixedCost(id: string): Promise<ActionState> {
   const { activeOrganizationId } = await getServerSessionWithOrg();
 
-  await prisma.fixedCost.delete({
-    where: {
-      id,
-      organizationId: activeOrganizationId,
-    },
-  });
+  try {
+    await prisma.fixedCost.delete({
+      where: {
+        id,
+        organizationId: activeOrganizationId,
+      },
+    });
 
-  revalidatePath("/expenses");
-  revalidatePath("/sales/history");
+    revalidatePath("/expenses");
+    revalidatePath("/sales/history");
+    return { success: true, message: "Costo fijo eliminado correctamente" };
+  } catch (error) {
+    console.error("Error al eliminar costo fijo:", error);
+    return { message: "Error al eliminar el costo fijo" };
+  }
 }
 
 export async function getTotalMonthlyFixedCosts() {

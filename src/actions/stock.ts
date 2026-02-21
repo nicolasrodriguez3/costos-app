@@ -1,19 +1,22 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+
+import { prisma } from "@/lib/prisma";
+import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { ActionState, StockMovementType } from "@/types";
-import { auth } from "@/auth";
 
 export async function createStockMovement(
   prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const session = await auth();
-  if (!session?.user?.organizationId) {
+  let organizationId: string;
+  try {
+    const { activeOrganizationId } = await getServerSessionWithOrg();
+    organizationId = activeOrganizationId;
+  } catch {
     return { message: "Unauthorized" };
   }
-  const organizationId = session.user.organizationId;
 
   const ingredientId = formData.get("ingredientId") as string;
   const type = formData.get("type") as StockMovementType;
@@ -90,17 +93,22 @@ export async function createStockMovement(
       message: "Movimiento de stock registrado correctamente",
     };
   } catch (error) {
-    console.error("Failed to create stock movement:", error);
+    console.error("Error al crear movimiento de stock:", error);
     return { message: "Error al registrar el movimiento de stock" };
   }
 }
 
 export async function getStockMovements(ingredientId?: string) {
-  const session = await auth();
-  if (!session?.user?.organizationId) return [];
+  let organizationId: string;
+  try {
+    const { activeOrganizationId } = await getServerSessionWithOrg();
+    organizationId = activeOrganizationId;
+  } catch {
+    return [];
+  }
 
   const where = {
-    organizationId: session.user.organizationId,
+    organizationId,
     ...(ingredientId && { ingredientId }),
   };
 
@@ -119,25 +127,29 @@ export async function getStockMovements(ingredientId?: string) {
   });
 }
 
-export async function deleteStockMovement(id: string) {
-  const session = await auth();
-  if (!session?.user?.organizationId) return;
+export async function deleteStockMovement(id: string): Promise<ActionState> {
+  let organizationId: string;
+  try {
+    const { activeOrganizationId } = await getServerSessionWithOrg();
+    organizationId = activeOrganizationId;
+  } catch {
+    return { message: "Unauthorized" };
+  }
 
   try {
     const movement = await prisma.stockMovement.findFirst({
       where: {
         id,
-        organizationId: session.user.organizationId,
+        organizationId,
       },
     });
 
     if (movement && movement.referenceType === "ADJUSTMENT") {
-      // Revertir el movimiento del stock
       await prisma.ingredient.update({
         where: { id: movement.ingredientId },
         data: {
           currentStock: {
-            decrement: movement.quantity, // Restar el movimiento original
+            decrement: movement.quantity,
           },
         },
       });
@@ -146,13 +158,15 @@ export async function deleteStockMovement(id: string) {
     await prisma.stockMovement.deleteMany({
       where: {
         id,
-        organizationId: session.user.organizationId,
+        organizationId,
       },
     });
 
     revalidatePath("/ingredients");
     revalidatePath("/purchases");
+    return { success: true, message: "Movimiento de stock eliminado" };
   } catch (error) {
-    console.error("Failed to delete stock movement:", error);
+    console.error("Error al eliminar movimiento de stock:", error);
+    return { message: "Error al eliminar el movimiento de stock" };
   }
 }

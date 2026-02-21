@@ -7,7 +7,7 @@ import { ProductType } from "@/generated/prisma/client";
 import { calculateProductCost } from "@/lib/costs";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
-import type { ActionState, RecipeItemInput } from "@/types";
+import type { ActionState, ProductFormData, RecipeItemInput } from "@/types";
 
 export async function getProducts() {
   const { activeOrganizationId } = await getServerSessionWithOrg();
@@ -131,17 +131,6 @@ export async function getProductBySlug(slug: string) {
 
   return productWithCosts;
 }
-
-export type ProductFormData = {
-  id?: string;
-  name: string;
-  type: string;
-  category: string;
-  subCategory?: string | null;
-  basePrice: number;
-  manualCost?: number | null;
-  recipeItems?: RecipeItemInput[];
-};
 
 export async function createProduct(
   data: ProductFormData,
@@ -304,16 +293,18 @@ export async function updateProduct(
     revalidatePath("/products");
     revalidatePath(`/products/${slug}`);
   } catch (error) {
-    console.error("Failed to update product:", error);
+    console.error("Error al actualizar producto:", error);
     return { message: "Error al actualizar el producto" };
   }
 
   redirect(`/products/${slug}`);
 }
 
-export async function deleteProduct(id: string) {
+export async function deleteProduct(id: string): Promise<ActionState> {
   const { activeOrganizationId } = await getServerSessionWithOrg();
-  if (!activeOrganizationId) return;
+  if (!activeOrganizationId) {
+    return { message: "Unauthorized" };
+  }
 
   try {
     await prisma.product.updateMany({
@@ -326,8 +317,10 @@ export async function deleteProduct(id: string) {
       },
     });
     revalidatePath("/products");
+    return { success: true, message: "Producto eliminado correctamente" };
   } catch (error) {
-    console.error("Failed to delete product:", error);
+    console.error("Error al eliminar producto:", error);
+    return { message: "Error al eliminar el producto" };
   }
 }
 

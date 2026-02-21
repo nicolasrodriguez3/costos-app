@@ -5,7 +5,11 @@ import { revalidatePath } from "next/cache";
 import { ReferenceType, StockMovementType } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
-import type { ActionState } from "@/types";
+import type {
+  ActionState,
+  IngredientInput,
+  IngredientWithStock,
+} from "@/types";
 import { createStockMovement } from "./purchases";
 
 export async function getIngredients() {
@@ -32,18 +36,6 @@ export async function getIngredients() {
     isLowStock: ing.minStock && ing.currentStock <= ing.minStock,
   }));
 }
-
-export type IngredientInput = {
-  id?: string;
-  name: string;
-  unit: string;
-  category?: string | null;
-  initialStock?: number | null;
-  currentStock?: number | null;
-  minStock?: number | null;
-  initialCost?: number | null;
-  description?: string | null;
-};
 
 export async function createIngredient(
   data: IngredientInput,
@@ -147,7 +139,7 @@ export async function deleteIngredient(id: string): Promise<ActionState> {
       message: "Ingrediente eliminado correctamente",
     };
   } catch (error) {
-    console.error("Failed to delete ingredient:", error);
+    console.error("Error al eliminar ingrediente:", error);
     return {
       success: false,
       message: "Error al eliminar el ingrediente",
@@ -190,13 +182,12 @@ export async function updateIngredient(
   if (existing) {
     return { message: "Ya existe otro ingrediente con este nombre" };
   }
-  console.log("currentStock", currentStock);
+
   if (currentStock !== undefined && currentStock !== null) {
     if (currentStock < 0) {
       return { message: "El stock no puede ser negativo" };
     }
-    const stockResult = await updateIngredientStock(id, currentStock);
-    console.log("stockResult", stockResult);
+    await updateIngredientStock(id, currentStock);
   }
 
   try {
@@ -216,7 +207,7 @@ export async function updateIngredient(
     revalidatePath("/ingredients");
     return { success: true, message: "Ingrediente actualizado correctamente" };
   } catch (error) {
-    console.error("Failed to update ingredient:", error);
+    console.error("Error al actualizar ingrediente:", error);
     return { message: "Error al actualizar el ingrediente" };
   }
 }
@@ -246,15 +237,13 @@ export async function getIngredientStock(id: string) {
   });
 }
 
-export async function updateIngredientStock(
+async function _updateIngredientStock(
   id: string,
   newStock: number,
+  activeOrganizationId: string,
+  reason?: string | null,
+  notes?: string | null,
 ): Promise<ActionState> {
-  const { activeOrganizationId } = await getServerSessionWithOrg();
-  if (!activeOrganizationId) {
-    return { message: "Unauthorized" };
-  }
-
   try {
     const ingredient = await prisma.ingredient.findFirst({
       where: {
@@ -267,13 +256,11 @@ export async function updateIngredientStock(
     }
     const stockDifference = newStock - ingredient.currentStock;
 
-    // Actualizar stock
     await prisma.ingredient.update({
       where: { id, organizationId: activeOrganizationId },
       data: { currentStock: newStock },
     });
 
-    // Crear movimiento de ajuste si hay diferencia
     if (Math.abs(stockDifference) > 0.001) {
       await prisma.stockMovement.create({
         data: {
@@ -282,7 +269,8 @@ export async function updateIngredientStock(
           unit: ingredient.unit,
           type: "AJUSTE" as StockMovementType,
           quantity: stockDifference,
-          reason: "Ajuste manual de stock",
+          reason: reason || "Ajuste manual de stock",
+          notes,
           referenceType: "ADJUSTMENT" as ReferenceType,
         },
       });
@@ -290,9 +278,21 @@ export async function updateIngredientStock(
 
     return { success: true, message: "Stock actualizado correctamente" };
   } catch (error) {
-    console.error("Failed to update ingredient stock:", error);
+    console.error("Error al actualizar el stock del ingrediente:", error);
     return { message: "Error al actualizar el stock del ingrediente" };
   }
+}
+
+export async function updateIngredientStock(
+  id: string,
+  newStock: number,
+): Promise<ActionState> {
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+  if (!activeOrganizationId) {
+    return { message: "Unauthorized" };
+  }
+
+  return _updateIngredientStock(id, newStock, activeOrganizationId);
 }
 
 export async function updateIngredientStockAction(
@@ -317,49 +317,17 @@ export async function updateIngredientStockAction(
     return { message: "El stock debe ser un número válido" };
   }
 
-  try {
-    const ingredient = await prisma.ingredient.findFirst({
-      where: {
-        id,
-        organizationId: activeOrganizationId,
-      },
-    });
+  const result = await _updateIngredientStock(
+    id,
+    newStock,
+    activeOrganizationId,
+    reason,
+    notes,
+  );
 
-    if (!ingredient) {
-      return { message: "Ingrediente no encontrado" };
-    }
-
-    const stockDifference = newStock - ingredient.currentStock;
-
-    // Actualizar stock
-    await prisma.ingredient.update({
-      where: { id },
-      data: { currentStock: newStock },
-    });
-
-    // Crear movimiento de ajuste si hay diferencia
-    if (Math.abs(stockDifference) > 0.001) {
-      await prisma.stockMovement.create({
-        data: {
-          organizationId: activeOrganizationId,
-          ingredientId: id,
-          type: "AJUSTE" as StockMovementType,
-          quantity: stockDifference,
-          unit: ingredient.unit,
-          reason: reason || "Ajuste manual de stock",
-          notes,
-          referenceType: "ADJUSTMENT" as ReferenceType,
-        },
-      });
-    }
-
+  if (result.success) {
     revalidatePath("/ingredients");
-    return {
-      success: true,
-      message: "Stock actualizado correctamente",
-    };
-  } catch (error) {
-    console.error("Failed to update ingredient stock:", error);
-    return { message: "Error al actualizar el stock" };
   }
+
+  return result;
 }

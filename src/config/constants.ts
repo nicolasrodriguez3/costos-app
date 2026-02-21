@@ -80,6 +80,17 @@ export const UNITS = {
 } as const;
 export type UnitType = keyof typeof UNITS;
 
+export const UNIT_OPTIONS = Object.keys(UNITS) as UnitType[];
+
+export const UNIT_LABELS: Record<UnitType, string> = {
+  kg: "Kilogramos (kg)",
+  g: "Gramos (g)",
+  ml: "Mililitros (ml)",
+  l: "Litros (l)",
+  unit: "Unidad (ud.)",
+  docena: "Docena (doc.)",
+};
+
 export const CATEGORIES = [
   "Sin categoría",
   "Proteinas",

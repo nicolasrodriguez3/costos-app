@@ -99,7 +99,6 @@ export async function register(formData: FormData): Promise<RegisterState> {
     }
   } catch (error) {
     if (error instanceof APIError) {
-      console.log("APIERROR:", error.body);
       switch (error.body?.code) {
         case "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL":
           return { message: "El correo electrónico ya está registrado." };

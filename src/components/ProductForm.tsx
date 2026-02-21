@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { createProduct, updateProduct } from "@/actions/products";
+import { convertCost } from "@/actions/utils/unitConversion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -90,31 +91,6 @@ type ProductFormProps = {
   initialData?: ProductWithRelations;
   organizationId: string;
 };
-
-// --- Helper ---
-
-function estimateCost(
-  qty: number,
-  rUnit: string,
-  iUnit: string,
-  iCost: number,
-): number {
-  if (Number.isNaN(qty)) return 0;
-
-  const ru = rUnit.toLowerCase();
-  const iu = iUnit.toLowerCase();
-
-  if (ru === iu) return qty * iCost;
-
-  if (
-    (iu === "kg" && (ru === "g" || ru === "grams")) ||
-    (iu === "l" && (ru === "ml" || ru === "milliliters"))
-  ) {
-    return qty * (iCost / 1000);
-  }
-
-  return qty * iCost;
-}
 
 // --- Component ---
 
@@ -283,7 +259,7 @@ export function ProductForm({
       return (
         acc +
         (ing && ing.lastCost
-          ? estimateCost(item.quantity, item.unit, ing.unit, ing.lastCost)
+          ? convertCost(item.quantity, item.unit, ing.unit, ing.lastCost)
           : 0)
       );
     }

@@ -108,7 +108,7 @@ export async function createPurchase(
       data: purchase,
     };
   } catch (error) {
-    console.error("Failed to create purchase:", error);
+    console.error("Error al crear compra:", error);
     return { message: "Error al registrar la compra" };
   }
 }
@@ -285,14 +285,16 @@ export async function updatePurchase(
       message: "Compra actualizada correctamente",
     };
   } catch (error) {
-    console.error("Failed to update purchase:", error);
+    console.error("Error al actualizar compra:", error);
     return { message: "Error al actualizar la compra" };
   }
 }
 
-export async function deletePurchase(purchaseId: string) {
+export async function deletePurchase(purchaseId: string): Promise<ActionState> {
   const { activeOrganizationId } = await getServerSessionWithOrg();
-  if (!activeOrganizationId) return;
+  if (!activeOrganizationId) {
+    return { message: "Unauthorized" };
+  }
 
   try {
     const ingredientPurchases = await prisma.ingredientPurchase.findMany({
@@ -303,7 +305,6 @@ export async function deletePurchase(purchaseId: string) {
     });
 
     for (const ip of ingredientPurchases) {
-      // Revert stock
       await prisma.ingredient.update({
         where: { id: ip.ingredientId },
         data: {
@@ -313,7 +314,6 @@ export async function deletePurchase(purchaseId: string) {
         },
       });
 
-      // Delete stock movements
       await prisma.stockMovement.deleteMany({
         where: {
           referenceId: ip.id,
@@ -322,7 +322,6 @@ export async function deletePurchase(purchaseId: string) {
       });
     }
 
-    // Delete IngredientPurchases
     await prisma.ingredientPurchase.deleteMany({
       where: {
         purchaseId,
@@ -330,7 +329,6 @@ export async function deletePurchase(purchaseId: string) {
       },
     });
 
-    // Delete Purchase
     await prisma.purchase.delete({
       where: {
         id: purchaseId,
@@ -340,8 +338,10 @@ export async function deletePurchase(purchaseId: string) {
 
     revalidatePath("/ingredients");
     revalidatePath("/purchases");
+    return { success: true, message: "Compra eliminada correctamente" };
   } catch (error) {
-    console.error("Failed to delete purchase:", error);
+    console.error("Error al eliminar compra:", error);
+    return { message: "Error al eliminar la compra" };
   }
 }
 
@@ -388,6 +388,6 @@ export async function createStockMovement({
       },
     });
   } catch (error) {
-    console.error("Failed to create stock movement:", error);
+    console.error("Error al crear movimiento de stock:", error);
   }
 }

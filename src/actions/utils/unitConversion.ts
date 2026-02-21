@@ -6,7 +6,7 @@ export function convertCost(
   quantity: number,
   recipeUnit: string,
   ingredientUnit: string,
-  ingredientCost: number
+  ingredientCost: number,
 ): number {
   let cost = 0;
 
@@ -29,11 +29,7 @@ export function convertCost(
     cost = quantity * (ingredientCost * 1000);
   } else {
     // Fallback if no conversion known (or units mismatch like kg -> liters)
-    // Assume 1:1 for safety but maybe log a warning?
-    // For MVP, we'll just do 1:1
-    console.log(
-      `No conversion known for units: ${recipeUnit} -> ${ingredientUnit}`
-    );
+    // Assume 1:1 for safety
     cost = quantity * ingredientCost;
   }
 

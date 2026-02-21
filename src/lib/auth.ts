@@ -58,8 +58,8 @@ export const auth = betterAuth({
   plugins: [
     organization({
       organizationHooks: {
-        afterCreateOrganization: async (data) => {
-          console.log("Organization created", data);
+        afterCreateOrganization: async (_data) => {
+          // Organization created successfully
         },
       },
     }),

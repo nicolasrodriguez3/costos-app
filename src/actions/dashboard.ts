@@ -2,14 +2,15 @@
 
 import { PAGINATION } from "@/config/constants";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "@/lib/serverSession";
+import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { DashboardStats } from "@/types";
 
 export async function getDashboardStats(): Promise<DashboardStats> {
-  const { session } = await getServerSession();
-
-  // Default safe return if no session
-  if (!session) {
+  let organizationId: string;
+  try {
+    const { activeOrganizationId } = await getServerSessionWithOrg();
+    organizationId = activeOrganizationId;
+  } catch {
     return {
       totalRevenue: 0,
       totalCost: 0,
@@ -21,7 +22,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
   // Aggregate stats from all time or today? Let's do All Time for MVP demo
   const sales = await prisma.sale.findMany({
-    where: { userId: session.userId },
+    where: { organizationId },
     include: {
       items: true,
     },
@@ -45,7 +46,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
   // Get recent sales for list
   const recentSales = await prisma.sale.findMany({
-    where: { userId: session.userId },
+    where: { organizationId },
     take: PAGINATION.recentSalesLimit,
     orderBy: { dateTime: "desc" },
     include: {
@@ -60,7 +61,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   // Get fixed costs for the current month
   const fixedCosts = await prisma.fixedCost.findMany({
     where: {
-      organizationId: session.activeOrganizationId as string,
+      organizationId,
       isActive: true,
     },
   });

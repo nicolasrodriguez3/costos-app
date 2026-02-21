@@ -186,11 +186,34 @@ export type DashboardStats = {
 
 // --- Form Input Types ---
 
+export type IngredientInput = {
+  id?: string;
+  name: string;
+  unit: string;
+  category?: string | null;
+  initialStock?: number | null;
+  currentStock?: number | null;
+  minStock?: number | null;
+  initialCost?: number | null;
+  description?: string | null;
+};
+
 export type RecipeItemInput = {
   ingredientId?: string | null;
   subProductId?: string | null;
   quantity: number;
   unit: string;
+};
+
+export type ProductFormData = {
+  id?: string;
+  name: string;
+  type: string;
+  category: string;
+  subCategory?: string | null;
+  basePrice: number;
+  manualCost?: number | null;
+  recipeItems?: RecipeItemInput[];
 };
 
 export type SaleItemInput = {
