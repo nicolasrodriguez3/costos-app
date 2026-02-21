@@ -324,7 +324,7 @@ export async function deleteProduct(id: string): Promise<ActionState> {
   }
 }
 
-export async function getProductsForPOS() {
+export async function getActiveProducts() {
   const { activeOrganizationId } = await getServerSessionWithOrg();
   if (!activeOrganizationId) return [];
 

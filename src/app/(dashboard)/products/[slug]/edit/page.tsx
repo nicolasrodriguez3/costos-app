@@ -1,8 +1,10 @@
-import { ProductForm } from "@/components/ProductForm";
-import { getProductBySlug, getProducts } from "@/actions/products";
-import { getIngredients } from "@/actions/ingredients";
 import { notFound } from "next/navigation";
+
+import { getIngredients } from "@/actions/ingredients";
+import { getProductBySlug, getProducts } from "@/actions/products";
 import { PageHeader } from "@/components/PageHeader";
+import { ProductForm } from "@/components/ProductForm";
+import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { IngredientWithStock } from "@/types";
 
 export default async function ProductEditPage({
@@ -11,6 +13,7 @@ export default async function ProductEditPage({
   params: { slug: string };
 }) {
   const { slug } = await params;
+  const { activeOrganizationId } = await getServerSessionWithOrg();
   const [product, ingredientsRaw, products] = await Promise.all([
     getProductBySlug(slug),
     getIngredients(),
@@ -46,6 +49,7 @@ export default async function ProductEditPage({
           initialData={product}
           ingredients={ingredients}
           products={products}
+          organizationId={activeOrganizationId}
         />
       </div>
     </div>

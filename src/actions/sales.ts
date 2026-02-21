@@ -3,90 +3,188 @@
 import { revalidatePath } from "next/cache";
 
 import { PAGINATION } from "@/config/constants";
+import { Prisma } from "@/generated/prisma/client";
 import { calculateProductCost } from "@/lib/costs";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
+import { type SaleFormValues, saleFormSchema } from "@/lib/validations/sale";
 import type {
-  SaleItemInput,
+  ActionState,
+  Sale,
   SalesHistoryParams,
   SalesHistoryResult,
 } from "@/types";
 
-export async function recordSale(items: SaleItemInput[]) {
+/**
+ * Crea una nueva venta con sus items
+ */
+export async function createSale(data: SaleFormValues): Promise<ActionState> {
   const {
     session: { userId },
     activeOrganizationId,
   } = await getServerSessionWithOrg();
-  if (!activeOrganizationId || !userId) return;
 
-  if (items.length === 0) return;
+  const validated = saleFormSchema.safeParse(data);
+  if (!validated.success) {
+    return { success: false, message: "Datos inválidos" };
+  }
 
-  // Fetch all products to get current prices and costs
-  const products = await prisma.product.findMany({
+  const { dateTime, notes, items } = validated.data;
+
+  try {
+    const totalAmount = items.reduce(
+      (acc, item) => acc + item.quantity * item.unitPrice,
+      0,
+    );
+
+    // Prepare items with costs calculated at this moment
+    const saleItemsData = await Promise.all(
+      items.map(async (item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        unitCost: await calculateProductCost(item.productId),
+      })),
+    );
+
+    await prisma.sale.create({
+      data: {
+        dateTime: new Date(dateTime),
+        notes,
+        totalAmount,
+        userId,
+        organizationId: activeOrganizationId,
+        items: {
+          create: saleItemsData,
+        },
+      },
+    });
+
+    revalidatePath("/sales");
+    revalidatePath("/dashboard");
+    return { success: true, message: "Venta cargada correctamente" };
+  } catch (error) {
+    console.error("[createSale] Error:", error);
+    return { success: false, message: "Error al crear la venta" };
+  }
+}
+
+/**
+ * Actualiza una venta existente
+ */
+export async function updateSale(
+  id: string,
+  data: SaleFormValues,
+): Promise<ActionState> {
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+
+  const validated = saleFormSchema.safeParse(data);
+  if (!validated.success) {
+    return { success: false, message: "Datos inválidos" };
+  }
+
+  const { dateTime, notes, items } = validated.data;
+
+  try {
+    const totalAmount = items.reduce(
+      (acc, item) => acc + item.quantity * item.unitPrice,
+      0,
+    );
+
+    // Prepare fresh items data with current costs
+    const saleItemsData = await Promise.all(
+      items.map(async (item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        unitCost: await calculateProductCost(item.productId),
+      })),
+    );
+
+    await prisma.$transaction([
+      // Delete existing items
+      prisma.saleItem.deleteMany({
+        where: { saleId: id },
+      }),
+      // Update sale and create new items
+      prisma.sale.update({
+        where: { id, organizationId: activeOrganizationId },
+        data: {
+          dateTime: new Date(dateTime),
+          notes,
+          totalAmount,
+          items: {
+            create: saleItemsData,
+          },
+        },
+      }),
+    ]);
+
+    revalidatePath("/sales");
+    revalidatePath(`/sales/${id}`);
+    revalidatePath("/dashboard");
+    return { success: true, message: "Venta actualizada correctamente" };
+  } catch (error) {
+    console.error("[updateSale] Error:", error);
+    return { success: false, message: "Error al actualizar la venta" };
+  }
+}
+
+/**
+ * Soft delete de una venta
+ */
+export async function deleteSale(id: string): Promise<ActionState> {
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+
+  try {
+    await prisma.sale.update({
+      where: { id, organizationId: activeOrganizationId },
+      data: { deletedAt: new Date() },
+    });
+
+    revalidatePath("/sales");
+    revalidatePath("/dashboard");
+    return { success: true, message: "Venta eliminada correctamente" };
+  } catch (error) {
+    console.error("[deleteSale] Error:", error);
+    return { success: false, message: "Error al eliminar la venta" };
+  }
+}
+
+/**
+ * Obtiene una venta por ID con sus items
+ */
+export async function getSaleById(id: string): Promise<Sale | null> {
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+
+  return await prisma.sale.findUnique({
     where: {
-      id: { in: items.map((i) => i.productId) },
+      id,
       organizationId: activeOrganizationId,
+      deletedAt: null,
     },
     include: {
-      receipeItems: {
+      items: {
         include: {
-          ingredient: true,
-          subProduct: {
-            include: {
-              receipeItems: {
-                include: {
-                  ingredient: true,
-                },
-              },
-            },
-          },
+          product: true,
         },
       },
     },
   });
-
-  // Calculate total amount and prepare items for DB
-  let totalAmount = 0;
-  const saleItemsData = [];
-
-  for (const item of items) {
-    const product = products.find((p) => p.id === item.productId);
-    if (!product) continue; // Should not happen
-
-    // Calculate unit cost (recursively if needed)
-    const unitCost = await calculateProductCost(product.id);
-
-    totalAmount += product.basePrice * item.quantity;
-
-    saleItemsData.push({
-      productId: product.id,
-      quantity: item.quantity,
-      unitPrice: product.basePrice,
-      unitCost: unitCost,
-    });
-  }
-
-  await prisma.sale.create({
-    data: {
-      totalAmount,
-      userId,
-      organizationId: activeOrganizationId,
-      items: {
-        create: saleItemsData,
-      },
-    },
-  });
-
-  revalidatePath("/");
-  revalidatePath("/sales");
 }
 
+/**
+ * Obtiene las ventas recientes (para widgets/dashboard)
+ */
 export async function getRecentSales() {
   const { activeOrganizationId } = await getServerSessionWithOrg();
   if (!activeOrganizationId) return [];
 
   return await prisma.sale.findMany({
-    where: { organizationId: activeOrganizationId },
+    where: {
+      organizationId: activeOrganizationId,
+      deletedAt: null,
+    },
     take: PAGINATION.recentSalesLimit,
     orderBy: {
       dateTime: "desc",
@@ -101,6 +199,9 @@ export async function getRecentSales() {
   });
 }
 
+/**
+ * Obtiene el historial de ventas paginado y con filtros
+ */
 export async function getSalesHistory(
   params: SalesHistoryParams,
 ): Promise<SalesHistoryResult> {
@@ -115,46 +216,43 @@ export async function getSalesHistory(
   } = params;
 
   // Build where clause
-  const where: {
-    organizationId: string;
-    dateTime?: { gte?: Date; lte?: Date };
-    items?: { some: { product: { name: { contains: string } } } };
-  } = {
+  const where: Prisma.SaleWhereInput = {
     organizationId: activeOrganizationId,
+    deletedAt: null,
   };
 
   // Date filters
   if (startDate || endDate) {
-    where.dateTime = {};
+    const dateTimeFilter: Prisma.DateTimeFilter = {};
     if (startDate) {
-      where.dateTime.gte = new Date(startDate);
+      dateTimeFilter.gte = new Date(startDate);
     }
     if (endDate) {
-      // Set to end of day
       const endOfDay = new Date(endDate);
       endOfDay.setUTCHours(23, 59, 59, 999);
-      where.dateTime.lte = endOfDay;
+      dateTimeFilter.lte = endOfDay;
     }
+    where.dateTime = dateTimeFilter;
   }
 
-  // Search filter (by product name)
+  // Search filter (by product name in items)
   if (search && search.trim()) {
     where.items = {
       some: {
         product: {
-          name: { contains: search.trim() },
+          name: { contains: search.trim(), mode: "insensitive" },
         },
       },
     };
   }
 
-  // Get total count for the filtered results
+  // Get total count
   const totalCount = await prisma.sale.count({ where });
 
-  // Fetch sales with cursor-based pagination
+  // Fetch sales
   const sales = await prisma.sale.findMany({
     where,
-    take: limit + 1, // Get one extra to check if there are more
+    take: limit + 1,
     ...(cursor && { cursor: { id: cursor }, skip: 1 }),
     orderBy: { dateTime: "desc" },
     include: {
@@ -166,15 +264,13 @@ export async function getSalesHistory(
     },
   });
 
-  // Check if there are more results
   const hasMore = sales.length > limit;
   const resultSales = hasMore ? sales.slice(0, limit) : sales;
 
-  // Calculate period stats
+  // Stats calculation
   let revenue = 0;
   let cost = 0;
 
-  // For stats, we need to aggregate all matching sales (not just the page)
   const allMatchingSales = await prisma.sale.findMany({
     where,
     include: { items: true },
@@ -187,7 +283,7 @@ export async function getSalesHistory(
     });
   });
 
-  // --- Calculate Fixed Costs for the period ---
+  // Fixed Costs prorated
   let fixedCostsProrated = 0;
   if (startDate && endDate) {
     const start = new Date(startDate);
@@ -213,16 +309,55 @@ export async function getSalesHistory(
   const operatingProfit = grossProfit - fixedCostsProrated;
 
   return {
-    sales: resultSales,
+    sales: resultSales as unknown as SalesHistoryResult["sales"],
     hasMore,
     totalCount,
     periodStats: {
       revenue,
       cost,
-      profit: revenue - cost, // Still variable profit for compatibility
+      profit: revenue - cost,
       fixedCosts: fixedCostsProrated,
-      grossProfit: grossProfit,
-      operatingProfit: operatingProfit,
+      grossProfit,
+      operatingProfit,
     },
+  };
+}
+
+/**
+ * Obtiene el listado de ventas para la tabla principal (paginado)
+ */
+export async function getSales(page = 1, limit = PAGINATION.salesPerPage) {
+  const { activeOrganizationId } = await getServerSessionWithOrg();
+  const skip = (page - 1) * limit;
+
+  const [sales, total] = await Promise.all([
+    prisma.sale.findMany({
+      where: {
+        organizationId: activeOrganizationId,
+        deletedAt: null,
+      },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+      },
+      orderBy: { dateTime: "desc" },
+      skip,
+      take: limit,
+    }),
+    prisma.sale.count({
+      where: {
+        organizationId: activeOrganizationId,
+        deletedAt: null,
+      },
+    }),
+  ]);
+
+  return {
+    sales,
+    total,
+    pages: Math.ceil(total / limit),
   };
 }
