@@ -29,7 +29,7 @@ export function NavItemComponent({
   const [isExpanded, setIsExpanded] = useState(false);
   const closeSidebar = useSidebar((state) => state.closeSidebar);
 
-  const isActive = pathname === item.href;
+  const isActive = pathname.startsWith(item.href);
   const hasSubmenu = item.quickActions && item.quickActions.length > 0;
 
   const handleClick = () => {
