@@ -32,6 +32,10 @@
               {
                 "selector": { "kind": "function" },
                 "formats": ["camelCase", "PascalCase"]
+              },
+              {
+                "selector": { "kind": "objectLiteralProperty" },
+                "formats": ["camelCase", "CONSTANT_CASE"]
               }
             ]
           }
