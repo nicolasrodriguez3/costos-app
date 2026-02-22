@@ -300,10 +300,10 @@ export async function updateProduct(
   redirect(`/products/${slug}`);
 }
 
-export async function deleteProduct(id: string): Promise<ActionState> {
+export async function deleteProduct(id: string): Promise<void> {
   const { activeOrganizationId } = await getServerSessionWithOrg();
   if (!activeOrganizationId) {
-    return { message: "Unauthorized" };
+    return;
   }
 
   try {
@@ -317,10 +317,8 @@ export async function deleteProduct(id: string): Promise<ActionState> {
       },
     });
     revalidatePath("/products");
-    return { success: true, message: "Producto eliminado correctamente" };
   } catch (error) {
     console.error("Error al eliminar producto:", error);
-    return { message: "Error al eliminar el producto" };
   }
 }
 
