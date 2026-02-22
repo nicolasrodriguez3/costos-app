@@ -9,7 +9,7 @@ import { z } from "zod";
 import { authenticate, register } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 import { envs } from "@/config/envs";
-import { SignInSocialButton } from "./SingInSocialButton";
+import { SignInSocialButton } from "./SignInSocialButton";
 
 const isAppReady = envs.NEXT_PUBLIC_APP_LAUNCHED;
 
