@@ -1,4 +1,5 @@
 import { Blocks, Receipt } from "lucide-react";
+import Link from "next/link";
 
 import { getIngredients } from "@/actions/ingredients";
 import { getPurchases } from "@/actions/purchases";
@@ -6,7 +7,6 @@ import { PageHeader } from "@/components/PageHeader";
 import { PurchaseHistory } from "@/components/PurchaseHistory";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { IngredientWithStock, Purchase } from "@/types";
-import Link from "next/link";
 
 const breadcrumbs = [
   { href: "/dashboard", label: "Dashboard" },
@@ -18,7 +18,7 @@ export default async function PurchasesPage() {
   const purchases = (await getPurchases()) as Purchase[];
 
   return (
-    <div className="p-4 space-y-8">
+    <div className="max-w-7xl w-full mx-auto p-6 sm:p-8 space-y-8">
       <PageHeader
         title="Compras de Ingredientes"
         gradient="orange"
@@ -26,7 +26,7 @@ export default async function PurchasesPage() {
         backLink={{ href: "/dashboard", label: "Volver al Dashboard" }}
       />
 
-      <div className="max-w-5xl mx-auto">
+      <div>
         <div className="mb-4">
           <Link
             href="/purchases/new"
@@ -35,10 +35,9 @@ export default async function PurchasesPage() {
             Agregar Compra
           </Link>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 ">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            {/* Estadísticas rápidas */}
-            <Card className="border-gray-500/10 shadow-sm ">
+            <Card className="rounded-2xl shadow-sm border border-gray-100">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Blocks className="w-5 h-5" />
@@ -82,8 +81,7 @@ export default async function PurchasesPage() {
             </Card>
           </div>
           <div>
-            {/* Últimos costos */}
-            <Card className="border-gray-500/10 shadow-sm">
+            <Card className="rounded-2xl shadow-sm border border-gray-100">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Receipt className="w-5 h-5" />

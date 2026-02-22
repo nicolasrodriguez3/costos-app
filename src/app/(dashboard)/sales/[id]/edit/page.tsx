@@ -2,8 +2,8 @@ import { notFound } from "next/navigation";
 
 import { getActiveProducts } from "@/actions/products";
 import { getSaleById } from "@/actions/sales";
-import { PageHeader } from "@/components/PageHeader";
 import { SaleForm } from "@/components/forms/SaleForm";
+import { PageHeader } from "@/components/PageHeader";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -28,7 +28,7 @@ export default async function EditSalePage({ params }: PageProps) {
   ];
 
   return (
-    <div className="p-4 sm:p-6 space-y-8 bg-linear-to-br from-gray-50 to-white min-h-screen">
+    <div className="max-w-7xl w-full mx-auto p-6 sm:p-8 space-y-8">
       <PageHeader
         title="Editar Venta"
         gradient="green"

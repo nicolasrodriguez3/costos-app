@@ -12,7 +12,7 @@ export default async function NewSalePage() {
   const products = await getActiveProducts();
 
   return (
-    <div className="p-4 sm:p-6 space-y-8 bg-linear-to-br from-gray-50 to-white min-h-screen">
+    <div className="max-w-7xl w-full mx-auto p-6 sm:p-8 space-y-8">
       <PageHeader
         title="Nueva Venta Diaria"
         gradient="green"

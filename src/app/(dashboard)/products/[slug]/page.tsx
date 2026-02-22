@@ -82,7 +82,7 @@ export default async function ProductPage({
     product.basePrice > 0 ? (benefit / product.basePrice) * 100 : 0;
 
   return (
-    <div className="p-4 space-y-8">
+    <div className="max-w-7xl w-full mx-auto p-6 sm:p-8 space-y-8">
       <PageHeader
         title={product.name}
         gradient="purple"
@@ -104,7 +104,7 @@ export default async function ProductPage({
         }
       />
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Alert si el producto no tiene precio */}
         {product.basePrice === 0 && (
           <Alert variant="warning" className="text-amber-700 lg:col-span-3">

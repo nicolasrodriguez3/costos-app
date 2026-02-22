@@ -9,12 +9,12 @@ import { SalesFilters } from "@/components/SalesFilters";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 
 interface PageProps {
@@ -43,7 +43,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
   });
 
   return (
-    <div className="p-4 sm:p-6 space-y-8 bg-linear-to-br from-gray-50 to-white min-h-screen">
+    <div className="max-w-7xl w-full mx-auto p-6 sm:p-8 space-y-8">
       <PageHeader
         title="Ventas"
         gradient="green"
@@ -72,7 +72,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
         initialSearch={search || ""}
       />
 
-      <Card className="rounded-2xl shadow-xl border-gray-100">
+      <Card className="rounded-2xl shadow-sm border border-gray-100">
         <CardHeader>
           <CardTitle className="text-xl font-bold text-gray-900">
             Listado de Ventas
@@ -97,12 +97,17 @@ export default async function SalesPage({ searchParams }: PageProps) {
               </TableHeader>
               <TableBody>
                 {sales.map((sale) => (
-                  <TableRow key={sale.id} className="border-b border-gray-50 hover:bg-gray-50/50">
+                  <TableRow
+                    key={sale.id}
+                    className="border-b border-gray-50 hover:bg-gray-50/50"
+                  >
                     <TableCell className="font-medium text-gray-900">
                       <FormattedDate date={sale.dateTime} />
                     </TableCell>
                     <TableCell className="text-gray-600 max-w-md truncate">
-                      {sale.items.map((i) => `${i.quantity}x ${i.product.name}`).join(", ")}
+                      {sale.items
+                        .map((i) => `${i.quantity}x ${i.product.name}`)
+                        .join(", ")}
                     </TableCell>
                     <TableCell className="text-right font-bold text-green-600">
                       ${sale.totalAmount.toFixed(2)}
@@ -113,12 +118,20 @@ export default async function SalesPage({ searchParams }: PageProps) {
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Link href={`/sales/${sale.id}`}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-blue-600">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-500 hover:text-blue-600"
+                          >
                             <Eye className="h-4 w-4" />
                           </Button>
                         </Link>
                         <Link href={`/sales/${sale.id}/edit`}>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-orange-600">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-500 hover:text-orange-600"
+                          >
                             <Edit className="h-4 w-4" />
                           </Button>
                         </Link>
@@ -129,7 +142,10 @@ export default async function SalesPage({ searchParams }: PageProps) {
                 ))}
                 {sales.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center text-gray-500 italic">
+                    <TableCell
+                      colSpan={5}
+                      className="h-24 text-center text-gray-500 italic"
+                    >
                       No se encontraron ventas cargadas.
                     </TableCell>
                   </TableRow>

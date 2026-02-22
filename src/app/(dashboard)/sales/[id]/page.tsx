@@ -9,12 +9,12 @@ import { SaleActions } from "@/components/SaleActions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 
 interface PageProps {
@@ -38,7 +38,7 @@ export default async function SaleDetailPage({ params }: PageProps) {
   const totalItems = sale.items.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
-    <div className="p-4 sm:p-6 space-y-8 bg-linear-to-br from-gray-50 to-white min-h-screen">
+    <div className="max-w-7xl w-full mx-auto p-6 sm:p-8 space-y-8">
       <PageHeader
         title={`Detalle de Venta`}
         gradient="green"
@@ -47,7 +47,11 @@ export default async function SaleDetailPage({ params }: PageProps) {
         actions={
           <div className="flex gap-2">
             <Link href={`/sales/${id}/edit`}>
-              <Button variant="outline" size="sm" className="text-orange-600 border-orange-200 hover:bg-orange-50">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-orange-600 border-orange-200 hover:bg-orange-50"
+              >
                 <Edit className="mr-2 h-4 w-4" />
                 Editar
               </Button>
@@ -72,7 +76,9 @@ export default async function SaleDetailPage({ params }: PageProps) {
             </div>
             <div>
               <p className="text-sm text-gray-500">Items Totales</p>
-              <div className="font-medium text-gray-900">{totalItems} unidades</div>
+              <div className="font-medium text-gray-900">
+                {totalItems} unidades
+              </div>
             </div>
             <div>
               <p className="text-sm text-gray-500">Monto Total</p>
@@ -109,9 +115,15 @@ export default async function SaleDetailPage({ params }: PageProps) {
               <TableBody>
                 {sale.items.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.product.name}</TableCell>
-                    <TableCell className="text-center">{item.quantity}</TableCell>
-                    <TableCell className="text-right">${item.unitPrice.toFixed(2)}</TableCell>
+                    <TableCell className="font-medium">
+                      {item.product.name}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {item.quantity}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      ${item.unitPrice.toFixed(2)}
+                    </TableCell>
                     <TableCell className="text-right font-semibold">
                       ${(item.quantity * item.unitPrice).toFixed(2)}
                     </TableCell>

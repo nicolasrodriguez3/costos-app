@@ -23,7 +23,7 @@ export default async function ExpensesPage({ searchParams }: PageProps) {
   const totalMonthly = fixedCosts.reduce((acc, cost) => acc + cost.amount, 0);
 
   return (
-    <div className="min-h-screen p-8 space-y-8 bg-linear-to-br from-gray-50 to-white text-black">
+    <div className="max-w-7xl w-full mx-auto p-6 sm:p-8 space-y-8">
       <PageHeader
         title="Gastos Fijos"
         gradient="blue"
@@ -39,7 +39,7 @@ export default async function ExpensesPage({ searchParams }: PageProps) {
         </Link>
       </div>
       <div className="space-y-6">
-        <Card className="border-gray-500/10 shadow-sm">
+        <Card className="rounded-2xl shadow-sm border border-gray-100">
           <CardHeader>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
@@ -59,7 +59,7 @@ export default async function ExpensesPage({ searchParams }: PageProps) {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-white/10 text-gray-700">
+                  <tr className="border-b border-gray-100 text-gray-700">
                     <th className="p-3 font-medium">Concepto</th>
                     <th className="p-3 font-medium">Categoría</th>
                     <th className="p-3 font-medium text-right">Monto</th>
@@ -70,7 +70,7 @@ export default async function ExpensesPage({ searchParams }: PageProps) {
                   {fixedCosts.map((cost) => (
                     <tr
                       key={cost.id}
-                      className={`border-b border-white/5 hover:bg-white/5 transition-colors group ${
+                      className={`border-b border-gray-100 hover:bg-gray-50 transition-colors group ${
                         editingExpense?.id === cost.id ? "bg-blue-500/10" : ""
                       }`}
                     >

@@ -19,7 +19,7 @@ export default async function AccountPage() {
   const isOwner = data.members?.[0]?.role === "owner";
 
   return (
-    <div className="min-h-screen p-8 space-y-8 bg-linear-to-br from-gray-50 to-white text-black">
+    <div className="max-w-7xl w-full mx-auto p-6 sm:p-8 space-y-8">
       <PageHeader
         title="Mi cuenta"
         subtitle="Gestiona tu perfil y configuración de cuenta"

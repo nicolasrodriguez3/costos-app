@@ -34,7 +34,7 @@ export default async function ProductEditPage({
   ];
 
   return (
-    <div className="min-h-screen p-8 bg-linear-to-br from-gray-50 to-white text-gray-900">
+    <div className="max-w-7xl w-full mx-auto p-6 sm:p-8 space-y-8">
       <PageHeader
         title={`Editar ${product.name}`}
         gradient="purple"

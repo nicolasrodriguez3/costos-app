@@ -1,11 +1,11 @@
 import Link from "next/link";
 
 import { deleteIngredient, getIngredients } from "@/actions/ingredients";
+import { DeleteModal } from "@/components/modals/DeleteModal";
 import {
   CreateIngredientModal,
   EditIngredientModal,
 } from "@/components/modals/IngredientFormModal";
-import { DeleteModal } from "@/components/modals/DeleteModal";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
@@ -27,7 +27,7 @@ export default async function IngredientsPage({ searchParams }: PageProps) {
     : undefined;
 
   return (
-    <div className="p-4 space-y-8 ">
+    <div className="max-w-7xl w-full mx-auto p-6 sm:p-8 space-y-8">
       <PageHeader
         title="Ingredientes"
         gradient="orange"
@@ -35,8 +35,8 @@ export default async function IngredientsPage({ searchParams }: PageProps) {
         actions={<CreateIngredientModal />}
       />
 
-      <div className="max-w-5xl mx-auto space-y-8">
-        <Card className="border-gray-500/10 shadow-sm">
+      <div>
+        <Card className="rounded-2xl shadow-sm border border-gray-100">
           <CardHeader>
             <h2 className="text-2xl font-bold text-gray-900">
               Inventario de Ingredientes

@@ -1,6 +1,6 @@
 import { getIngredients } from "@/actions/ingredients";
-import { PageHeader } from "@/components/PageHeader";
 import { PurchaseForm } from "@/components/forms/PurchaseForm";
+import { PageHeader } from "@/components/PageHeader";
 import { IngredientWithStock } from "@/types";
 
 export default async function NewPurchasePage() {
@@ -13,7 +13,7 @@ export default async function NewPurchasePage() {
   ];
 
   return (
-    <div className="p-4 space-y-8">
+    <div className="max-w-7xl w-full mx-auto p-6 sm:p-8 space-y-8">
       <PageHeader
         title="Compras de Ingredientes"
         gradient="orange"

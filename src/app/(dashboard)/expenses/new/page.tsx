@@ -21,7 +21,7 @@ export default async function ExpensesNewPage({ searchParams }: PageProps) {
     : undefined;
 
   return (
-    <div className="min-h-screen p-8 space-y-8 bg-linear-to-br from-gray-50 to-white text-black">
+    <div className="max-w-7xl w-full mx-auto p-6 sm:p-8 space-y-8">
       <PageHeader
         title="Gastos Fijos"
         gradient="blue"

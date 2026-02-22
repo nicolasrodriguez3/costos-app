@@ -62,10 +62,10 @@ export default async function RootLayout({
   return (
     <SidebarProvider defaultCollapsed={defaultCollapsed}>
       <TopBar title={appTitle} user={user} />
-      <div className="relative flex min-h-screen bg-gray-50 w-full">
+      <main className="relative flex min-h-screen bg-gray-50 w-full">
         <Sidebar />
         <MainContentWrapper>{children}</MainContentWrapper>
-      </div>
+      </main>
     </SidebarProvider>
   );
 }
