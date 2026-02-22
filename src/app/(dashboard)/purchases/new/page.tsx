@@ -1,6 +1,6 @@
 import { getIngredients } from "@/actions/ingredients";
 import { PageHeader } from "@/components/PageHeader";
-import { PurchaseForm } from "@/components/PurchaseForm";
+import { PurchaseForm } from "@/components/forms/PurchaseForm";
 import { IngredientWithStock } from "@/types";
 
 export default async function NewPurchasePage() {

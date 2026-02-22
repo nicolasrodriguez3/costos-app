@@ -4,7 +4,7 @@ import { deleteIngredient, getIngredients } from "@/actions/ingredients";
 import {
   CreateIngredientModal,
   EditIngredientModal,
-} from "@/components/IngredientFormModal";
+} from "@/components/modals/IngredientFormModal";
 import { DeleteModal } from "@/components/modals/DeleteModal";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";

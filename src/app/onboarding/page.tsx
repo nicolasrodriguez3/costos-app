@@ -1,5 +1,5 @@
-import { CreateOrgForm } from "@/components/forms/create-org-form";
-import { JoinOrgForm } from "@/components/forms/join-org-form";
+import { CreateOrgForm } from "@/components/forms/CreateOrganizationForm";
+import { JoinOrgForm } from "@/components/forms/JoinOrganizationForm";
 import {
   Card,
   CardContent,

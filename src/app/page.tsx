@@ -9,7 +9,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 
-import { WaitlistForm } from "@/components/WaitlistForm";
+import { WaitlistForm } from "@/components/forms/WaitlistForm";
 import { envs } from "@/config/envs";
 
 const features = [

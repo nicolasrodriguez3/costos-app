@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import "@/app/globals.css";
 
 import { MainContentWrapper } from "@/components/MainContentWrapper";
-import { SetActiveOrganization } from "@/components/set-active-org";
+import { SetActiveOrganization } from "@/components/SetActiveOrganization";
 import { Sidebar } from "@/components/Sidebar";
 import { TopBar } from "@/components/TopBar";
 import { envs } from "@/config/envs";

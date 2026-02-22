@@ -1,7 +1,7 @@
 import { getIngredients } from "@/actions/ingredients";
 import { getProducts } from "@/actions/products";
+import { ProductForm } from "@/components/forms/ProductForm";
 import { PageHeader } from "@/components/PageHeader";
-import { ProductForm } from "@/components/ProductForm";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { IngredientWithStock } from "@/types";
 

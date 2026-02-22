@@ -2,8 +2,8 @@ import { notFound } from "next/navigation";
 
 import { getIngredients } from "@/actions/ingredients";
 import { getProductBySlug, getProducts } from "@/actions/products";
+import { ProductForm } from "@/components/forms/ProductForm";
 import { PageHeader } from "@/components/PageHeader";
-import { ProductForm } from "@/components/ProductForm";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { IngredientWithStock } from "@/types";
 

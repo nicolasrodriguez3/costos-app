@@ -1,5 +1,5 @@
 import { getFixedCosts } from "@/actions/fixedCosts";
-import { FixedCostForm } from "@/components/FixedCostForm";
+import { FixedCostForm } from "@/components/forms/FixedCostForm";
 import { PageHeader } from "@/components/PageHeader";
 
 interface PageProps {
