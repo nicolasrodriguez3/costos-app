@@ -8,6 +8,7 @@ interface StatCardProps {
   color?: StatColor;
   icon?: ReactNode;
   subtitle?: string;
+  change?: number;
 }
 
 const colorStyles: Record<StatColor, string> = {
@@ -18,12 +19,19 @@ const colorStyles: Record<StatColor, string> = {
   orange: "text-orange-400",
 };
 
+const changeColorStyles = (change: number) => {
+  if (change > 0) return "text-green-500";
+  if (change < 0) return "text-red-500";
+  return "text-gray-400";
+};
+
 export function StatCard({
   title,
   value,
   color = "green",
   icon,
   subtitle,
+  change,
 }: StatCardProps) {
   return (
     <div className="p-6 rounded-2xl bg-gray-500/5 border border-gray-500/10 backdrop-blur-sm overflow-hidden">
@@ -38,7 +46,17 @@ export function StatCard({
       >
         {value}
       </div>
-      {subtitle && <p className="text-gray-600 text-xs mt-1">{subtitle}</p>}
+      {(subtitle || change !== undefined) && (
+        <p className="text-gray-600 text-xs mt-1 flex items-center gap-2">
+          {change !== undefined && (
+            <span className={changeColorStyles(change)}>
+              {change > 0 ? "↑" : change < 0 ? "↓" : "→"}{" "}
+              {Math.abs(change).toFixed(1)}%
+            </span>
+          )}
+          {subtitle}
+        </p>
+      )}
     </div>
   );
 }

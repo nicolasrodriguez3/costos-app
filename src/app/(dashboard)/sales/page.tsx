@@ -102,7 +102,7 @@ export default async function SalesPage({ searchParams }: PageProps) {
                     className="border-b border-gray-50 hover:bg-gray-50/50"
                   >
                     <TableCell className="font-medium text-gray-900">
-                      <FormattedDate date={sale.dateTime} />
+                      <FormattedDate date={sale.dateTime} type="date" />
                     </TableCell>
                     <TableCell className="text-gray-600 max-w-md truncate">
                       {sale.items

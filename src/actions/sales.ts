@@ -49,7 +49,7 @@ export async function createSale(data: SaleFormValues): Promise<ActionState> {
 
     await prisma.sale.create({
       data: {
-        dateTime: new Date(dateTime),
+        dateTime: new Date(dateTime + "T00:00:00"),
         notes,
         totalAmount,
         userId,
@@ -110,7 +110,7 @@ export async function updateSale(
       prisma.sale.update({
         where: { id, organizationId: activeOrganizationId },
         data: {
-          dateTime: new Date(dateTime),
+          dateTime: new Date(dateTime + "T00:00:00"),
           notes,
           totalAmount,
           items: {

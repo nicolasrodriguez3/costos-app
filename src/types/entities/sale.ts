@@ -26,6 +26,22 @@ export type DashboardStats = {
   totalFixedCosts?: number;
   totalSalesCount: number;
   recentSales: Sale[];
+  previousPeriod: {
+    revenue: number;
+    cost: number;
+    profit: number;
+    salesCount: number;
+    revenueChange: number;
+    profitChange: number;
+  } | null;
+  topProducts: TopProduct[];
+};
+
+export type TopProduct = {
+  productId: string;
+  name: string;
+  quantity: number;
+  revenue: number;
 };
 
 export type SalesHistoryParams = {
