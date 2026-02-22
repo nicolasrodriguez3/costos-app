@@ -19,9 +19,26 @@
         "noHeadElement": "warn",
         "noNamespace": "error",
         "useArrayLiterals": "error",
-        "useAsConstAssertion": "error"
+        "useAsConstAssertion": "error",
+        "useNamingConvention": {
+          "level": "warn",
+          "options": {
+            "strictCase": false,
+            "conventions": [
+              {
+                "selector": { "kind": "typeLike" },
+                "formats": ["PascalCase"]
+              },
+              {
+                "selector": { "kind": "function" },
+                "formats": ["camelCase", "PascalCase"]
+              }
+            ]
+          }
+        }
       },
       "suspicious": {
+        "noConsole": "warn",
         "noDocumentImportInPage": "error",
         "noExplicitAny": "error",
         "noExtraNonNullAssertion": "error",
@@ -35,14 +52,6 @@
     },
     "includes": [
       "**",
-      "!.next/**",
-      "!out/**",
-      "!build/**",
-      "!next-env.d.ts",
-      "!.next/**",
-      "!out/**",
-      "!build/**",
-      "!next-env.d.ts",
       "!.next/**",
       "!out/**",
       "!build/**",
