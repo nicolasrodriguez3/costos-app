@@ -28,8 +28,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { type SaleFormValues, saleFormSchema } from "@/lib/validations/sale";
-import type { Product, Sale, SaleItem } from "@/types";
+import type { Product } from "@/types/entities/product";
+import type { Sale, SaleItem } from "@/types/entities/sale";
+import { SaleFormValues, saleFormSchema } from "@/types/forms/sale";
 
 interface SaleFormProps {
   products: Product[];

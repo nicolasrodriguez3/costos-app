@@ -15,7 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { Purchase } from "@/types";
+import type { Purchase } from "@/types/entities/purchase";
 import { FormattedDate } from "./FormattedDate";
 
 export function PurchaseHistory({ purchases }: { purchases: Purchase[] }) {

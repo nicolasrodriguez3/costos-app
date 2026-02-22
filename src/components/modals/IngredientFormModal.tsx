@@ -7,7 +7,7 @@ import {
   CreateResourceModal,
   EditResourceModal,
 } from "@/components/modals/ResourceModal";
-import type { Ingredient } from "@/types";
+import type { Ingredient } from "@/types/entities/ingredient";
 
 export function CreateIngredientModal() {
   return (

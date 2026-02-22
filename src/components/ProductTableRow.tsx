@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { TableCell, TableRow } from "@/components/ui/table";
-import type { RecipeItem } from "@/types";
+import type { RecipeItem } from "@/types/entities/product";
 
 interface Props {
   product: {

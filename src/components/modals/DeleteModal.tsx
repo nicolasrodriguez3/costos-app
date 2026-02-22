@@ -17,7 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { ActionState } from "@/types";
+import type { ActionState } from "@/types/actions/common";
 
 interface DeleteModalProps {
   id: string;

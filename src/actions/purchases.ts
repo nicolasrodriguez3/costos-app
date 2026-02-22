@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
-import type { ActionState, PurchaseInput } from "@/types";
+import type { ActionState } from "@/types/actions/common";
+import type { PurchaseInput } from "@/types/forms/purchase";
 
 export async function createPurchase(
   prevState: ActionState,

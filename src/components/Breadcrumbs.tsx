@@ -1,4 +1,5 @@
-import React from "react";
+import { Fragment } from "react";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,14 +17,14 @@ export const Breadcrumbs = ({
     <Breadcrumb>
       <BreadcrumbList>
         {breadcrumbs.map((item, index) => (
-          <React.Fragment key={item.href}>
+          <Fragment key={item.href}>
             <BreadcrumbItem>
               <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
             </BreadcrumbItem>
             {index < breadcrumbs.length - 1 && (
               <BreadcrumbSeparator key={`separator-${index}`} />
             )}
-          </React.Fragment>
+          </Fragment>
         ))}
       </BreadcrumbList>
     </Breadcrumb>

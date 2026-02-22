@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { auth } from "@/lib/auth";
+import { seedInitialData } from "@/lib/seed";
 
 const JoinOrganizationSchema = z.object({
   organizationId: z.string().min(1, "El ID de la organización es requerido"),
@@ -74,6 +75,8 @@ export async function createOrganizationAction(
       },
       headers: await headers(),
     });
+
+    await seedInitialData(org.id, session.user.id);
   } catch (error) {
     console.error("Failed to create organization:", error);
     if (error instanceof APIError) {

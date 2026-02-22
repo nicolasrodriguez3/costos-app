@@ -6,7 +6,8 @@ import { getPurchases } from "@/actions/purchases";
 import { PageHeader } from "@/components/PageHeader";
 import { PurchaseHistory } from "@/components/PurchaseHistory";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { IngredientWithStock, Purchase } from "@/types";
+import type { IngredientWithStock } from "@/types/entities/ingredient";
+import type { Purchase } from "@/types/entities/purchase";
 
 const breadcrumbs = [
   { href: "/dashboard", label: "Dashboard" },

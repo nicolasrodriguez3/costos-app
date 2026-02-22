@@ -16,3 +16,8 @@ export const saleFormSchema = z.object({
 
 export type SaleFormValues = z.infer<typeof saleFormSchema>;
 export type SaleItemFormValues = z.infer<typeof saleItemSchema>;
+
+export type SaleItemInput = {
+  productId: string;
+  quantity: number;
+};

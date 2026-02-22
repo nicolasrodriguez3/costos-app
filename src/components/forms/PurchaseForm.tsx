@@ -34,12 +34,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { UNIT_OPTIONS } from "@/config/constants";
-import type {
-  IngredientPurchaseInput,
-  IngredientWithStock,
-  Purchase,
-} from "@/types";
+import { UNIT_OPTIONS } from "@/config/units";
+import { IngredientWithStock } from "@/types/entities/ingredient";
+import type { Purchase } from "@/types/entities/purchase";
+import { IngredientPurchaseInput } from "@/types/forms/purchase";
 
 const ingredientPurchaseSchema = z.object({
   ingredientId: z.string().min(1, "Seleccione un ingrediente"),

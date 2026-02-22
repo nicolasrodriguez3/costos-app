@@ -19,7 +19,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Ingredient, ProductBase, RecipeItem } from "@/types";
+import type { Ingredient } from "@/types/entities/ingredient";
+import type { ProductBase, RecipeItem } from "@/types/entities/product";
 
 interface CalculableIngredient extends Ingredient {
   cost: number;

@@ -1,15 +1,17 @@
 "use client";
 
-import { createFixedCost, updateFixedCost } from "@/actions/fixedCosts";
-import type { ActionState, FixedCost } from "@/types";
-import { useActionState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useActionState, useEffect, useRef } from "react";
+
+import { createFixedCost, updateFixedCost } from "@/actions/fixedCosts";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { ActionState } from "@/types/actions/common";
+import type { FixedCost } from "@/types/entities/fixed-cost";
 
 const initialState: ActionState = {
   message: "",

@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
-import type { ActionState, StockMovementType } from "@/types";
+import type { ActionState } from "@/types/actions/common";
+import type { StockMovementType } from "@/types/entities/stock";
 
 export async function createStockMovement(
   prevState: ActionState,

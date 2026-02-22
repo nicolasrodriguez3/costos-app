@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
-import { ActionState } from "@/types";
+import type { ActionState } from "@/types/actions/common";
 
 export async function getFixedCosts() {
   const { activeOrganizationId } = await getServerSessionWithOrg();

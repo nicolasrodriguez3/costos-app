@@ -1,7 +1,7 @@
 import { getIngredients } from "@/actions/ingredients";
 import { PurchaseForm } from "@/components/forms/PurchaseForm";
 import { PageHeader } from "@/components/PageHeader";
-import { IngredientWithStock } from "@/types";
+import type { IngredientWithStock } from "@/types/entities/ingredient";
 
 export default async function NewPurchasePage() {
   const ingredients = (await getIngredients()) as IngredientWithStock[];

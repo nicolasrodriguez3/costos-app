@@ -3,7 +3,7 @@ import { getProducts } from "@/actions/products";
 import { ProductForm } from "@/components/forms/ProductForm";
 import { PageHeader } from "@/components/PageHeader";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
-import type { IngredientWithStock } from "@/types";
+import type { IngredientWithStock } from "@/types/entities/ingredient";
 
 const breadcrumbs = [
   { href: "/dashboard", label: "Inicio" },

@@ -2,18 +2,18 @@
 
 import { revalidatePath } from "next/cache";
 
-import { PAGINATION } from "@/config/constants";
+import { PAGINATION } from "@/config/pagination";
 import { Prisma } from "@/generated/prisma/client";
 import { calculateProductCost } from "@/lib/costs";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
-import { type SaleFormValues, saleFormSchema } from "@/lib/validations/sale";
+import type { ActionState } from "@/types/actions/common";
 import type {
-  ActionState,
   Sale,
   SalesHistoryParams,
   SalesHistoryResult,
-} from "@/types";
+} from "@/types/entities/sale";
+import { type SaleFormValues, saleFormSchema } from "@/types/forms/sale";
 
 /**
  * Crea una nueva venta con sus items

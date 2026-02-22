@@ -25,8 +25,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CATEGORIES, UNITS, UnitType } from "@/config/constants";
-import type { Ingredient } from "@/types";
+import { INGREDIENT_CATEGORIES } from "@/config/categories/ingredients";
+import { UNITS, UnitType } from "@/config/units";
+import type { Ingredient } from "@/types/entities/ingredient";
 
 const ingredientSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
@@ -74,7 +75,7 @@ export function IngredientForm({
       name: ingredient?.name ?? "",
       description: ingredient?.description ?? "",
       unit: ingredient?.unit ?? UNITS.kg.symbol,
-      category: ingredient?.category ?? CATEGORIES[0],
+      category: ingredient?.category ?? INGREDIENT_CATEGORIES[0],
       minStock: ingredient?.minStock ?? undefined,
       currentStock: ingredient?.currentStock ?? undefined,
       initialCost: undefined,
@@ -86,7 +87,7 @@ export function IngredientForm({
       name: ingredient?.name ?? "",
       description: ingredient?.description ?? "",
       unit: ingredient?.unit ?? UNITS.kg.symbol,
-      category: ingredient?.category ?? CATEGORIES[0],
+      category: ingredient?.category ?? INGREDIENT_CATEGORIES[0],
       minStock: ingredient?.minStock ?? undefined,
     });
   }, [ingredient, form]);
@@ -187,7 +188,7 @@ export function IngredientForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {CATEGORIES.map((category) => (
+                    {INGREDIENT_CATEGORIES.map((category) => (
                       <SelectItem
                         className="text-gray-700 hover:bg-gray-100"
                         key={category}

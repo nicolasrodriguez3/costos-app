@@ -7,7 +7,8 @@ import { ProductType } from "@/generated/prisma/client";
 import { calculateProductCost } from "@/lib/costs";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
-import type { ActionState, ProductFormData, RecipeItemInput } from "@/types";
+import type { ActionState } from "@/types/actions/common";
+import type { ProductFormData, RecipeItemInput } from "@/types/forms/product";
 
 export async function getProducts() {
   const { activeOrganizationId } = await getServerSessionWithOrg();

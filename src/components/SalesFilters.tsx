@@ -1,11 +1,12 @@
 "use client";
 
+import { Calendar, Search, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useTransition, useCallback } from "react";
-import { Input } from "@/components/ui/input";
+import { useCallback, useState, useTransition } from "react";
+
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Search, X, Calendar } from "lucide-react";
 
 type SalesFiltersProps = {
   initialStartDate?: string;

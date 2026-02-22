@@ -1,9 +1,9 @@
 "use server";
 
-import { PAGINATION } from "@/config/constants";
+import { PAGINATION } from "@/config/pagination";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
-import type { DashboardStats } from "@/types";
+import type { DashboardStats } from "@/types/entities/sale";
 
 export async function getDashboardStats(): Promise<DashboardStats> {
   let organizationId: string;

@@ -34,15 +34,15 @@ import {
   PRODUCT_TYPE_ICONS,
   PRODUCT_TYPE_LABELS,
   PRODUCT_TYPES,
-  type ProductType,
-  UNITS,
-} from "@/config/constants";
+  ProductType,
+} from "@/config/products";
+import { UNIT_OPTIONS } from "@/config/units";
 import { useProductDraftStore } from "@/store/product-draft-store";
+import type { IngredientWithStock } from "@/types/entities/ingredient";
 import type {
-  IngredientWithStock,
   ProductBase,
   ProductWithRelations,
-} from "@/types";
+} from "@/types/entities/product";
 
 // --- Zod Schema ---
 
@@ -550,9 +550,9 @@ export function ProductForm({
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {Object.entries(UNITS).map(([key, value]) => (
-                                <SelectItem key={key} value={key}>
-                                  {value.symbol}
+                              {UNIT_OPTIONS.map((unit) => (
+                                <SelectItem key={unit} value={unit}>
+                                  {unit}
                                 </SelectItem>
                               ))}
                             </SelectContent>

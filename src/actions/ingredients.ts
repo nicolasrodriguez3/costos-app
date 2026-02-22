@@ -5,11 +5,8 @@ import { revalidatePath } from "next/cache";
 import { ReferenceType, StockMovementType } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
-import type {
-  ActionState,
-  IngredientInput,
-  IngredientWithStock,
-} from "@/types";
+import type { ActionState } from "@/types/actions/common";
+import type { IngredientInput } from "@/types/forms/ingredient";
 import { createStockMovement } from "./purchases";
 
 export async function getIngredients() {
@@ -237,7 +234,7 @@ export async function getIngredientStock(id: string) {
   });
 }
 
-async function _updateIngredientStock(
+async function UpdateIngredientStock(
   id: string,
   newStock: number,
   activeOrganizationId: string,
@@ -292,7 +289,7 @@ export async function updateIngredientStock(
     return { message: "Unauthorized" };
   }
 
-  return _updateIngredientStock(id, newStock, activeOrganizationId);
+  return UpdateIngredientStock(id, newStock, activeOrganizationId);
 }
 
 export async function updateIngredientStockAction(
@@ -317,7 +314,7 @@ export async function updateIngredientStockAction(
     return { message: "El stock debe ser un número válido" };
   }
 
-  const result = await _updateIngredientStock(
+  const result = await UpdateIngredientStock(
     id,
     newStock,
     activeOrganizationId,
