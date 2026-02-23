@@ -63,9 +63,12 @@ export function TopBar({ title, primaryAction, user, className }: TopBarProps) {
           <ListIcon size={24} weight="bold" />
         </Button>
 
-        <h1 className="text-lg font-semibold text-gray-800 truncate px-2">
+        <Link
+          href="/dashboard"
+          className="text-lg font-semibold text-gray-800 hover:text-gray-900 truncate px-2"
+        >
           {title}
-        </h1>
+        </Link>
 
         {user && (
           <Link
@@ -93,7 +96,12 @@ export function TopBar({ title, primaryAction, user, className }: TopBarProps) {
             />
           </div>
 
-          <h1 className="text-xl font-semibold text-gray-800">{title}</h1>
+          <Link
+            href={"/dashboard"}
+            className="text-xl font-semibold text-gray-800 hover:text-gray-900"
+          >
+            {title}
+          </Link>
         </div>
 
         <div className="flex items-center gap-4 px-2">

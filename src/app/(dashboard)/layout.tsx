@@ -13,9 +13,13 @@ import { envs } from "@/config/envs";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "@/lib/serverSession";
 import { SidebarProvider } from "@/store/sidebar-store";
+import { getOrganizationDetails } from "@/actions/organization";
 
 export const metadata: Metadata = {
-  title: envs.NEXT_PUBLIC_APP_TITLE,
+  title: {
+    template: `%s | ${envs.NEXT_PUBLIC_APP_TITLE}`,
+    default: `Dashboard | ${envs.NEXT_PUBLIC_APP_TITLE}`,
+  },
   description:
     "Gestiona tus ingredientes, recetas y ventas de pizzas en tiempo real.",
 };
@@ -57,11 +61,14 @@ export default async function RootLayout({
   const defaultCollapsed =
     cookieStore.get("sidebar:collapsed")?.value === "true";
 
+  const organization = await getOrganizationDetails(
+    session.activeOrganizationId,
+  );
   const appTitle = envs.NEXT_PUBLIC_APP_TITLE;
 
   return (
     <SidebarProvider defaultCollapsed={defaultCollapsed}>
-      <TopBar title={appTitle} user={user} />
+      <TopBar title={organization?.name || appTitle} user={user} />
       <main className="relative flex min-h-screen bg-gray-50 w-full">
         <Sidebar />
         <MainContentWrapper>{children}</MainContentWrapper>
