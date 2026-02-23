@@ -1,22 +1,13 @@
 "use client";
 
-import {
-  DotsThreeIcon,
-  PencilSimpleIcon,
-  TrashSimpleIcon,
-} from "@phosphor-icons/react";
+import { PencilIcon } from "lucide-react";
 import Link from "next/link";
 
 import { deleteProduct } from "@/actions/products";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { TableCell, TableRow } from "@/components/ui/table";
 import type { RecipeItem } from "@/types/entities/product";
+import { DeleteModal } from "./modals/DeleteModal";
+import { Button } from "./ui/button";
 
 interface Props {
   product: {
@@ -37,8 +28,8 @@ export const ProductTableRow = ({ product }: Props) => {
   const marginPercent = basePrice > 0 ? (margin / basePrice) * 100 : 0;
 
   return (
-    <TableRow className="hover:bg-gray-50 border-b border-gray-100">
-      <TableCell className="font-medium text-gray-700 flex items-center">
+    <TableRow className="hover:bg-gray-50 border-b border-gray-100 text-gray-600 [&_td]:align-top">
+      <TableCell className="font-medium text-gray-700">
         <Link href={`/products/${slug}`} className="hover:underline">
           {name}
         </Link>
@@ -48,55 +39,33 @@ export const ProductTableRow = ({ product }: Props) => {
           </span>
         )}
       </TableCell>
-      <TableCell className="text-gray-600 text-sm">{type}</TableCell>
-      <TableCell className="text-right text-gray-600">
+      <TableCell className="text-sm">{type}</TableCell>
+      <TableCell className="text-right font-mono">
         ${basePrice.toFixed(2)}
       </TableCell>
-      <TableCell className="text-right text-red-400 font-mono">
-        ${cost.toFixed(2)}
-      </TableCell>
+      <TableCell className="text-right font-mono">${cost.toFixed(2)}</TableCell>
       <TableCell className="text-right font-mono">
         <div className={margin > 0 ? "text-green-400" : "text-red-500"}>
           ${margin.toFixed(2)}
         </div>
-        <div className="text-xs text-gray-600">{marginPercent.toFixed(0)}%</div>
+        <div className="text-xs">{marginPercent.toFixed(0)}%</div>
       </TableCell>
       <TableCell className="text-right">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Ver opciones</span>
-              <DotsThreeIcon
-                size={24}
-                weight="bold"
-                className="text-gray-400"
-              />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild className="hover:bg-gray-100">
-              <Link
-                href={`/products/${slug}/edit`}
-                scroll={false}
-                className="w-full flex items-center gap-2 cursor-pointer"
-              >
-                <PencilSimpleIcon size={16} />
-                Editar
-              </Link>
-            </DropdownMenuItem>
-            <form action={deleteProduct.bind(null, id)}>
-              <DropdownMenuItem asChild className="hover:bg-red-100">
-                <button
-                  type="submit"
-                  className="w-full flex items-center gap-2 text-red-600 cursor-pointer"
-                >
-                  <TrashSimpleIcon size={16} className="text-inherit" />
-                  Borrar
-                </button>
-              </DropdownMenuItem>
-            </form>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button asChild variant="ghost" size="icon">
+          <Link
+            href={`/products/${slug}/edit`}
+            scroll={false}
+            aria-label="Editar"
+          >
+            <PencilIcon size={16} />
+          </Link>
+        </Button>
+        <DeleteModal
+          id={id}
+          name={name}
+          type="producto"
+          action={deleteProduct}
+        />
       </TableCell>
     </TableRow>
   );
