@@ -3,28 +3,45 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { convertCost } from "@/actions/utils/unitConversion";
 import { ProductType } from "@/generated/prisma/client";
-import { calculateProductCost } from "@/lib/costs";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { ActionState } from "@/types/actions/common";
 import type { ProductFormData, RecipeItemInput } from "@/types/forms/product";
+import type { ProductWithRelations } from "@/types/entities/product";
 
 export async function getProducts() {
   const { activeOrganizationId } = await getServerSessionWithOrg();
   if (!activeOrganizationId) return [];
 
   const products = await prisma.product.findMany({
-    where: { organizationId: activeOrganizationId },
+    where: { organizationId: activeOrganizationId, isActive: true },
     include: {
       receipeItems: {
         include: {
-          ingredient: true,
+          ingredient: {
+            include: {
+              purchases: {
+                where: { organizationId: activeOrganizationId },
+                orderBy: { purchase: { purchaseDate: "desc" } },
+                take: 1,
+              },
+            },
+          },
           subProduct: {
             include: {
               receipeItems: {
                 include: {
-                  ingredient: true,
+                  ingredient: {
+                    include: {
+                      purchases: {
+                        where: { organizationId: activeOrganizationId },
+                        orderBy: { purchase: { purchaseDate: "desc" } },
+                        take: 1,
+                      },
+                    },
+                  },
                 },
               },
             },
@@ -32,19 +49,62 @@ export async function getProducts() {
         },
       },
     },
-    orderBy: { name: "asc" },
+    orderBy: { updatedAt: "desc" },
   });
 
-  // Calculate costs for all products
-  // We use Promise.all to fetch costs in parallel
-  const productsWithCost = await Promise.all(
-    products.map(async (product) => {
-      const cost = await calculateProductCost(product.id);
-      return { ...product, cost };
-    }),
-  );
+  const productsWithCost = products.map((product) => {
+    const cost = calculateCostFromData(product);
+    return { ...product, cost };
+  });
 
   return productsWithCost;
+}
+
+/** Calculates cost from product data */
+function calculateCostFromData(product: ProductWithRelations): number {
+  if (product.type !== "ELABORADO") {
+    return product.manualCost || 0;
+  }
+
+  if (!product.receipeItems || product.receipeItems.length === 0) {
+    return 0;
+  }
+
+  let totalCost = 0;
+
+  for (const item of product.receipeItems) {
+    if (item.ingredientId && item.ingredient) {
+      const lastPurchaseCost = item.ingredient.purchases?.[0]?.unitCost || 0;
+      totalCost += convertCost(
+        item.quantity,
+        item.unit,
+        item.ingredient.unit,
+        lastPurchaseCost,
+      );
+    } else if (item.subProductId && item.subProduct) {
+      // Calculate sub-product cost
+      let subCost = 0;
+      if (item.subProduct.type !== "ELABORADO") {
+        subCost = item.subProduct.manualCost || 0;
+      } else {
+        for (const subItem of item.subProduct.receipeItems) {
+          if (subItem.ingredientId && subItem.ingredient) {
+            const subPurchaseCost =
+              subItem.ingredient.purchases?.[0]?.unitCost || 0;
+            subCost += convertCost(
+              subItem.quantity,
+              subItem.unit,
+              subItem.ingredient.unit,
+              subPurchaseCost,
+            );
+          }
+        }
+      }
+      totalCost += item.quantity * subCost;
+    }
+  }
+
+  return totalCost;
 }
 
 export async function getProductBySlug(slug: string) {
@@ -301,10 +361,10 @@ export async function updateProduct(
   redirect(`/products/${slug}`);
 }
 
-export async function deleteProduct(id: string): Promise<void> {
+export async function deleteProduct(id: string): Promise<ActionState> {
   const { activeOrganizationId } = await getServerSessionWithOrg();
   if (!activeOrganizationId) {
-    return;
+    return { message: "Unauthorized" };
   }
 
   try {
@@ -318,8 +378,10 @@ export async function deleteProduct(id: string): Promise<void> {
       },
     });
     revalidatePath("/products");
+    return { success: true, message: "Producto eliminado correctamente" };
   } catch (error) {
     console.error("Error al eliminar producto:", error);
+    return { message: "Error al eliminar el producto" };
   }
 }
 

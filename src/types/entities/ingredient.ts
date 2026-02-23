@@ -1,4 +1,5 @@
-import type { StockMovementType } from "@/generated/prisma/client";
+import type { IngredientPurchase } from "./purchase";
+import type { StockMovement } from "./stock";
 
 export type Ingredient = {
   id: string;
@@ -18,6 +19,10 @@ export type IngredientWithStock = Ingredient & {
   lastCost?: number;
   lastPurchaseDate?: Date;
   isLowStock?: boolean | null;
-  purchases?: import("./purchase").IngredientPurchase[];
-  stockMovements?: import("./stock").StockMovement[];
+  purchases?: IngredientPurchase[];
+  stockMovements?: StockMovement[];
+};
+
+export type IngredientWithPurchases = Ingredient & {
+  purchases?: IngredientPurchase[];
 };

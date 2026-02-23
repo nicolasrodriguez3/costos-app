@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getProducts } from "@/actions/products";
 import { PageHeader } from "@/components/PageHeader";
 import { ProductTableRow } from "@/components/ProductTableRow";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -27,17 +28,17 @@ export default async function ProductsPage() {
         title="Productos & Recetas"
         gradient="purple"
         breadcrumbs={breadcrumbs}
-        backLink={{ href: "/dashboard", label: "Volver al Dashboard" }}
+        actions={
+          <Button asChild variant="ghost">
+            <Link
+              href="/products/new"
+              className="bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 hover:text-purple-600 transition"
+            >
+              Agregar Producto
+            </Link>
+          </Button>
+        }
       />
-
-      <div className="mb-4">
-        <Link
-          href="/products/new"
-          className="text-sm px-3 py-1 rounded bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 transition opacity-80 group-hover:opacity-100 focus:opacity-100"
-        >
-          Agregar Producto
-        </Link>
-      </div>
 
       <Card className="rounded-2xl shadow-sm border border-gray-100">
         <CardHeader>

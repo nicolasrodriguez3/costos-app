@@ -1,4 +1,5 @@
 import type { ProductType } from "@/config/products";
+import type { Ingredient, IngredientWithPurchases } from "./ingredient";
 
 export type RecipeItem = {
   id: string;
@@ -7,7 +8,7 @@ export type RecipeItem = {
   subProductId?: string | null;
   quantity: number;
   unit: string;
-  ingredient?: import("./ingredient").Ingredient | null;
+  ingredient?: Ingredient | null;
   subProduct?: Product | null;
 };
 
@@ -34,8 +35,14 @@ export type ProductWithCost = Product & {
 };
 
 export type ProductWithRelations = ProductBase & {
-  receipeItems?: (RecipeItem & {
-    ingredient?: import("./ingredient").Ingredient | null;
-    subProduct?: ProductBase | null;
+  receipeItems: (RecipeItem & {
+    ingredient?: IngredientWithPurchases | null;
+    subProduct?:
+      | (ProductBase & {
+          receipeItems: (RecipeItem & {
+            ingredient?: IngredientWithPurchases | null;
+          })[];
+        })
+      | null;
   })[];
 };
