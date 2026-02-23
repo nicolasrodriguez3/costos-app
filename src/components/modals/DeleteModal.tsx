@@ -42,8 +42,8 @@ export function DeleteModal({ id, name, type, action }: DeleteModalProps) {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm">
-          Borrar
+        <Button variant="destructive" size="icon">
+          <Trash2Icon className="size-4" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent size="sm" className="bg-white border-none">
