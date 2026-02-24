@@ -1,7 +1,12 @@
 import Link from "next/link";
-import { getFixedCosts, deleteFixedCost } from "@/actions/fixedCosts";
+
+import { deleteFixedCost, getFixedCosts } from "@/actions/fixedCosts";
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+
+export const metadata = {
+  title: "Gastos Fijos",
+};
 
 interface PageProps {
   searchParams: Promise<{ edit?: string }>;

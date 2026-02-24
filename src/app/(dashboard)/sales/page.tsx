@@ -48,18 +48,20 @@ export default async function SalesPage({ searchParams }: PageProps) {
         title="Ventas"
         gradient="green"
         breadcrumbs={breadcrumbs}
-        backLink={{ href: "/dashboard", label: "Volver al Dashboard" }}
         actions={
           <div className="flex gap-2">
             <Link href="/sales/history">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="default">
                 Ver Historial & Reporte
               </Button>
             </Link>
             <Link href="/sales/new">
-              <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                <Plus className="mr-2 h-4 w-4" />
-                Nueva Venta Diaria
+              <Button
+                size="default"
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Plus className="mr-1 size-4" />
+                Nueva Venta
               </Button>
             </Link>
           </div>

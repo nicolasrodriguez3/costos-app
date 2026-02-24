@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -28,11 +27,11 @@ interface BaseModalProps {
 }
 
 interface CreateResourceModalProps extends BaseModalProps {
-  triggerLabel: string | React.ReactNode;
+  trigger: React.ReactNode;
 }
 
 export function CreateResourceModal({
-  triggerLabel,
+  trigger,
   title,
   description,
   children,
@@ -54,9 +53,7 @@ export function CreateResourceModal({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">{triggerLabel}</Button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="rounded-2xl shadow-xl border-gray-900/10 bg-white sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-900">

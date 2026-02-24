@@ -8,6 +8,10 @@ import { StatCard } from "@/components/StatCard";
 import { TimeFilter } from "@/components/TimeFilter";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
+export const metadata = {
+  title: "Dashboard",
+};
+
 async function DashboardContent({ period }: { period: Period }) {
   const stats = await getDashboardStats(period);
   const grossProfit = stats.totalProfit;

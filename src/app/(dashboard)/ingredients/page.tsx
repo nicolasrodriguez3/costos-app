@@ -1,3 +1,4 @@
+import { PencilIcon } from "lucide-react";
 import Link from "next/link";
 
 import { deleteIngredient, getIngredients } from "@/actions/ingredients";
@@ -7,7 +8,12 @@ import {
   EditIngredientModal,
 } from "@/components/modals/IngredientFormModal";
 import { PageHeader } from "@/components/PageHeader";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+
+export const metadata = {
+  title: "Ingredientes",
+};
 
 interface PageProps {
   searchParams: Promise<{ edit?: string }>;
@@ -87,13 +93,15 @@ export default async function IngredientsPage({ searchParams }: PageProps) {
                       </td>
                       <td className="p-3 text-right">
                         <div className="flex justify-end gap-2 items-center">
-                          <Link
-                            href={`/ingredients?edit=${ing.id}`}
-                            scroll={false}
-                            className="text-sm px-3 py-1 rounded bg-orange-50 text-orange-600 hover:bg-orange-100 transition opacity-80 group-hover:opacity-100 focus:opacity-100"
-                          >
-                            Editar
-                          </Link>
+                          <Button asChild variant="ghost" size="icon">
+                            <Link
+                              href={`/ingredients?edit=${ing.id}`}
+                              scroll={false}
+                              className="text-sm px-3 py-1 rounded bg-orange-50 text-orange-600 hover:text-orange-600 hover:bg-orange-100 transition opacity-80 group-hover:opacity-100 focus:opacity-100"
+                            >
+                              <PencilIcon className="size-4" />
+                            </Link>
+                          </Button>
                           <DeleteModal
                             id={ing.id}
                             name={ing.name}

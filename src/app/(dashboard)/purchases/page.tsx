@@ -1,10 +1,11 @@
-import { Blocks, Receipt } from "lucide-react";
+import { Blocks, Plus, Receipt } from "lucide-react";
 import Link from "next/link";
 
 import { getIngredients } from "@/actions/ingredients";
 import { getPurchases } from "@/actions/purchases";
 import { PageHeader } from "@/components/PageHeader";
 import { PurchaseHistory } from "@/components/PurchaseHistory";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { IngredientWithStock } from "@/types/entities/ingredient";
 import type { Purchase } from "@/types/entities/purchase";
@@ -24,18 +25,23 @@ export default async function PurchasesPage() {
         title="Compras de Ingredientes"
         gradient="orange"
         breadcrumbs={breadcrumbs}
-        backLink={{ href: "/dashboard", label: "Volver al Dashboard" }}
+        actions={
+          <div className="flex gap-2">
+            <Button
+              asChild
+              variant="ghost"
+              className="bg-orange-500/10 text-orange-600 hover:bg-orange-500/20 hover:text-orange-600 transition"
+            >
+              <Link href="/purchases/new">
+                <Plus className="mr-1 size-4" />
+                Nueva Compra
+              </Link>
+            </Button>
+          </div>
+        }
       />
 
       <div>
-        <div className="mb-4">
-          <Link
-            href="/purchases/new"
-            className="text-sm px-3 py-1 rounded bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 transition opacity-80 group-hover:opacity-100 focus:opacity-100"
-          >
-            Agregar Compra
-          </Link>
-        </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <Card className="rounded-2xl shadow-sm border border-gray-100">

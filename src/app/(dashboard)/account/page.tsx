@@ -9,6 +9,10 @@ const breadcrumbs = [
   { href: "/account", label: "Mi cuenta" },
 ];
 
+export const metadata = {
+  title: "Mi cuenta",
+};
+
 export default async function AccountPage() {
   const data = await getUserInfo();
 

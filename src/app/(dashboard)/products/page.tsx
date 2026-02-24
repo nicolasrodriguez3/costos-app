@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import Link from "next/link";
 
 import { getProducts } from "@/actions/products";
@@ -13,6 +14,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
+export const metadata = {
+  title: "Productos & Recetas",
+};
 
 const breadcrumbs = [
   { href: "/dashboard", label: "Inicio" },
@@ -34,7 +39,8 @@ export default async function ProductsPage() {
               href="/products/new"
               className="bg-purple-500/10 text-purple-600 hover:bg-purple-500/20 hover:text-purple-600 transition"
             >
-              Agregar Producto
+              <Plus className="mr-1 size-4" />
+              Nuevo Producto
             </Link>
           </Button>
         }
