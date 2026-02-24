@@ -7,7 +7,7 @@ import {
 } from "@/actions/products";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
-import { ProductFormData } from "@/types";
+import { ProductFormData } from "@/types/forms/product";
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
