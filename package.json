@@ -1,5 +1,5 @@
 {
-  "name": "my-app",
+  "name": "costos-app",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -18,7 +18,8 @@
     "prod:build": "pnpm db:deploy && pnpm db:generate && pnpm build",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "typecheck": "pnpx tsc --noEmit"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
