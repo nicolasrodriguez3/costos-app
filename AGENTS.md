@@ -11,16 +11,16 @@ pnpm run build            # Production build
 pnpm start                # Start production server
 
 # Code Quality
-pnpm run lint             # Run ESLint (Core Web Vitals + TypeScript rules)
-npx tsc --noEmit         # TypeScript type checking (run before commits)
+pnpm run lint             # Run Biome linter
+pnpm run typecheck        # TypeScript type checking (pnpm tsc --noEmit)
 
 # Database
-pnpx prisma generate       # Generate Prisma client
-pnpx prisma migrate dev    # Run database migrations in development
-pnpx prisma studio         # Open Prisma Studio for database inspection
+pnpm prisma generate       # Generate Prisma client
+pnpm prisma migrate dev    # Run database migrations in development
+pnpm prisma studio         # Open Prisma Studio for database inspection
 
-# Testing (No test framework currently configured)
-# TODO: Add Jest/Vitest when tests are implemented
+# Testing
+# Vitest is configured (see vitest.config.ts)
 ```
 
 ## 🏗️ Architecture Principles
@@ -283,7 +283,8 @@ app/
 
 ```bash
 pnpm test           # Run tests in watch mode
-pnpm test:run      # Run tests once
+pnpm test:run       # Run tests once
+pnpm test -- ingredient      # Run single test file (match by name)
 ```
 
 ### Framework
