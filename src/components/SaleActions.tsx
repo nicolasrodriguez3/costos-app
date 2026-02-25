@@ -6,23 +6,25 @@ import { toast } from "sonner";
 
 import { deleteSale } from "@/actions/sales";
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 interface SaleActionsProps {
   saleId: string;
 }
 
 export function SaleActions({ saleId }: SaleActionsProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = () => {
@@ -30,6 +32,7 @@ export function SaleActions({ saleId }: SaleActionsProps) {
       const result = await deleteSale(saleId);
       if (result.success) {
         toast.success(result.message);
+        router.replace("/sales");
       } else {
         toast.error(result.message);
       }
