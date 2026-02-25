@@ -34,7 +34,7 @@ export async function createStockMovement(
     return { message: "La cantidad debe ser diferente de 0" };
   }
 
-  if (type === "AJUSTE") {
+  if (type === "AJUSTMENT") {
     // Para ajustes, quantity puede ser positivo o negativo
   } else {
     // Para otros tipos, validar según el tipo
@@ -144,7 +144,7 @@ export async function deleteStockMovement(id: string): Promise<ActionState> {
       },
     });
 
-    if (movement && movement.type === "AJUSTE") {
+    if (movement && movement.type === "AJUSTMENT") {
       await prisma.ingredient.update({
         where: { id: movement.ingredientId },
         data: {
@@ -168,5 +168,52 @@ export async function deleteStockMovement(id: string): Promise<ActionState> {
   } catch (error) {
     console.error("Error al eliminar movimiento de stock:", error);
     return { message: "Error al eliminar el movimiento de stock" };
+  }
+}
+
+
+export async function createInitialStockMovement({
+  ingredientId,
+  quantity,
+  unit,
+  unitCost,
+}: {
+  ingredientId: string;
+  quantity: number;
+  unit: string;
+  unitCost: number;
+}) {
+  const { activeOrganizationId: organizationId } =
+    await getServerSessionWithOrg();
+
+  try {
+    await prisma.purchase.create({
+      data: {
+        organizationId,
+        ingredientPurchases: {
+          create: {
+            ingredientId,
+            organizationId,
+            quantity,
+            unit,
+            unitCost,
+          },
+        },
+      },
+    });
+
+    // Create stock movement
+    await prisma.stockMovement.create({
+      data: {
+        organizationId,
+        ingredientId,
+        type: "AJUSTMENT",
+        quantity,
+        unit,
+        reason: `Stock inicial`,
+      },
+    });
+  } catch (error) {
+    console.error("Error al crear movimiento de stock:", error);
   }
 }

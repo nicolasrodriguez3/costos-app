@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { ActionState } from "@/types/actions/common";
 import type { IngredientInput } from "@/types/forms/ingredient";
-import { createStockMovement } from "./purchases";
+import { createInitialStockMovement } from "./stock";
 
 export async function getIngredients() {
   const { activeOrganizationId } = await getServerSessionWithOrg();
@@ -88,7 +88,7 @@ export async function createIngredient(
     });
 
     if (initialCost) {
-      await createStockMovement({
+      await createInitialStockMovement({
         ingredientId: newIngredient.id,
         quantity: initialStock ?? 0,
         unit,
