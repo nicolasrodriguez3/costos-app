@@ -112,7 +112,6 @@ import { auth } from "@/auth";
 import type { ActionState } from "@/app/types";
 
 export async function createExample(
-  prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
   const session = await auth();
@@ -221,7 +220,7 @@ const [state, formAction, isPending] = useActionState(
 
 ### Form Patterns
 
-- Use `useActionState` for form state management
+- Use `react-hook-form` for form state management
 - Loading states: `{isPending ? "Saving..." : "Save"}`
 - Validation feedback with colored borders/messages
 - Reset form on success for create operations
@@ -264,7 +263,7 @@ app/
 ## 🔒 Security Best Practices
 
 - Always validate user authentication in Server Actions
-- Use `session?.user?.organizationId` for data isolation
+- Use `getServerSessionWithOrg` for data isolation
 - Validate form data before database operations
 - Use revalidatePath() for cache invalidation
 - Never expose Prisma models directly to client
@@ -272,7 +271,7 @@ app/
 ## 📦 Package Management
 
 - All UI components from `@/components/ui/`
-- Icon libraries: `lucide-react` (primary), `@phosphor-icons/react` (secondary)
+- Icon libraries: `lucide-react` (primary)
 - Form handling: `react-hook-form` + `zod`
 - Database: `prisma` with `@prisma/client`
 - Styling: `tailwindcss` v4 with `clsx` for conditional classes
