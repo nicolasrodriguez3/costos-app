@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createIngredient } from "@/actions/ingredients";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
-import { IngredientInput } from "@/types";
+import { IngredientInput } from "@/types/forms/ingredient";
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
