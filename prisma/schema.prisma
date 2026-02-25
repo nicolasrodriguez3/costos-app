@@ -247,6 +247,9 @@ model Sale {
   notes       String?
   deletedAt   DateTime?
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   items SaleItem[]
 
   @@index([dateTime])
@@ -353,14 +356,13 @@ model StockMovement {
   ingredientId String
   ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
 
-  type          StockMovementType
-  quantity      Float // Quantity (positive for entry, negative for exit)
-  unit          String // Unit of movement
-  reason        String? // Reason for movement
-  referenceId   String? // Reference to purchase, sale, etc.
-  referenceType ReferenceType?
-  movementDate  DateTime          @default(now())
-  notes         String? // Additional notes
+  type         StockMovementType?
+  quantity     Float // Quantity (positive for entry, negative for exit)
+  unit         String // Unit of movement
+  reason       String? // Reason for movement
+  referenceId  String? // Reference to purchase, sale, etc.
+  movementDate DateTime           @default(now())
+  notes        String? // Additional notes
 
   createdAt DateTime @default(now())
 
@@ -389,14 +391,8 @@ model WaitlistSubscriber {
 }
 
 enum StockMovementType {
-  COMPRA
-  AJUSTE
-  RETIRO
-  DEVOLUCION
-}
-
-enum ReferenceType {
   PURCHASE
+  AJUSTMENT
   SALE
-  ADJUSTMENT
+  RETURN
 }
