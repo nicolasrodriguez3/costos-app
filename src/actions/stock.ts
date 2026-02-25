@@ -38,8 +38,8 @@ export async function createStockMovement(
     // Para ajustes, quantity puede ser positivo o negativo
   } else {
     // Para otros tipos, validar según el tipo
-    if (type === "RETIRO" && quantity > 0) {
-      // Convertir a negativo para retiros
+    if (type === "SALE" && quantity > 0) {
+      // Convertir a negativo para ventas
       formData.set("quantity", (-quantity).toString());
     }
   }
@@ -57,10 +57,10 @@ export async function createStockMovement(
       return { message: "Ingrediente no encontrado" };
     }
 
-    // Verificar stock suficiente para retiros
-    const actualQuantity = type === "RETIRO" ? -Math.abs(quantity) : quantity;
-    if (type === "RETIRO" && ingredient.currentStock + actualQuantity < 0) {
-      return { message: "Stock insuficiente para realizar el retiro" };
+    // Verificar stock suficiente para ventas
+    const actualQuantity = type === "SALE" ? -Math.abs(quantity) : quantity;
+    if (type === "SALE" && ingredient.currentStock + actualQuantity < 0) {
+      return { message: "Stock insuficiente para realizar la venta" };
     }
 
     // Crear movimiento de stock
@@ -73,7 +73,6 @@ export async function createStockMovement(
         unit,
         reason: reason || `Movimiento tipo ${type}`,
         notes,
-        referenceType: "ADJUSTMENT",
       },
     });
 
@@ -145,7 +144,7 @@ export async function deleteStockMovement(id: string): Promise<ActionState> {
       },
     });
 
-    if (movement && movement.referenceType === "ADJUSTMENT") {
+    if (movement && movement.type === "AJUSTE") {
       await prisma.ingredient.update({
         where: { id: movement.ingredientId },
         data: {

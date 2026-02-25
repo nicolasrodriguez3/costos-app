@@ -1,4 +1,4 @@
-import type { ReferenceType, StockMovementType } from "@/generated/prisma/client";
+import type { StockMovementType } from "@/generated/prisma/client";
 import type { Ingredient } from "./ingredient";
 
 export type StockMovement = {
@@ -11,7 +11,6 @@ export type StockMovement = {
   unit: string;
   reason?: string | null;
   referenceId?: string | null;
-  referenceType?: ReferenceType | null;
   movementDate: Date;
   notes?: string | null;
   createdAt: Date;

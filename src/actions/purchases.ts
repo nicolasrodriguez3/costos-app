@@ -90,12 +90,11 @@ export async function createPurchase(
         data: {
           organizationId,
           ingredientId: ing.ingredientId,
-          type: "COMPRA",
+          type: "PURCHASE",
           quantity: ing.quantity,
           unit: ing.unit,
           reason: `Compra ${invoiceNumber ? `Fact: ${invoiceNumber}` : "sin factura"}`,
           referenceId: ingredientPurchase.id,
-          referenceType: "PURCHASE",
           notes: `Proveedor: ${supplierName || "N/A"}`,
         },
       });
@@ -211,7 +210,7 @@ export async function updatePurchase(
         });
         // Delete movement
         await prisma.stockMovement.deleteMany({
-          where: { referenceId: existing.id, referenceType: "PURCHASE" },
+          where: { referenceId: existing.id },
         });
         // Delete purchase
         await prisma.ingredientPurchase.delete({ where: { id: existing.id } });
@@ -239,7 +238,7 @@ export async function updatePurchase(
             data: { currentStock: { increment: quantityDiff } },
           });
           await prisma.stockMovement.updateMany({
-            where: { referenceId: existing.id, referenceType: "PURCHASE" },
+            where: { referenceId: existing.id },
             data: {
               quantity: ing.quantity,
               unit: ing.unit,
@@ -267,12 +266,11 @@ export async function updatePurchase(
           data: {
             organizationId: activeOrganizationId,
             ingredientId: ing.ingredientId,
-            type: "COMPRA",
+            type: "PURCHASE",
             quantity: ing.quantity,
             unit: ing.unit,
             reason: `Compra ${invoiceNumber ? `Fact: ${invoiceNumber}` : "sin factura"}`,
             referenceId: newPurchase.id,
-            referenceType: "PURCHASE",
             notes: `Proveedor: ${supplierName || "N/A"}`,
           },
         });
@@ -318,7 +316,6 @@ export async function deletePurchase(purchaseId: string): Promise<ActionState> {
       await prisma.stockMovement.deleteMany({
         where: {
           referenceId: ip.id,
-          referenceType: "PURCHASE",
         },
       });
     }
@@ -381,11 +378,10 @@ export async function createStockMovement({
       data: {
         organizationId,
         ingredientId,
-        type: "AJUSTE",
+        type: "AJUSTMENT",
         quantity,
         unit,
         reason: `Stock inicial`,
-        referenceType: "ADJUSTMENT",
       },
     });
   } catch (error) {

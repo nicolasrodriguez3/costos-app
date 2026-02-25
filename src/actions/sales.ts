@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { PAGINATION } from "@/config/pagination";
-import { Prisma } from "@/generated/prisma/client";
+import { Prisma, StockMovementType } from "@/generated/prisma/client";
 import { calculateProductCost } from "@/lib/costs";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
@@ -37,7 +37,6 @@ export async function createSale(data: SaleFormValues): Promise<ActionState> {
       0,
     );
 
-    // Prepare items with costs calculated at this moment
     const saleItemsData = await Promise.all(
       items.map(async (item) => ({
         productId: item.productId,
@@ -47,21 +46,40 @@ export async function createSale(data: SaleFormValues): Promise<ActionState> {
       })),
     );
 
-    await prisma.sale.create({
-      data: {
-        dateTime: new Date(dateTime + "T00:00:00"),
-        notes,
-        totalAmount,
-        userId,
-        organizationId: activeOrganizationId,
-        items: {
-          create: saleItemsData,
+    const sale = await prisma.$transaction(async (tx) => {
+      const createdSale = await tx.sale.create({
+        data: {
+          dateTime: new Date(dateTime + "T00:00:00"),
+          notes,
+          totalAmount,
+          userId,
+          organizationId: activeOrganizationId,
+          items: {
+            create: saleItemsData,
+          },
         },
-      },
+      });
+
+      const stockResult = await deductStockFromSale(
+        items,
+        activeOrganizationId,
+        createdSale.id,
+        tx,
+      );
+
+      return { sale: createdSale, warnings: stockResult.warnings };
     });
 
     revalidatePath("/sales");
     revalidatePath("/dashboard");
+
+    if (sale.warnings.length > 0) {
+      return {
+        success: true,
+        message: `Venta cargada correctamente. ${sale.warnings.length} advertencia(s) de stock: ${sale.warnings.join(", ")}`,
+      };
+    }
+
     return { success: true, message: "Venta cargada correctamente" };
   } catch (error) {
     console.error("[createSale] Error:", error);
@@ -137,9 +155,13 @@ export async function deleteSale(id: string): Promise<ActionState> {
   const { activeOrganizationId } = await getServerSessionWithOrg();
 
   try {
-    await prisma.sale.update({
-      where: { id, organizationId: activeOrganizationId },
-      data: { deletedAt: new Date() },
+    await prisma.$transaction(async (tx) => {
+      await reverseSaleStock(id, activeOrganizationId, tx);
+
+      await tx.sale.update({
+        where: { id, organizationId: activeOrganizationId },
+        data: { deletedAt: new Date() },
+      });
     });
 
     revalidatePath("/sales");
@@ -360,4 +382,257 @@ export async function getSales(page = 1, limit = PAGINATION.salesPerPage) {
     total,
     pages: Math.ceil(total / limit),
   };
+}
+
+function convertQuantity(
+  quantity: number,
+  recipeUnit: string,
+  ingredientUnit: string,
+): number {
+  const rUnit = recipeUnit.toLowerCase();
+  const iUnit = ingredientUnit.toLowerCase();
+
+  if (rUnit === iUnit) {
+    return quantity;
+  }
+
+  if (iUnit === "kg" && (rUnit === "g" || rUnit === "grams")) {
+    return quantity / 1000;
+  }
+  if ((iUnit === "g" || iUnit === "grams") && rUnit === "kg") {
+    return quantity * 1000;
+  }
+  if (iUnit === "l" && (rUnit === "ml" || rUnit === "milliliters")) {
+    return quantity / 1000;
+  }
+  if ((iUnit === "ml" || iUnit === "milliliters") && rUnit === "l") {
+    return quantity * 1000;
+  }
+
+  return quantity;
+}
+
+async function deductStockFromSale(
+  items: { productId: string; quantity: number }[],
+  organizationId: string,
+  saleId: string,
+  tx?: Prisma.TransactionClient,
+): Promise<{ warnings: string[] }> {
+  const client = tx || prisma;
+  const warnings: string[] = [];
+
+  const productIds = items.map((item) => item.productId);
+  const products = await client.product.findMany({
+    where: { id: { in: productIds } },
+    include: {
+      receipeItems: {
+        include: {
+          ingredient: true,
+        },
+      },
+    },
+  });
+
+  const stockDeductions: {
+    ingredientId: string;
+    quantity: number;
+    unit: string;
+  }[] = [];
+
+  for (const item of items) {
+    const product = products.find((p) => p.id === item.productId);
+    if (!product || product.type !== "ELABORADO") continue;
+
+    for (const recipeItem of product.receipeItems) {
+      if (recipeItem.ingredientId && recipeItem.ingredient) {
+        const quantityNeeded = convertQuantity(
+          recipeItem.quantity * item.quantity,
+          recipeItem.unit,
+          recipeItem.ingredient.unit,
+        );
+
+        stockDeductions.push({
+          ingredientId: recipeItem.ingredientId,
+          quantity: quantityNeeded,
+          unit: recipeItem.ingredient.unit,
+        });
+      } else if (recipeItem.subProductId) {
+        await deductStockFromSubProduct(
+          recipeItem.subProductId,
+          recipeItem.quantity * item.quantity,
+          organizationId,
+          saleId,
+          warnings,
+          tx,
+        );
+      }
+    }
+  }
+
+  const ingredientMap = new Map<string, { quantity: number; unit: string }>();
+  for (const deduction of stockDeductions) {
+    const existing = ingredientMap.get(deduction.ingredientId);
+    if (existing) {
+      existing.quantity += deduction.quantity;
+    } else {
+      ingredientMap.set(deduction.ingredientId, {
+        quantity: deduction.quantity,
+        unit: deduction.unit,
+      });
+    }
+  }
+
+  for (const [ingredientId, { quantity, unit }] of ingredientMap) {
+    const ingredient = await client.ingredient.findUnique({
+      where: { id: ingredientId },
+    });
+
+    if (!ingredient) continue;
+
+    if (ingredient.currentStock < quantity) {
+      warnings.push(
+        `Stock insuficiente para "${ingredient.name}": necesario ${quantity}${unit}, disponible ${ingredient.currentStock}${ingredient.unit}`,
+      );
+    }
+
+    await client.ingredient.update({
+      where: { id: ingredientId },
+      data: {
+        currentStock: {
+          decrement: quantity,
+        },
+      },
+    });
+
+    await client.stockMovement.create({
+      data: {
+        organizationId,
+        ingredientId,
+        type: StockMovementType.SALE,
+        quantity,
+        unit,
+        reason: "Venta",
+        referenceId: saleId,
+        movementDate: new Date(),
+      },
+    });
+  }
+
+  return { warnings };
+}
+
+async function deductStockFromSubProduct(
+  subProductId: string,
+  quantity: number,
+  organizationId: string,
+  saleId: string,
+  warnings: string[],
+  tx?: Prisma.TransactionClient,
+): Promise<void> {
+  const client = tx || prisma;
+
+  const subProduct = await client.product.findUnique({
+    where: { id: subProductId },
+    include: {
+      receipeItems: {
+        include: {
+          ingredient: true,
+        },
+      },
+    },
+  });
+
+  if (!subProduct || subProduct.type !== "ELABORADO") return;
+
+  for (const recipeItem of subProduct.receipeItems) {
+    if (recipeItem.ingredientId && recipeItem.ingredient) {
+      const quantityNeeded = convertQuantity(
+        recipeItem.quantity * quantity,
+        recipeItem.unit,
+        recipeItem.ingredient.unit,
+      );
+
+      const ingredient = await client.ingredient.findUnique({
+        where: { id: recipeItem.ingredientId },
+      });
+
+      if (!ingredient) continue;
+
+      if (ingredient.currentStock < quantityNeeded) {
+        warnings.push(
+          `Stock insuficiente para "${ingredient.name}": necesario ${quantityNeeded}${recipeItem.ingredient.unit}, disponible ${ingredient.currentStock}${ingredient.unit}`,
+        );
+      }
+
+      await client.ingredient.update({
+        where: { id: recipeItem.ingredientId },
+        data: {
+          currentStock: {
+            decrement: quantityNeeded,
+          },
+        },
+      });
+
+      await client.stockMovement.create({
+        data: {
+          organizationId,
+          ingredientId: recipeItem.ingredientId,
+          type: StockMovementType.SALE,
+          quantity: quantityNeeded,
+          unit: recipeItem.ingredient.unit,
+          reason: "Venta (subproducto)",
+          referenceId: saleId,
+          movementDate: new Date(),
+        },
+      });
+    } else if (recipeItem.subProductId) {
+      await deductStockFromSubProduct(
+        recipeItem.subProductId,
+        recipeItem.quantity * quantity,
+        organizationId,
+        saleId,
+        warnings,
+        tx,
+      );
+    }
+  }
+}
+
+async function reverseSaleStock(
+  saleId: string,
+  organizationId: string,
+  tx?: Prisma.TransactionClient,
+): Promise<void> {
+  const client = tx || prisma;
+
+  const movements = await client.stockMovement.findMany({
+    where: {
+      referenceId: saleId,
+      type: StockMovementType.SALE,
+    },
+  });
+
+  for (const movement of movements) {
+    await client.ingredient.update({
+      where: { id: movement.ingredientId },
+      data: {
+        currentStock: {
+          increment: movement.quantity,
+        },
+      },
+    });
+
+    await client.stockMovement.create({
+      data: {
+        organizationId,
+        ingredientId: movement.ingredientId,
+        type: StockMovementType.RETURN,
+        quantity: movement.quantity,
+        unit: movement.unit,
+        reason: "Devolución por anulación de venta",
+        referenceId: saleId,
+        movementDate: new Date(),
+      },
+    });
+  }
 }

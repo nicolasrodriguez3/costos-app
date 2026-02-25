@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { ReferenceType, StockMovementType } from "@/generated/prisma/client";
+import { StockMovementType } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { ActionState } from "@/types/actions/common";
@@ -268,7 +268,6 @@ async function UpdateIngredientStock(
           quantity: stockDifference,
           reason: reason || "Ajuste manual de stock",
           notes,
-          referenceType: "ADJUSTMENT" as ReferenceType,
         },
       });
     }
