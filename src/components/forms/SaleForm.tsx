@@ -109,9 +109,9 @@ export function SaleForm({
             name="dateTime"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Fecha de Venta</FormLabel>
+                <FormLabel htmlFor="sale_date">Fecha de Venta</FormLabel>
                 <FormControl>
-                  <Input type="date" {...field} />
+                  <Input id="sale_date" type="date" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
