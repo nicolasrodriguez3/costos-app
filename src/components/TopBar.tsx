@@ -46,7 +46,7 @@ export function TopBar({ title, primaryAction, user, className }: TopBarProps) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm",
+        "fixed w-full top-0 z-50 bg-white border-b border-gray-200 shadow-sm",
         className,
       )}
     >

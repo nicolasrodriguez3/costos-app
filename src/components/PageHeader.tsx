@@ -34,7 +34,7 @@ export function PageHeader({
   breadcrumbs,
 }: PageHeaderProps) {
   return (
-    <header className="max-w-7xl mx-auto">
+    <header className="max-w-7xl mx-auto pt-14 md:pt-20">
       {breadcrumbs && (
         <div className="mb-4">
           <Breadcrumbs breadcrumbs={breadcrumbs} />
