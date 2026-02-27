@@ -12,7 +12,7 @@ export function MainContentWrapper({ children }: MainContentWrapperProps) {
 
   // Use responsive utility classes (md:) to apply margins only on desktop.
   // On mobile (default), margin is 0 (implied).
-  const marginClass = isCollapsed ? "md:ml-16" : "md:ml-64";
+  const marginClass = isCollapsed ? "md:pl-16" : "md:pl-56";
 
   return (
     <div

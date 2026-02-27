@@ -20,7 +20,7 @@ export function Sidebar({ className }: SidebarProps) {
   const isMobile = useIsMobile();
   useBodyScrollLock(isMobile && isMobileOpen);
 
-  const sidebarWidth = isCollapsed ? "md:w-16" : "md:w-64";
+  const sidebarWidth = isCollapsed ? "md:w-16" : "md:w-56";
   const sidebarClasses = cn(
     "fixed left-0 top-20 bottom-0 z-50 flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ease-in-out",
     // Mobile Styles (max-md)
