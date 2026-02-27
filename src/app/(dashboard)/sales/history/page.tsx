@@ -185,75 +185,73 @@ export default async function SalesHistoryPage({ searchParams }: PageProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b border-gray-100 hover:bg-transparent">
-                  <TableHead className="font-medium text-gray-700">
-                    Fecha y Hora
-                  </TableHead>
-                  <TableHead className="font-medium text-gray-700">
-                    Productos
-                  </TableHead>
-                  <TableHead className="font-medium text-right text-gray-700">
-                    Total
-                  </TableHead>
-                  <TableHead className="font-medium text-right text-gray-700">
-                    Costo
-                  </TableHead>
-                  <TableHead className="font-medium text-right text-gray-700">
-                    Beneficio
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sales.map((sale) => {
-                  const saleCost = sale.items.reduce(
-                    (acc, item) => acc + (item.unitCost || 0) * item.quantity,
-                    0,
-                  );
-                  const saleProfit = sale.totalAmount - saleCost;
+          <Table>
+            <TableHeader>
+              <TableRow className="border-b border-gray-100 hover:bg-transparent">
+                <TableHead className="font-medium text-gray-700">
+                  Fecha
+                </TableHead>
+                <TableHead className="font-medium text-gray-700">
+                  Productos
+                </TableHead>
+                <TableHead className="font-medium text-right text-gray-700">
+                  Total
+                </TableHead>
+                <TableHead className="font-medium text-right text-gray-700">
+                  Costo
+                </TableHead>
+                <TableHead className="font-medium text-right text-gray-700">
+                  Beneficio
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sales.map((sale) => {
+                const saleCost = sale.items.reduce(
+                  (acc, item) => acc + (item.unitCost || 0) * item.quantity,
+                  0,
+                );
+                const saleProfit = sale.totalAmount - saleCost;
 
-                  return (
-                    <TableRow
-                      key={sale.id}
-                      className="border-b border-gray-50 hover:bg-gray-50/50"
-                    >
-                      <TableCell className="font-medium text-gray-900">
-                        <FormattedDate date={sale.dateTime} />
-                      </TableCell>
-                      <TableCell className="text-gray-600 max-w-xs truncate">
-                        {sale.items
-                          .map((i) => `${i.quantity}x ${i.product.name}`)
-                          .join(", ")}
-                      </TableCell>
-                      <TableCell className="text-right font-mono text-green-600">
-                        ${sale.totalAmount.toFixed(2)}
-                      </TableCell>
-                      <TableCell className="text-right font-mono text-red-500">
-                        ${saleCost.toFixed(2)}
-                      </TableCell>
-                      <TableCell
-                        className={`text-right font-mono ${saleProfit >= 0 ? "text-purple-600" : "text-red-600"}`}
-                      >
-                        ${saleProfit.toFixed(2)} ({marginPercent}%)
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-                {sales.length === 0 && (
-                  <TableRow>
+                return (
+                  <TableRow
+                    key={sale.id}
+                    className="border-b border-gray-50 hover:bg-gray-50/50"
+                  >
+                    <TableCell className="font-medium text-gray-900">
+                      <FormattedDate date={sale.dateTime} type="date" />
+                    </TableCell>
+                    <TableCell className="text-gray-600 max-w-xs truncate">
+                      {sale.items
+                        .map((i) => `${i.quantity}x ${i.product.name}`)
+                        .join(", ")}
+                    </TableCell>
+                    <TableCell className="text-right font-mono text-green-600">
+                      ${sale.totalAmount.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right font-mono text-red-500">
+                      ${saleCost.toFixed(2)}
+                    </TableCell>
                     <TableCell
-                      colSpan={5}
-                      className="h-24 text-center text-gray-500 italic"
+                      className={`text-right font-mono ${saleProfit >= 0 ? "text-purple-600" : "text-red-600"}`}
                     >
-                      No se encontraron ventas con los filtros aplicados.
+                      ${saleProfit.toFixed(2)} ({marginPercent.toFixed(2)}%)
                     </TableCell>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                );
+              })}
+              {sales.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="h-24 text-center text-gray-500 italic"
+                  >
+                    No se encontraron ventas con los filtros aplicados.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
 
           {/* Pagination */}
           {hasMore && (
