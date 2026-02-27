@@ -86,75 +86,82 @@ export default async function SalesPage({ searchParams }: PageProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b border-gray-100 hover:bg-transparent">
-                  <TableHead className="w-[180px]">Fecha</TableHead>
-                  <TableHead>Productos / Resumen</TableHead>
-                  <TableHead className="text-right">Total</TableHead>
-                  <TableHead>Notas</TableHead>
-                  <TableHead className="text-right">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sales.map((sale) => (
-                  <TableRow
-                    key={sale.id}
-                    className="border-b border-gray-50 hover:bg-gray-50/50"
-                  >
-                    <TableCell className="font-medium text-gray-900">
-                      <FormattedDate date={sale.dateTime} type="date" />
-                    </TableCell>
-                    <TableCell className="text-gray-600 max-w-md truncate">
+          <Table className="w-full">
+            <TableHeader>
+              <TableRow className="border-b border-gray-100 hover:bg-transparent">
+                <TableHead className="">Fecha</TableHead>
+                <TableHead>Productos / Resumen</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+                <TableHead>Notas</TableHead>
+                <TableHead className="text-right">Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sales.map((sale) => (
+                <TableRow
+                  key={sale.id}
+                  className="border-b border-gray-50 hover:bg-gray-50/50"
+                >
+                  <TableCell className="font-medium text-gray-900">
+                    <FormattedDate date={sale.dateTime} type="date" />
+                  </TableCell>
+                  <TableCell className="text-gray-600 w-md whitespace-normal">
+                    <span
+                      className="leading-tight line-clamp-4 w-sm">
                       {sale.items
                         .map((i) => `${i.quantity}x ${i.product.name}`)
-                        .join(", ")}
-                    </TableCell>
-                    <TableCell className="text-right font-bold text-green-600">
-                      ${sale.totalAmount.toFixed(2)}
-                    </TableCell>
-                    <TableCell className="text-gray-400 text-sm italic max-w-xs truncate">
-                      {sale.notes || "-"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Link href={`/sales/${sale.id}`}>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-gray-500 hover:text-blue-600"
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </Link>
-                        <Link href={`/sales/${sale.id}/edit`}>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-gray-500 hover:text-orange-600"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </Link>
-                        <SaleActions saleId={sale.id} />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {sales.length === 0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="h-24 text-center text-gray-500 italic"
+                        .join(", ")}</span>
+                  </TableCell>
+                  <TableCell className="text-right font-bold text-green-600">
+                    ${sale.totalAmount.toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-gray-400 text-sm italic whitespace-normal ">
+                    <span
+                      className="leading-tight line-clamp-2 w-64"
+                      title={sale.notes || ""}
                     >
-                      No se encontraron ventas cargadas.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                      {sale.notes || "-"}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-gray-500 hover:text-blue-600"
+                      >
+                        <Link href={`/sales/${sale.id}`}>
+                          <Eye className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-gray-500 hover:text-orange-600"
+                      >
+                        <Link href={`/sales/${sale.id}/edit`}>
+                          <Edit className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <SaleActions saleId={sale.id} />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {sales.length === 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="h-24 text-center text-gray-500 italic"
+                  >
+                    No se encontraron ventas cargadas.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
 
           {hasMore && (
             <div className="mt-6 flex justify-center">

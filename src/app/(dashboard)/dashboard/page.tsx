@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
 import { TimeFilter } from "@/components/TimeFilter";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export const metadata = {
   title: "Dashboard",
@@ -112,48 +113,46 @@ async function DashboardContent({ period }: { period: Period }) {
               </Link>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="border-b border-gray-500/10 text-gray-500 text-sm uppercase tracking-wider">
-                    <th className="pb-4 font-medium">Fecha</th>
-                    <th className="pb-4 font-medium">Items</th>
-                    <th className="pb-4 font-medium text-right">Total</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-500/10">
-                  {stats.recentSales.map((sale) => (
-                    <tr key={sale.id} className="text-gray-600">
-                      <td className="py-4">
-                        <FormattedDate date={sale.dateTime} type="date" />
-                      </td>
-                      <td className="py-4">
-                        {sale.items
-                          .map((i) => `${i.quantity}x ${i.product.name}`)
-                          .join(", ")}
-                      </td>
-                      <td className="py-4 text-right font-mono text-green-400">
-                        ${sale.totalAmount.toFixed(2)}
-                      </td>
-                    </tr>
-                  ))}
-                  {stats.recentSales.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={3}
-                        className="py-8 text-center text-gray-500 italic"
-                      >
-                        No hay ventas en este período.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+          <CardContent className="flex-1 flex">
+            <Table className="w-full text-left h-full">
+              <TableHeader>
+                <TableRow className=" border-b border-gray-500/10 text-gray-500">
+                  <TableHead>Fecha</TableHead>
+                  <TableHead className="px-2">Productos</TableHead>
+                  <TableHead className="text-right">Total</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody >
+                {stats.recentSales.map((sale) => (
+                  <TableRow key={sale.id} className="border-b border-gray-50 hover:bg-gray-50/50">
+                    <TableCell>
+                      <FormattedDate date={sale.dateTime} type="date" />
+                    </TableCell>
+                    <TableCell className="px-2 max-w-md truncate">
+                      {sale.items
+                        .map((i) => `${i.quantity}x ${i.product.name}`)
+                        .join(", ")}
+                    </TableCell>
+                    <TableCell className="text-right font-bold text-green-500">
+                      ${sale.totalAmount.toFixed(2)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {stats.recentSales.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={3}
+                      className="py-8 text-center text-gray-500 italic"
+                    >
+                      No hay ventas en este período.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
-      </div>
+      </div >
     </>
   );
 }
