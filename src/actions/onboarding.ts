@@ -21,6 +21,7 @@ export type JoinState = {
 const CreateOrganizationSchema = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
   slug: z.string().min(2, "El slug debe tener al menos 2 caracteres"),
+  includeSampleData: z.boolean().default(true),
 });
 
 export async function createOrganizationAction(
@@ -29,10 +30,12 @@ export async function createOrganizationAction(
 ): Promise<JoinState> {
   const name = formData.get("name") as string;
   const slug = formData.get("slug") as string;
+  const includeSampleData = formData.get("includeSampleData") === "true";
 
   const validatedFields = CreateOrganizationSchema.safeParse({
     name,
     slug,
+    includeSampleData,
   });
 
   if (!validatedFields.success) {
@@ -76,7 +79,9 @@ export async function createOrganizationAction(
       headers: await headers(),
     });
 
-    await seedInitialData(org.id, session.user.id);
+    if (includeSampleData) {
+      await seedInitialData(org.id, session.user.id);
+    }
   } catch (error) {
     console.error("Failed to create organization:", error);
     if (error instanceof APIError) {
