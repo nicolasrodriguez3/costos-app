@@ -6,6 +6,7 @@ import { organization } from "better-auth/plugins";
 import { getActiveOrganization } from "@/actions/organization";
 import { AUTH_CONFIG } from "@/config/auth.config";
 import { envs } from "@/config/envs";
+import { sendPasswordResetEmail, sendVerificationEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
 
 export const auth = betterAuth({
@@ -23,6 +24,21 @@ export const auth = betterAuth({
     autoSignIn: true,
     minPasswordLength: AUTH_CONFIG.MIN_PASSWORD_LENGTH,
     maxPasswordLength: AUTH_CONFIG.MAX_PASSWORD_LENGTH,
+    sendResetPassword: async ({ user, url }) => {
+      void sendPasswordResetEmail({
+        to: user.email,
+        url,
+      });
+    },
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      void sendVerificationEmail({
+        to: user.email,
+        url,
+      });
+    },
   },
   baseURL: envs.BETTER_AUTH_URL,
   socialProviders: {
