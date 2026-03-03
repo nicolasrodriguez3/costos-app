@@ -45,11 +45,11 @@ export function AccountView({ user, organization, isOwner }: AccountViewProps) {
   // Helper to get initials
   const initials = user.name
     ? user.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
     : "U";
 
   async function onUpdateProfile(formData: FormData) {
@@ -57,9 +57,8 @@ export function AccountView({ user, organization, isOwner }: AccountViewProps) {
     try {
       await updateProfile(formData);
       toast.success("Perfil actualizado correctamente");
-    } catch (error) {
+    } catch {
       toast.error("Error al actualizar el perfil");
-      console.error(error);
     } finally {
       setIsUpdatingProfile(false);
     }
@@ -70,9 +69,8 @@ export function AccountView({ user, organization, isOwner }: AccountViewProps) {
     try {
       await updateOrganization(formData);
       toast.success("Organización actualizada correctamente");
-    } catch (error) {
+    } catch {
       toast.error("Error al actualizar la organización");
-      console.error(error);
     } finally {
       setIsUpdatingOrg(false);
     }
@@ -218,10 +216,7 @@ export function AccountView({ user, organization, isOwner }: AccountViewProps) {
               </div>
               {/* Could add more org details here later */}
               <div className="p-4 rounded-lg bg-blue-50 text-blue-800 text-sm">
-                <p className="font-medium mb-1">Plan Actual: Básico</p>
-                <p className="opacity-80">
-                  Gestiona hasta 100 productos y 50 ventas al mes.
-                </p>
+                <p className="font-medium">Plan Actual: Básico</p>
               </div>
             </CardContent>
             {isOwner && (

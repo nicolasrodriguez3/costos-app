@@ -33,13 +33,7 @@ export const getServerSession = async (): Promise<ServerSession> => {
   } catch (error) {
     if (error instanceof APIError) {
       if (error.statusCode === 500) {
-        console.error(
-          "[Auth] Error interno al obtener sesión. ¿Está corriendo la base de datos?",
-          error.body,
-        );
-        throw new Error(
-          "Error de conexión con la base de datos. Verificá que Docker/PostgreSQL esté corriendo.",
-        );
+        throw new Error("Error de conexión con la base de datos.");
       }
       throw new Error(`Error de autenticación: ${error.message}`);
     }
