@@ -96,7 +96,7 @@ export async function updateFixedCost(
   }
 }
 
-export async function deleteFixedCost(id: string): Promise<void> {
+export async function deleteFixedCost(id: string): Promise<ActionState> {
   const { activeOrganizationId } = await getServerSessionWithOrg();
 
   try {
@@ -109,8 +109,11 @@ export async function deleteFixedCost(id: string): Promise<void> {
 
     revalidatePath("/expenses");
     revalidatePath("/sales/history");
+
+    return { success: true, message: "Gasto fijo eliminado con éxito" };
   } catch (error) {
     console.error("Error al eliminar costo fijo:", error);
+    return { success: false, message: "Error al eliminar el gasto fijo" };
   }
 }
 
