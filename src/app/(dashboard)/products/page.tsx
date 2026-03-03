@@ -56,25 +56,13 @@ export default async function ProductsPage() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-b border-gray-100 hover:bg-transparent">
-                  <TableHead className="font-medium text-gray-700">
-                    Nombre
-                  </TableHead>
-                  <TableHead className="font-medium text-gray-700">
-                    Tipo
-                  </TableHead>
-                  <TableHead className="font-medium text-right text-gray-700">
-                    Precio de venta
-                  </TableHead>
-                  <TableHead className="font-medium text-right text-gray-700">
-                    Costo
-                  </TableHead>
-                  <TableHead className="font-medium text-right text-gray-700">
-                    Beneficio
-                  </TableHead>
-                  <TableHead className="font-medium text-right text-gray-700">
-                    Acciones
-                  </TableHead>
+                <TableRow className="border-b border-gray-100 hover:bg-transparent text-gray-700">
+                  <TableHead>Nombre</TableHead>
+                  <TableHead>Tipo</TableHead>
+                  <TableHead className="text-right">Precio de venta</TableHead>
+                  <TableHead className="text-right">Costo</TableHead>
+                  <TableHead className="text-right">Beneficio</TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

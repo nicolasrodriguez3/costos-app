@@ -10,6 +10,7 @@ import {
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export const metadata = {
   title: "Ingredientes",
@@ -49,83 +50,79 @@ export default async function IngredientsPage({ searchParams }: PageProps) {
             </h2>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-white/10 text-gray-700">
-                    <th className="p-3 font-medium">Nombre</th>
-                    <th className="p-3 font-medium">Unidad</th>
-                    <th className="p-3 font-medium">Stock</th>
-                    <th className="p-3 font-medium">Costo/Unidad</th>
-                    <th className="p-3 font-medium text-right">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ingredients.map((ing) => (
-                    <tr
-                      key={ing.id}
-                      className={`border-b border-gray-100 hover:bg-gray-50 transition-colors group ${
-                        editingIngredient?.id === ing.id ? "bg-orange-50" : ""
+            <Table className="w-full text-left border-collapse hover:bg-transparent">
+              <TableHeader>
+                <TableRow className="border-b border-gray-100 hover:bg-transparent">
+                  <TableHead>Nombre</TableHead>
+                  <TableHead>Unidad</TableHead>
+                  <TableHead>Stock</TableHead>
+                  <TableHead>Costo/Unidad</TableHead>
+                  <TableHead className="text-right">Acciones</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {ingredients.map((ing) => (
+                  <TableRow
+                    key={ing.id}
+                    className={`text-gray-700 border-b border-gray-100 hover:bg-gray-50 transition-colors group ${editingIngredient?.id === ing.id ? "bg-orange-50" : ""
                       }`}
-                    >
-                      <td className="p-3 font-medium text-gray-900">
-                        {ing.name}
-                      </td>
-                      <td className="p-3 text-gray-900">{ing.unit}</td>
-                      <td className="p-3">
-                        <span
-                          className={`font-mono text-sm ${
-                            ing.currentStock <= 0 || ing.isLowStock
-                              ? "text-red-500 font-bold"
-                              : "text-green-600"
+                  >
+                    <TableCell className="font-medium">
+                      {ing.name}
+                    </TableCell>
+                    <TableCell>{ing.unit}</TableCell>
+                    <TableCell>
+                      <span
+                        className={`font-mono ${ing.currentStock <= 0 || ing.isLowStock
+                          ? "text-red-500 font-bold"
+                          : "text-green-600"
                           }`}
-                        >
-                          {ing.currentStock.toFixed(2)}
-                        </span>
-                        {Boolean(ing.minStock) && (
-                          <span className="text-xs text-gray-500 ml-2">
-                            ({ing.minStock} min)
-                          </span>
-                        )}
-                      </td>
-                      <td className="p-3 text-gray-600 font-mono">
-                        ${(ing.lastCost || 0).toFixed(2)}
-                      </td>
-                      <td className="p-3 text-right">
-                        <div className="flex justify-end gap-2 items-center">
-                          <Button asChild variant="ghost" size="icon">
-                            <Link
-                              href={`/ingredients?edit=${ing.id}`}
-                              scroll={false}
-                              className="text-sm px-3 py-1 rounded bg-orange-50 text-orange-600 hover:text-orange-600 hover:bg-orange-100 transition opacity-80 group-hover:opacity-100 focus:opacity-100"
-                            >
-                              <PencilIcon className="size-4" />
-                            </Link>
-                          </Button>
-                          <DeleteModal
-                            id={ing.id}
-                            name={ing.name}
-                            type="ingrediente"
-                            action={deleteIngredient}
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {ingredients.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={5}
-                        className="p-8 text-center text-gray-500 italic"
                       >
-                        No se encontraron ingredientes. Agrega uno para
-                        comenzar.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                        {ing.currentStock.toFixed(2)}
+                      </span>
+                      {Boolean(ing.minStock) && (
+                        <span className="text-xs text-gray-500 ml-2">
+                          ({ing.minStock} min)
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-mono">
+                      ${(ing.lastCost || 0).toFixed(2)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2 items-center">
+                        <Button asChild variant="ghost" size="icon">
+                          <Link
+                            href={`/ingredients?edit=${ing.id}`}
+                            aria-label="Editar"
+                            className="text-orange-600 hover:bg-orange-100 hover:text-orange-600"
+                          >
+                            <PencilIcon className="size-4" />
+                          </Link>
+                        </Button>
+                        <DeleteModal
+                          id={ing.id}
+                          name={ing.name}
+                          type="ingrediente"
+                          action={deleteIngredient}
+                        />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {ingredients.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className="p-8 text-center text-gray-500 italic"
+                    >
+                      No se encontraron ingredientes. Agrega uno para
+                      comenzar.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </CardContent>
         </Card>
       </div>

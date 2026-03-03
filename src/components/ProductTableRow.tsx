@@ -39,7 +39,7 @@ export const ProductTableRow = ({ product }: Props) => {
           </span>
         )}
       </TableCell>
-      <TableCell className="text-sm">{type}</TableCell>
+      <TableCell>{type}</TableCell>
       <TableCell className="text-right font-mono">
         ${basePrice.toFixed(2)}
       </TableCell>
@@ -48,13 +48,12 @@ export const ProductTableRow = ({ product }: Props) => {
         <div className={margin > 0 ? "text-green-400" : "text-red-500"}>
           ${margin.toFixed(2)}
         </div>
-        <div className="text-xs">{marginPercent.toFixed(0)}%</div>
+        <div className="text-sm">{marginPercent.toFixed(0)}%</div>
       </TableCell>
       <TableCell className="text-right">
         <Button asChild variant="ghost" size="icon">
           <Link
             href={`/products/${slug}/edit`}
-            scroll={false}
             aria-label="Editar"
           >
             <PencilIcon size={16} />

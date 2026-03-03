@@ -114,9 +114,9 @@ async function DashboardContent({ period }: { period: Period }) {
             </div>
           </CardHeader>
           <CardContent className="flex-1 flex">
-            <Table className="w-full text-left h-full">
+            <Table className="text-left h-full">
               <TableHeader>
-                <TableRow className=" border-b border-gray-500/10 text-gray-500">
+                <TableRow className="border-b border-gray-500/10 text-gray-500 hover:bg-transparent">
                   <TableHead>Fecha</TableHead>
                   <TableHead className="px-2">Productos</TableHead>
                   <TableHead className="text-right">Total</TableHead>
