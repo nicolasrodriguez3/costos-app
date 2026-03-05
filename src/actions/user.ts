@@ -91,3 +91,69 @@ export async function updateOrganization(formData: FormData) {
 
   revalidatePath("/account");
 }
+
+export async function deleteAccount() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const userId = session.user.id;
+
+  // Find all organizations where the user is a member
+  const memberships = await prisma.member.findMany({
+    where: { userId },
+  });
+
+  for (const membership of memberships) {
+    const orgId = membership.organizationId;
+
+    // Check total members in this organization
+    const memberCount = await prisma.member.count({
+      where: { organizationId: orgId },
+    });
+
+    // If the user is the only member, delete the organization
+    if (memberCount === 1) {
+      // Clean up relations that have onDelete: Restrict to prevent P2003 errors
+      await prisma.recipeItem.deleteMany({
+        where: { product: { organizationId: orgId } },
+      });
+
+      await prisma.saleItem.deleteMany({
+        where: { sale: { organizationId: orgId } },
+      });
+
+      await prisma.organization.delete({
+        where: { id: orgId },
+      });
+    }
+  }
+
+  // Clean up remaining restricted relations tied to the user's creations
+  await prisma.recipeItem.deleteMany({
+    where: {
+      OR: [
+        { product: { userId } },
+        { ingredient: { userId } },
+        { subProduct: { userId } },
+      ],
+    },
+  });
+
+  await prisma.saleItem.deleteMany({
+    where: {
+      OR: [{ sale: { userId } }, { product: { userId } }],
+    },
+  });
+
+  // Delete the user
+  // This will cascade delete sessions, accounts, and other related models
+  // without an explicit organizationId linkage
+  await prisma.user.delete({
+    where: { id: userId },
+  });
+
+  revalidatePath("/");
+}

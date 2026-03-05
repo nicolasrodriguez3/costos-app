@@ -7,11 +7,27 @@ import {
   Save,
   User as UserIcon,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { signOutAction } from "@/actions/auth";
-import { updateOrganization, updateProfile } from "@/actions/user";
+import {
+  deleteAccount,
+  updateOrganization,
+  updateProfile,
+} from "@/actions/user";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +40,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { authClient } from "@/lib/auth-client";
 
 interface AccountViewProps {
   user: {
@@ -38,9 +55,11 @@ interface AccountViewProps {
 }
 
 export function AccountView({ user, organization, isOwner }: AccountViewProps) {
+  const router = useRouter();
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isUpdatingOrg, setIsUpdatingOrg] = useState(false);
   const [isClosingSession, setIsClosingSession] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   // Helper to get initials
   const initials = user.name
@@ -80,6 +99,24 @@ export function AccountView({ user, organization, isOwner }: AccountViewProps) {
     setIsClosingSession(true);
     await signOutAction();
     setIsClosingSession(false);
+  }
+
+  async function handleDeleteAccount() {
+    setIsDeletingAccount(true);
+    try {
+      await deleteAccount();
+      toast.success("Cuenta eliminada correctamente");
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            router.push("/login"); // redirect to login page
+          },
+        },
+      });
+    } catch {
+      toast.error("Error al eliminar la cuenta");
+      setIsDeletingAccount(false);
+    }
   }
 
   return (
@@ -242,6 +279,79 @@ export function AccountView({ user, organization, isOwner }: AccountViewProps) {
               </CardFooter>
             )}
           </form>
+        </Card>
+      </div>
+
+      {/* Danger Zone */}
+      <div className="space-y-6 md:col-span-2">
+        <Card className="border-red-200 shadow-sm bg-red-50/50">
+          <CardHeader>
+            <CardTitle className="text-xl text-red-900">
+              Zona de Peligro
+            </CardTitle>
+            <CardDescription className="text-red-700/80">
+              Advertencia: Las siguientes acciones son destructivas y no se
+              pueden deshacer.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="font-semibold text-red-900">Eliminar Cuenta</h3>
+                <p className="text-sm text-red-700/80 max-w-[600px]">
+                  Eliminar permanentemente tu cuenta y todos los datos
+                  asociados. Si eres el único miembro de una organización, esta
+                  también será eliminada con todos sus productos.
+                </p>
+              </div>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="destructive"
+                    disabled={isDeletingAccount}
+                    className="whitespace-nowrap sm:w-auto w-full"
+                  >
+                    {isDeletingAccount ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : null}
+                    Eliminar Cuenta
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      ¿Estás absolutamente seguro?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta acción no se puede deshacer. Esto eliminará
+                      permanentemente tu cuenta, tus datos personales, y si eres
+                      el único miembro de una organización, también se
+                      eliminarán todos los productos, ventas y datos de la
+                      misma.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel disabled={isDeletingAccount}>
+                      Cancelar
+                    </AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={(e) => {
+                        e.preventDefault();
+                        void handleDeleteAccount();
+                      }}
+                      className="bg-red-600 hover:bg-red-700 text-white"
+                      disabled={isDeletingAccount}
+                    >
+                      {isDeletingAccount ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : null}
+                      Sí, eliminar mi cuenta
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          </CardContent>
         </Card>
       </div>
     </div>
