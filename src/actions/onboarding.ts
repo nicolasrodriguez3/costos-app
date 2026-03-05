@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { auth } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import { seedInitialData } from "@/lib/seed";
 
 const JoinOrganizationSchema = z.object({
@@ -83,7 +84,7 @@ export async function createOrganizationAction(
       await seedInitialData(org.id, session.user.id);
     }
   } catch (error) {
-    console.error("Failed to create organization:", error);
+    logger.error("createOrganizationAction", error);
     if (error instanceof APIError) {
       return { error: error.message || "Error al crear la organización" };
     }
@@ -138,7 +139,7 @@ export async function joinOrganizationAction(
       headers: await headers(), // This IS needed to set the cookie for the user
     });
   } catch (error) {
-    console.error("Failed to join organization:", error);
+    logger.error("joinOrganizationAction", error);
     if (error instanceof APIError) {
       return { error: error.message || "Error al unirse a la organización" };
     }

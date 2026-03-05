@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { PAGINATION } from "@/config/pagination";
 import { Prisma, StockMovementType } from "@/generated/prisma/client";
 import { calculateProductCost } from "@/lib/costs";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { ActionState } from "@/types/actions/common";
@@ -82,7 +83,10 @@ export async function createSale(data: SaleFormValues): Promise<ActionState> {
 
     return { success: true, message: "Venta cargada correctamente" };
   } catch (error) {
-    console.error("[createSale] Error:", error);
+    logger.error("createSale", error, {
+      userId,
+      organizationId: activeOrganizationId,
+    });
     return { success: false, message: "Error al crear la venta" };
   }
 }
@@ -143,7 +147,10 @@ export async function updateSale(
     revalidatePath("/dashboard");
     return { success: true, message: "Venta actualizada correctamente" };
   } catch (error) {
-    console.error("[updateSale] Error:", error);
+    logger.error("updateSale", error, {
+      organizationId: activeOrganizationId,
+      saleId: id,
+    });
     return { success: false, message: "Error al actualizar la venta" };
   }
 }
@@ -168,7 +175,10 @@ export async function deleteSale(id: string): Promise<ActionState> {
     revalidatePath("/dashboard");
     return { success: true, message: "Venta eliminada correctamente" };
   } catch (error) {
-    console.error("[deleteSale] Error:", error);
+    logger.error("deleteSale", error, {
+      organizationId: activeOrganizationId,
+      saleId: id,
+    });
     return { success: false, message: "Error al eliminar la venta" };
   }
 }

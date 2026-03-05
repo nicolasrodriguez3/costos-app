@@ -11,14 +11,18 @@ datasource db {
 }
 
 model User {
-  id             String   @id @default(cuid())
+  id             String    @id @default(cuid())
   name           String
   email          String
-  emailVerified  Boolean  @default(false)
+  emailVerified  Boolean   @default(false)
   image          String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
   organizationId String?
+  role           String?   @default("user")
+  banned         Boolean   @default(false)
+  banReason      String?
+  banExpires     DateTime?
 
   // BetterAuth relations
   sessions    Session[]
@@ -46,6 +50,7 @@ model Session {
   userId               String
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   activeOrganizationId String?
+  impersonatedBy       String?
 
   @@unique([token])
   @@index([userId])
@@ -395,4 +400,24 @@ enum StockMovementType {
   AJUSTMENT
   SALE
   RETURN
+}
+
+// Error Logs - Persisted application errors
+
+model ErrorLog {
+  id             String   @id @default(cuid())
+  timestamp      DateTime @default(now())
+  level          String   @default("ERROR") // ERROR, WARN, INFO
+  action         String // e.g. "createSale", "deleteIngredient"
+  message        String
+  stackTrace     String? // Error stack trace
+  metadata       String? // JSON string with extra context
+  userId         String?
+  organizationId String?
+
+  @@index([timestamp])
+  @@index([level])
+  @@index([action])
+  @@index([organizationId])
+  @@map("error_log")
 }

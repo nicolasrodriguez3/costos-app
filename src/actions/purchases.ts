@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { ActionState } from "@/types/actions/common";
@@ -108,7 +109,7 @@ export async function createPurchase(
       data: purchase,
     };
   } catch (error) {
-    console.error("Error al crear compra:", error);
+    logger.error("createPurchase", error, { organizationId });
     return { message: "Error al registrar la compra" };
   }
 }
@@ -284,7 +285,10 @@ export async function updatePurchase(
       message: "Compra actualizada correctamente",
     };
   } catch (error) {
-    console.error("Error al actualizar compra:", error);
+    logger.error("updatePurchase", error, {
+      organizationId: activeOrganizationId,
+      purchaseId,
+    });
     return { message: "Error al actualizar la compra" };
   }
 }
@@ -338,7 +342,10 @@ export async function deletePurchase(purchaseId: string): Promise<ActionState> {
     revalidatePath("/purchases");
     return { success: true, message: "Compra eliminada correctamente" };
   } catch (error) {
-    console.error("Error al eliminar compra:", error);
+    logger.error("deletePurchase", error, {
+      organizationId: activeOrganizationId,
+      purchaseId,
+    });
     return { message: "Error al eliminar la compra" };
   }
 }

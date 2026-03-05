@@ -1,4 +1,5 @@
 import {
+  AlertTriangle,
   Calculator,
   DollarSign,
   LayoutDashboard,
@@ -100,5 +101,11 @@ export const navigationItems: NavItem[] = [
     href: "/account",
     icon: Users,
     description: "Configuración y perfil",
+  },
+  {
+    name: "Registro de Errores",
+    href: "/admin/error-logs",
+    icon: AlertTriangle,
+    description: "Logs y monitoreo del sistema",
   },
 ];

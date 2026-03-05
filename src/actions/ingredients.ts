@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { StockMovementType } from "@/generated/prisma/client";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { ActionState } from "@/types/actions/common";
@@ -104,7 +105,10 @@ export async function createIngredient(
       data: newIngredient,
     };
   } catch (error) {
-    console.error("Error al crear el ingrediente:", error);
+    logger.error("createIngredient", error, {
+      userId,
+      organizationId: activeOrganizationId,
+    });
     return {
       success: false,
       message: "Error al crear el ingrediente",
@@ -136,7 +140,9 @@ export async function deleteIngredient(id: string): Promise<ActionState> {
       message: "Ingrediente eliminado correctamente",
     };
   } catch (error) {
-    console.error("Error al eliminar ingrediente:", error);
+    logger.error("deleteIngredient", error, {
+      organizationId: activeOrganizationId,
+    });
     return {
       success: false,
       message: "Error al eliminar el ingrediente",
@@ -204,7 +210,9 @@ export async function updateIngredient(
     revalidatePath("/ingredients");
     return { success: true, message: "Ingrediente actualizado correctamente" };
   } catch (error) {
-    console.error("Error al actualizar ingrediente:", error);
+    logger.error("updateIngredient", error, {
+      organizationId: activeOrganizationId,
+    });
     return { message: "Error al actualizar el ingrediente" };
   }
 }
@@ -274,7 +282,9 @@ async function UpdateIngredientStock(
 
     return { success: true, message: "Stock actualizado correctamente" };
   } catch (error) {
-    console.error("Error al actualizar el stock del ingrediente:", error);
+    logger.error("UpdateIngredientStock", error, {
+      organizationId: activeOrganizationId,
+    });
     return { message: "Error al actualizar el stock del ingrediente" };
   }
 }

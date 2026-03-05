@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { ActionState } from "@/types/actions/common";
@@ -50,7 +51,9 @@ export async function createFixedCost(
     revalidatePath("/sales/history");
     return { success: true, message: "Gasto fijo creado con éxito" };
   } catch (error) {
-    console.error("Error al crear costo fijo:", error);
+    logger.error("createFixedCost", error, {
+      organizationId: activeOrganizationId,
+    });
     return { success: false, message: "Error al crear el gasto fijo" };
   }
 }
@@ -91,7 +94,10 @@ export async function updateFixedCost(
     revalidatePath("/sales/history");
     return { success: true, message: "Gasto fijo actualizado con éxito" };
   } catch (error) {
-    console.error("Error al actualizar costo fijo:", error);
+    logger.error("updateFixedCost", error, {
+      organizationId: activeOrganizationId,
+      fixedCostId: id,
+    });
     return { success: false, message: "Error al actualizar el gasto fijo" };
   }
 }
@@ -112,7 +118,10 @@ export async function deleteFixedCost(id: string): Promise<ActionState> {
 
     return { success: true, message: "Gasto fijo eliminado con éxito" };
   } catch (error) {
-    console.error("Error al eliminar costo fijo:", error);
+    logger.error("deleteFixedCost", error, {
+      organizationId: activeOrganizationId,
+      fixedCostId: id,
+    });
     return { success: false, message: "Error al eliminar el gasto fijo" };
   }
 }

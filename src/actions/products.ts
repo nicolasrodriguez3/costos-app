@@ -5,11 +5,12 @@ import { redirect } from "next/navigation";
 
 import { convertCost } from "@/actions/utils/unitConversion";
 import { ProductType } from "@/generated/prisma/client";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { ActionState } from "@/types/actions/common";
-import type { ProductFormData, RecipeItemInput } from "@/types/forms/product";
 import type { ProductWithRelations } from "@/types/entities/product";
+import type { ProductFormData, RecipeItemInput } from "@/types/forms/product";
 
 export async function getProducts() {
   const { activeOrganizationId } = await getServerSessionWithOrg();
@@ -354,7 +355,10 @@ export async function updateProduct(
     revalidatePath("/products");
     revalidatePath(`/products/${slug}`);
   } catch (error) {
-    console.error("Error al actualizar producto:", error);
+    logger.error("updateProduct", error, {
+      organizationId: activeOrganizationId,
+      productId: id,
+    });
     return { message: "Error al actualizar el producto" };
   }
 
@@ -380,7 +384,10 @@ export async function deleteProduct(id: string): Promise<ActionState> {
     revalidatePath("/products");
     return { success: true, message: "Producto eliminado correctamente" };
   } catch (error) {
-    console.error("Error al eliminar producto:", error);
+    logger.error("deleteProduct", error, {
+      organizationId: activeOrganizationId,
+      productId: id,
+    });
     return { message: "Error al eliminar el producto" };
   }
 }

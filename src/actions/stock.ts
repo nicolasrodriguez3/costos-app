@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { getServerSessionWithOrg } from "@/lib/serverSession";
 import type { ActionState } from "@/types/actions/common";
@@ -93,7 +94,10 @@ export async function createStockMovement(
       message: "Movimiento de stock registrado correctamente",
     };
   } catch (error) {
-    console.error("Error al crear movimiento de stock:", error);
+    logger.error("createStockMovement", error, {
+      organizationId,
+      ingredientId,
+    });
     return { message: "Error al registrar el movimiento de stock" };
   }
 }
@@ -166,11 +170,13 @@ export async function deleteStockMovement(id: string): Promise<ActionState> {
     revalidatePath("/purchases");
     return { success: true, message: "Movimiento de stock eliminado" };
   } catch (error) {
-    console.error("Error al eliminar movimiento de stock:", error);
+    logger.error("deleteStockMovement", error, {
+      organizationId,
+      movementId: id,
+    });
     return { message: "Error al eliminar el movimiento de stock" };
   }
 }
-
 
 export async function createInitialStockMovement({
   ingredientId,
@@ -214,6 +220,9 @@ export async function createInitialStockMovement({
       },
     });
   } catch (error) {
-    console.error("Error al crear movimiento de stock:", error);
+    logger.error("createInitialStockMovement", error, {
+      organizationId,
+      ingredientId,
+    });
   }
 }

@@ -3,6 +3,7 @@
 import { z } from "zod/v4";
 
 import { envs } from "@/config/envs";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 
 const WaitlistSchema = z.object({
@@ -67,7 +68,7 @@ export async function subscribeToWaitlist(
       message: `¡Genial! Te avisaremos cuando ${title} esté disponible.`,
     };
   } catch (error) {
-    console.error("Error subscribing to waitlist:", error);
+    logger.error("subscribeToWaitlist", error);
     return {
       success: false,
       message: "Ocurrió un error. Por favor intenta de nuevo.",

@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
-import { organization } from "better-auth/plugins";
+import { admin, organization } from "better-auth/plugins";
 
 import { getActiveOrganization } from "@/actions/organization";
 import { AUTH_CONFIG } from "@/config/auth.config";
@@ -72,6 +72,9 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    admin({
+      defaultRole: "user",
+    }),
     organization({
       organizationHooks: {
         afterCreateOrganization: async (_data) => {

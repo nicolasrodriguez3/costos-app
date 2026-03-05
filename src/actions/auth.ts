@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import { AUTH_CONFIG } from "@/config/auth.config";
 import { auth } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 const RegisterSchema = z.object({
   name: z
@@ -46,7 +47,7 @@ export async function authenticate(formData: FormData) {
     });
   } catch (error) {
     if (error instanceof APIError) {
-      console.error("APIERROR:", error);
+      logger.error("authenticate", error);
       switch (error.status) {
         case "BAD_REQUEST":
         case "UNAUTHORIZED":
@@ -59,7 +60,7 @@ export async function authenticate(formData: FormData) {
     if (error instanceof Error && error.message === "NEXT_REDIRECT") {
       throw error;
     }
-    console.error("Authentication error:", error);
+    logger.error("authenticate", error);
     return "Algo salió mal al iniciar sesión.";
   }
   redirect("/dashboard");
@@ -117,7 +118,7 @@ export async function register(formData: FormData): Promise<RegisterState> {
     if (error instanceof Error && error.message === "NEXT_REDIRECT") {
       throw error;
     }
-    console.error("Failed to create user:", error);
+    logger.error("register", error);
     return { message: "Error de servidor: No se pudo completar el registro." };
   }
 
@@ -136,7 +137,7 @@ export async function signOutAction() {
     if (error instanceof Error && error.message === "NEXT_REDIRECT") {
       throw error;
     }
-    console.error("Sign out error:", error);
+    logger.error("signOutAction", error);
   }
   redirect("/login");
 }
