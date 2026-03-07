@@ -56,10 +56,6 @@ export async function authenticate(formData: FormData) {
           return error.message;
       }
     }
-    // Next.js redirect throws a specific error that should not be caught
-    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
-      throw error;
-    }
     logger.error("authenticate", error);
     return "Algo salió mal al iniciar sesión.";
   }
@@ -92,7 +88,7 @@ export async function register(formData: FormData): Promise<RegisterState> {
         email,
         password,
         name,
-      },
+      }, 
       headers: await headers(),
     });
     if (!result || !result.user) {
@@ -115,9 +111,6 @@ export async function register(formData: FormData): Promise<RegisterState> {
           return { message: error.message };
       }
     }
-    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
-      throw error;
-    }
     logger.error("register", error);
     return { message: "Error de servidor: No se pudo completar el registro." };
   }
@@ -134,9 +127,6 @@ export async function signOutAction() {
       headers: await headers(),
     });
   } catch (error) {
-    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
-      throw error;
-    }
     logger.error("signOutAction", error);
   }
   redirect("/login");

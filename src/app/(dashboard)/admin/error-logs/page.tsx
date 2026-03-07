@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { getErrorLogs } from "@/actions/errorLogs";
 import { PageHeader } from "@/components/PageHeader";
 import { requireSuperUser } from "@/lib/serverSession";
+import { redirect } from "next/navigation";
 import { ErrorLogsView } from "./error-logs-view";
 
 interface PageProps {
@@ -14,8 +15,11 @@ interface PageProps {
 }
 
 export default async function ErrorLogsPage({ searchParams }: PageProps) {
-  // Protect the page: only superusers can access it
-  await requireSuperUser();
+  try {
+    await requireSuperUser();
+  } catch {
+    return redirect("/dashboard");
+  }
 
   const resolvedParams = await searchParams;
   const limit = resolvedParams.limit ? parseInt(resolvedParams.limit) : 20;

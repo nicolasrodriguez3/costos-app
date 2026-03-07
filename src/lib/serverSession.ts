@@ -13,14 +13,14 @@ type ServerSession = {
  * Get the current server session.
  * @throws Error if no session exists (user not authenticated)
  */
-export const getServerSession = async (): Promise<ServerSession> => {
+export const getServerSession = async (): Promise<ServerSession | null> => {
   try {
     const fullSession = await auth.api.getSession({
       headers: await headers(),
     });
 
     if (!fullSession) {
-      throw new Error("Unauthorized: No active session");
+      return null;
     }
 
     const { session, user } = fullSession;
@@ -35,7 +35,7 @@ export const getServerSession = async (): Promise<ServerSession> => {
       if (error.statusCode === 500) {
         throw new Error("Error de conexión con la base de datos.");
       }
-      throw new Error(`Error de autenticación: ${error.message}`);
+      return null;
     }
 
     // Re-throw non-API errors (e.g., redirect errors from Next.js)
@@ -50,7 +50,13 @@ export const getServerSession = async (): Promise<ServerSession> => {
 export const getServerSessionWithOrg = async (): Promise<
   ServerSession & { activeOrganizationId: string }
 > => {
-  const { session, user, activeOrganizationId } = await getServerSession();
+  const sessionData = await getServerSession();
+
+  if (!sessionData) {
+    throw new Error("Unauthorized: No active session");
+  }
+
+  const { session, user, activeOrganizationId } = sessionData;
 
   if (!activeOrganizationId) {
     throw new Error("Unauthorized: No active organization");
@@ -68,7 +74,13 @@ export const getServerSessionWithOrg = async (): Promise<
  * @throws Error if no session or user is not an admin
  */
 export const requireSuperUser = async (): Promise<ServerSession> => {
-  const { session, user, activeOrganizationId } = await getServerSession();
+  const sessionData = await getServerSession();
+
+  if (!sessionData) {
+    throw new Error("Unauthorized: No active session");
+  }
+
+  const { session, user, activeOrganizationId } = sessionData;
 
   if (user.role !== "ADMIN") {
     throw new Error("Unauthorized: Super user access required");

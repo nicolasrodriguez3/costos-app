@@ -16,6 +16,7 @@ import { useState } from "react";
 import { clearOldErrorLogs } from "@/actions/errorLogs";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import React from "react";
 
 type ErrorLog = {
   id: string;
@@ -151,7 +152,7 @@ export function ErrorLogsView({ initialData }: ErrorLogsViewProps) {
             </TableRow>
           ) : (
             logs.map((log) => (
-              <optgroup key={log.id} className="contents">
+              <React.Fragment key={log.id}>
                 <TableRow
                   className="hover:bg-gray-50 cursor-pointer transition-colors"
                   onClick={() => toggleRow(log.id)}
@@ -237,7 +238,7 @@ export function ErrorLogsView({ initialData }: ErrorLogsViewProps) {
                     </TableCell>
                   </TableRow>
                 )}
-              </optgroup>
+              </React.Fragment>
             ))
           )}
         </TableBody>

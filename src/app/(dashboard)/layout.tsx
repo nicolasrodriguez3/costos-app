@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import "@/app/globals.css";
 
+import { getOrganizationDetails } from "@/actions/organization";
 import { MainContentWrapper } from "@/components/MainContentWrapper";
 import { SetActiveOrganization } from "@/components/SetActiveOrganization";
 import { Sidebar } from "@/components/Sidebar";
@@ -13,7 +14,6 @@ import { envs } from "@/config/envs";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "@/lib/serverSession";
 import { SidebarProvider } from "@/store/sidebar-store";
-import { getOrganizationDetails } from "@/actions/organization";
 
 export const metadata: Metadata = {
   title: {
@@ -29,11 +29,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { session, user } = await getServerSession();
+  const sessionData = await getServerSession();
 
-  if (!session) {
+  if (!sessionData?.session) {
     redirect("/login");
   }
+
+  const { session, user } = sessionData;
 
   if (!session.activeOrganizationId) {
     const lastActiveOrg = await prisma.member.findFirst({

@@ -4,11 +4,16 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
 import { auth } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "@/lib/serverSession";
 
 export async function getUserInfo() {
-  const { session } = await getServerSession();
+  const sessionData = await getServerSession();
+
+  if (!sessionData) return null;
+
+  const { session } = sessionData;
 
   const userData = await prisma.user.findUnique({
     where: {
@@ -147,6 +152,7 @@ export async function deleteAccount() {
   await prisma.user.delete({
     where: { id: userId },
   });
-
+  
+  logger.info("User deleted", userId);
   revalidatePath("/");
 }
