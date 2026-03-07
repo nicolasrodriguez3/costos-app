@@ -18,6 +18,7 @@ export interface NavItem {
   description?: string;
   badge?: string | number;
   quickActions?: QuickAction[];
+  superUserOnly?: boolean;
 }
 
 export interface QuickAction {
@@ -107,5 +108,6 @@ export const navigationItems: NavItem[] = [
     href: "/admin/error-logs",
     icon: AlertTriangle,
     description: "Logs y monitoreo del sistema",
+    superUserOnly: true,
   },
 ];

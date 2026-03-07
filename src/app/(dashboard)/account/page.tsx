@@ -38,7 +38,7 @@ export default async function AccountPage() {
           email: data.email,
           image: data.image,
         }}
-        organization={data.organizationDetails}
+        organization={data.membership}
         isOwner={isOwner}
       />
     </div>

@@ -5,7 +5,7 @@ import { auth, type Session } from "./auth";
 
 type ServerSession = {
   session: Session["session"];
-  user: Session["user"];
+  user: Session["user"] & { role?: string | null };
   activeOrganizationId: string | null;
 };
 
@@ -54,6 +54,24 @@ export const getServerSessionWithOrg = async (): Promise<
 
   if (!activeOrganizationId) {
     throw new Error("Unauthorized: No active organization");
+  }
+
+  return {
+    session,
+    user,
+    activeOrganizationId,
+  };
+};
+
+/**
+ * Get the current server session and ensure the user is a superuser (admin).
+ * @throws Error if no session or user is not an admin
+ */
+export const requireSuperUser = async (): Promise<ServerSession> => {
+  const { session, user, activeOrganizationId } = await getServerSession();
+
+  if (user.role !== "ADMIN") {
+    throw new Error("Unauthorized: Super user access required");
   }
 
   return {

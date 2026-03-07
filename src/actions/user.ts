@@ -19,12 +19,6 @@ export async function getUserInfo() {
 
   if (!userData) return null;
 
-  const organization = await prisma.organization.findUnique({
-    where: {
-      id: session.activeOrganizationId || "",
-    },
-  });
-
   return {
     ...userData,
     // Warning: this membership logic might still be flawed if user has multiple memberships,
@@ -34,7 +28,6 @@ export async function getUserInfo() {
       userData.members.find(
         (m) => m.organizationId === session.activeOrganizationId,
       )?.organization || userData.members[0]?.organization,
-    organizationDetails: organization,
   };
 }
 

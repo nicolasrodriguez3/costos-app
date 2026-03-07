@@ -2,6 +2,7 @@
 
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useBodyScrollLock } from "@/hooks/use-body-scroll-lock";
+import { useIsSuperUser } from "@/hooks/use-is-superuser";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { navigationItems } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,8 @@ export function Sidebar({ className }: SidebarProps) {
 
   const isMobile = useIsMobile();
   useBodyScrollLock(isMobile && isMobileOpen);
+
+  const { isSuperUser } = useIsSuperUser();
 
   const sidebarWidth = isCollapsed ? "md:w-16" : "md:w-56";
   const sidebarClasses = cn(
@@ -47,14 +50,16 @@ export function Sidebar({ className }: SidebarProps) {
         {/* Navigation */}
         <TooltipProvider>
           <nav className="flex-1 px-2 py-6 space-y-2 overflow-y-auto overflow-x-hidden">
-            {navigationItems.map((item) => (
-              <NavItemComponent
-                key={item.name}
-                item={item}
-                isCollapsed={isCollapsed}
-                isMobile={isMobile}
-              />
-            ))}
+            {navigationItems
+              .filter((item) => !item.superUserOnly || isSuperUser)
+              .map((item) => (
+                <NavItemComponent
+                  key={item.name}
+                  item={item}
+                  isCollapsed={isCollapsed}
+                  isMobile={isMobile}
+                />
+              ))}
           </nav>
         </TooltipProvider>
 

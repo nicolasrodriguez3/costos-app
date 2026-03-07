@@ -6,7 +6,7 @@ import { PAGINATION } from "@/config/pagination";
 import { Prisma } from "@/generated/prisma/client";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
-import { getServerSessionWithOrg } from "@/lib/serverSession";
+import { requireSuperUser } from "@/lib/serverSession";
 
 export type ErrorLogFilterParams = {
   startDate?: string;
@@ -18,7 +18,8 @@ export type ErrorLogFilterParams = {
 };
 
 export async function getErrorLogs(params: ErrorLogFilterParams) {
-  const { activeOrganizationId } = await getServerSessionWithOrg();
+  // Ensure the user is a superuser
+  await requireSuperUser();
 
   const {
     startDate,
@@ -29,15 +30,8 @@ export async function getErrorLogs(params: ErrorLogFilterParams) {
     limit = PAGINATION.salesHistoryPerPage || 20, // Reuse existing limit or default 20
   } = params;
 
-  // Build where clause
-  const where: Prisma.ErrorLogWhereInput = {
-    // Note: We might want to see errors without organizationId too if we are super admin,
-    // but for now we filter by the current organization.
-    OR: [
-      { organizationId: activeOrganizationId },
-      { organizationId: null }, // Global errors
-    ],
-  };
+  // Build where clause. Superusers can see all logs.
+  const where: Prisma.ErrorLogWhereInput = {};
 
   if (level) where.level = level;
   if (action) where.action = { contains: action, mode: "insensitive" };
@@ -73,9 +67,8 @@ export async function getErrorLogs(params: ErrorLogFilterParams) {
 }
 
 export async function clearOldErrorLogs(daysOld = 30) {
-  const { activeOrganizationId } = await getServerSessionWithOrg();
-  // Usually this would be restricted to a specific admin role,
-  // but we scope it by organization here for basic safety.
+  // Ensure the user is a superuser
+  await requireSuperUser();
 
   const dateThreshold = new Date();
   dateThreshold.setDate(dateThreshold.getDate() - daysOld);
@@ -84,10 +77,6 @@ export async function clearOldErrorLogs(daysOld = 30) {
     const result = await prisma.errorLog.deleteMany({
       where: {
         timestamp: { lt: dateThreshold },
-        OR: [
-          { organizationId: activeOrganizationId },
-          { organizationId: null },
-        ],
       },
     });
 
