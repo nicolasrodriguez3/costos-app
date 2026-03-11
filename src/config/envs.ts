@@ -36,6 +36,10 @@ type ServerEnv = z.infer<typeof allEnvSchema>;
 let _envs: ServerEnv | null = null;
 
 const loadEnvs = (): ServerEnv => {
+  if (process.env.SKIP_ENV_VALIDATION === "1") {
+    return process.env as unknown as ServerEnv;
+  }
+
   const isServer = typeof window === "undefined";
 
   if (isServer) {
