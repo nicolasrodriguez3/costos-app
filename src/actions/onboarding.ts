@@ -21,21 +21,17 @@ export type JoinState = {
 
 const CreateOrganizationSchema = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
-  slug: z.string().min(2, "El slug debe tener al menos 2 caracteres"),
   includeSampleData: z.boolean().default(true),
 });
 
 export async function createOrganizationAction(
-  prevState: JoinState,
   formData: FormData,
 ): Promise<JoinState> {
   const name = formData.get("name") as string;
-  const slug = formData.get("slug") as string;
   const includeSampleData = formData.get("includeSampleData") === "true";
 
   const validatedFields = CreateOrganizationSchema.safeParse({
     name,
-    slug,
     includeSampleData,
   });
 
@@ -59,7 +55,10 @@ export async function createOrganizationAction(
     const org = await auth.api.createOrganization({
       body: {
         name,
-        slug,
+        slug: name
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .concat(Math.random().toString(36).substring(2, 6)),
         userId: session.user.id,
       },
       headers: await headers(),

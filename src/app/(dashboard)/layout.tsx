@@ -5,13 +5,11 @@ import { redirect } from "next/navigation";
 
 import "@/app/globals.css";
 
-import { getOrganizationDetails } from "@/actions/organization";
+import { getActiveOrganization, getOrganizationDetails } from "@/actions/organization";
 import { MainContentWrapper } from "@/components/MainContentWrapper";
-import { SetActiveOrganization } from "@/components/SetActiveOrganization";
 import { Sidebar } from "@/components/Sidebar";
 import { TopBar } from "@/components/TopBar";
 import { envs } from "@/config/envs";
-import { prisma } from "@/lib/prisma";
 import { getServerSession } from "@/lib/serverSession";
 import { SidebarProvider } from "@/store/sidebar-store";
 
@@ -38,22 +36,10 @@ export default async function RootLayout({
   const { session, user } = sessionData;
 
   if (!session.activeOrganizationId) {
-    const lastActiveOrg = await prisma.member.findFirst({
-      where: {
-        userId: session.userId,
-      },
-      select: {
-        organizationId: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    const lastActiveOrg = await getActiveOrganization(session.userId);
 
     if (lastActiveOrg) {
-      return (
-        <SetActiveOrganization organizationId={lastActiveOrg.organizationId} />
-      );
+      redirect(`/api/auth/set-active-org?organizationId=${lastActiveOrg.id}`);
     } else {
       redirect("/onboarding");
     }

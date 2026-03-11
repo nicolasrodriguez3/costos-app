@@ -37,10 +37,9 @@ export function CreateOrgForm() {
     startTransition(async () => {
       const formData = new FormData();
       formData.append("name", data.name);
-      formData.append("slug", data.name.toLowerCase().replace(/\s+/g, "-"));
       formData.append("includeSampleData", String(data.includeSampleData));
 
-      const res = await createOrganizationAction({}, formData);
+      const res = await createOrganizationAction(formData);
 
       if (res.error) {
         toast.error(res.error);
