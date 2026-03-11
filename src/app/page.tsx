@@ -68,9 +68,9 @@ export default function LandingPage() {
               </span>
             </Link>
             <div className="flex relative gap-2 items-center">
-              <div className="relative z-0 text-sm text-gray-300 transition-colors peer">
+              <Link href="/login" className="relative z-0 text-sm text-gray-300 transition-colors peer">
                 Iniciar sesión
-              </div>
+              </Link>
               <span className="absolute -top-3 left-1/2 z-20 px-2 py-0.5 text-sm text-orange-500 whitespace-nowrap bg-white rounded-full border opacity-0 transition-opacity -translate-x-1/2 pointer-events-none border-white/10 peer-hover:opacity-100">
                 ¡Muy pronto!
               </span>
