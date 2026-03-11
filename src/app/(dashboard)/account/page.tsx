@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { getUserInfo } from "@/actions/user";
 import { PageHeader } from "@/components/PageHeader";
+import { ROLES } from "@/config/roles";
 import { AccountView } from "./account-view";
 
 const breadcrumbs = [
@@ -20,7 +21,7 @@ export default async function AccountPage() {
     redirect("/login");
   }
 
-  const isOwner = data.members?.[0]?.role === "owner";
+  const isOwner = data.members?.[0]?.role === ROLES.OWNER;
 
   return (
     <div className="max-w-7xl w-full mx-auto p-6 sm:p-8 space-y-8">

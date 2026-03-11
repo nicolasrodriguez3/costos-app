@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 
+import { ROLES } from "@/config/roles";
 import { auth } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
@@ -78,7 +79,7 @@ export async function updateOrganization(formData: FormData) {
     },
   });
 
-  if (membership?.role !== "OWNER") {
+  if (membership?.role !== ROLES.OWNER) {
     throw new Error("Only owners can update organization details");
   }
 
@@ -152,7 +153,7 @@ export async function deleteAccount() {
   await prisma.user.delete({
     where: { id: userId },
   });
-  
+
   logger.info("User deleted", userId);
   revalidatePath("/");
 }

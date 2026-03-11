@@ -237,6 +237,10 @@ export function AccountView({ user, organization, isOwner }: AccountViewProps) {
           </CardHeader>
           <form action={onUpdateOrg}>
             <CardContent className="space-y-4 mb-4">
+              {/* Could add more org details here later */}
+              <div className="p-4 rounded-lg bg-blue-50 text-blue-800 text-sm">
+                <p className="font-medium">Plan Actual: Periodo de Prueba</p>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="orgName">Nombre del Negocio</Label>
                 <Input
@@ -251,10 +255,7 @@ export function AccountView({ user, organization, isOwner }: AccountViewProps) {
                   </p>
                 )}
               </div>
-              {/* Could add more org details here later */}
-              <div className="p-4 rounded-lg bg-blue-50 text-blue-800 text-sm">
-                <p className="font-medium">Plan Actual: Básico</p>
-              </div>
+
             </CardContent>
             {isOwner && (
               <CardFooter>
