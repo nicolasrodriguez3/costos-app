@@ -19,11 +19,18 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
+# DATABASE_URL dummy solo para que prisma generate pueda cargar prisma.config.ts
+# No se usa en runtime
+ARG DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy
+ENV DATABASE_URL=${DATABASE_URL}
+
 # Prisma generate
 RUN pnpm prisma generate
 
 # Build Next.js
+ENV SKIP_ENV_VALIDATION=1
 RUN pnpm build
+ENV SKIP_ENV_VALIDATION=
 
 # ---------- runner ----------
 FROM node:20-alpine AS runner

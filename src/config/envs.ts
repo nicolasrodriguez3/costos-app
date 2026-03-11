@@ -33,6 +33,11 @@ const allEnvSchema = publicEnvSchema.extend(serverEnvSchema.shape);
 type ServerEnv = z.infer<typeof allEnvSchema>;
 
 const getEnvs = (): ServerEnv => {
+  // Saltear validación en build time
+  if (process.env.SKIP_ENV_VALIDATION === "1") {
+    return process.env as unknown as ServerEnv;
+  }
+
   const isServer = typeof window === "undefined";
 
   if (isServer) {
