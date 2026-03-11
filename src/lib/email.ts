@@ -1,11 +1,13 @@
 import { Resend } from "resend";
 
-import { envs } from "@/config/envs";
+import { serverEnv } from "@/config/env";
+
+const env = serverEnv();
 
 let _resend: Resend | null = null;
 const getResend = () => {
   if (!_resend) {
-    _resend = new Resend(envs().RESEND_API_KEY);
+    _resend = new Resend(env.RESEND_API_KEY);
   }
   return _resend;
 };
@@ -19,7 +21,7 @@ export interface SendEmailParams {
 export async function sendEmail({ to, subject, html }: SendEmailParams) {
   try {
     const result = await getResend().emails.send({
-      from: envs().RESEND_FROM_EMAIL,
+      from: env.RESEND_FROM_EMAIL,
       to,
       subject,
       html,
