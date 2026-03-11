@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { getUserInfo } from "@/actions/user";
 import { PageHeader } from "@/components/PageHeader";
+import { LogOutButton } from "@/components/ui/log-out-button";
 import { ROLES } from "@/config/roles";
 import { AccountView } from "./account-view";
 
@@ -28,9 +29,9 @@ export default async function AccountPage() {
       <PageHeader
         title="Mi cuenta"
         subtitle="Gestiona tu perfil y configuración de cuenta"
-        backLink={{ href: "/dashboard", label: "Volver al Dashboard" }}
         gradient="blue"
         breadcrumbs={breadcrumbs}
+        actions={<LogOutButton />}
       />
 
       <AccountView

@@ -88,7 +88,7 @@ export async function register(formData: FormData): Promise<RegisterState> {
         email,
         password,
         name,
-      }, 
+      },
       headers: await headers(),
     });
     if (!result || !result.user) {
@@ -126,8 +126,10 @@ export async function signOutAction() {
     await auth.api.signOut({
       headers: await headers(),
     });
+
+    return true;
   } catch (error) {
     logger.error("signOutAction", error);
+    return false;
   }
-  redirect("/login");
 }

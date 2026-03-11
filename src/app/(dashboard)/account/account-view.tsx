@@ -3,15 +3,13 @@
 import {
   Building2,
   Loader2,
-  LogOut,
   Save,
-  User as UserIcon,
+  User as UserIcon
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { signOutAction } from "@/actions/auth";
 import {
   deleteAccount,
   updateOrganization,
@@ -58,7 +56,6 @@ export function AccountView({ user, organization, isOwner }: AccountViewProps) {
   const router = useRouter();
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isUpdatingOrg, setIsUpdatingOrg] = useState(false);
-  const [isClosingSession, setIsClosingSession] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   // Helper to get initials
@@ -95,12 +92,6 @@ export function AccountView({ user, organization, isOwner }: AccountViewProps) {
     }
   }
 
-  async function handleSignOut() {
-    setIsClosingSession(true);
-    await signOutAction();
-    setIsClosingSession(false);
-  }
-
   async function handleDeleteAccount() {
     setIsDeletingAccount(true);
     try {
@@ -109,7 +100,7 @@ export function AccountView({ user, organization, isOwner }: AccountViewProps) {
       await authClient.signOut({
         fetchOptions: {
           onSuccess: () => {
-            router.push("/login"); // redirect to login page
+            router.push("/login");
           },
         },
       });
@@ -188,34 +179,6 @@ export function AccountView({ user, organization, isOwner }: AccountViewProps) {
               </Button>
             </CardFooter>
           </form>
-        </Card>
-
-        {/* Sign Out Section */}
-        <Card className="border-gray-500/10 shadow-sm bg-red-50/50">
-          <CardContent className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold text-red-900">Cerrar Sesión</h3>
-              <p className="text-sm text-red-700/80">
-                Finalizar tu sesión actual de forma segura.
-              </p>
-            </div>
-            <form>
-              <Button
-                onClick={handleSignOut}
-                variant="destructive"
-                size="sm"
-                className="cursor-pointer"
-                disabled={isClosingSession}
-              >
-                {isClosingSession ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <LogOut className="mr-2 h-4 w-4" />
-                )}
-                Salir
-              </Button>
-            </form>
-          </CardContent>
         </Card>
       </div>
 
