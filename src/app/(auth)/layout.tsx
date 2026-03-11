@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { envs } from "@/config/envs";
 
-const title = envs.NEXT_PUBLIC_APP_TITLE;
+const title = envs().NEXT_PUBLIC_APP_TITLE;
 export default function AuthLayout({
   children,
 }: {

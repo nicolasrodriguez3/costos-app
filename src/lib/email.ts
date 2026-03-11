@@ -2,7 +2,7 @@ import { Resend } from "resend";
 
 import { envs } from "@/config/envs";
 
-const resend = new Resend(envs.RESEND_API_KEY);
+const resend = new Resend(envs().RESEND_API_KEY);
 
 export interface SendEmailParams {
   to: string;
@@ -13,7 +13,7 @@ export interface SendEmailParams {
 export async function sendEmail({ to, subject, html }: SendEmailParams) {
   try {
     const result = await resend.emails.send({
-      from: envs.RESEND_FROM_EMAIL,
+      from: envs().RESEND_FROM_EMAIL,
       to,
       subject,
       html,

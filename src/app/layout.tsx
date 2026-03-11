@@ -6,8 +6,8 @@ import { fontBody, fontMono, fontTitle } from "@/config/fonts";
 
 import "./globals.css";
 
-const title = envs.NEXT_PUBLIC_APP_TITLE;
-const description = envs.NEXT_PUBLIC_APP_DESCRIPTION;
+const title = envs().NEXT_PUBLIC_APP_TITLE;
+const description = envs().NEXT_PUBLIC_APP_DESCRIPTION;
 export const metadata: Metadata = {
   title,
   description,

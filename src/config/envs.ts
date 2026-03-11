@@ -32,12 +32,10 @@ const allEnvSchema = publicEnvSchema.extend(serverEnvSchema.shape);
 // Infer the full type (Server + Client)
 type ServerEnv = z.infer<typeof allEnvSchema>;
 
-const getEnvs = (): ServerEnv => {
-  // Saltear validación en build time
-  if (process.env.SKIP_ENV_VALIDATION === "1") {
-    return process.env as unknown as ServerEnv;
-  }
+// Cache envs
+let _envs: ServerEnv | null = null;
 
+const loadEnvs = (): ServerEnv => {
   const isServer = typeof window === "undefined";
 
   if (isServer) {
@@ -77,4 +75,9 @@ const getEnvs = (): ServerEnv => {
   }
 };
 
-export const envs = getEnvs();
+export const envs = (): ServerEnv => {
+  if (!_envs) {
+    _envs = loadEnvs();
+  }
+  return _envs;
+};

@@ -21,7 +21,7 @@ export type WaitlistState = {
   };
 };
 
-const title = envs.NEXT_PUBLIC_APP_TITLE;
+const title = envs().NEXT_PUBLIC_APP_TITLE;
 export async function subscribeToWaitlist(
   formData: FormData,
 ): Promise<WaitlistState> {

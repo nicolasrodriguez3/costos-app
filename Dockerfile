@@ -28,9 +28,7 @@ ENV DATABASE_URL=${DATABASE_URL}
 RUN pnpm prisma generate
 
 # Build Next.js
-ENV SKIP_ENV_VALIDATION=1
 RUN pnpm build
-ENV SKIP_ENV_VALIDATION=
 
 # ---------- runner ----------
 FROM node:20-alpine AS runner

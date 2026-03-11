@@ -28,7 +28,7 @@ export default function OnboardingPage() {
           <CardTitle className="text-3xl font-bold tracking-tight text-gray-900">
             Bienvenido a{" "}
             <span className="bg-linear-to-r from-orange-500 to-red-600 bg-clip-text text-transparent">
-              {envs.NEXT_PUBLIC_APP_TITLE}
+              {envs().NEXT_PUBLIC_APP_TITLE}
             </span>
           </CardTitle>
           <CardDescription className="text-base">

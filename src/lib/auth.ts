@@ -11,13 +11,13 @@ import { prisma } from "@/lib/prisma";
 
 export const auth = betterAuth({
   logger: {
-    disabled: envs.NODE_ENV === "production",
+    disabled: envs().NODE_ENV === "production",
     level: "debug",
   },
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  appName: envs.NEXT_PUBLIC_APP_TITLE,
+  appName: envs().NEXT_PUBLIC_APP_TITLE,
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
@@ -40,11 +40,11 @@ export const auth = betterAuth({
       });
     },
   },
-  baseURL: envs.BETTER_AUTH_URL,
+  baseURL: envs().BETTER_AUTH_URL,
   socialProviders: {
     google: {
-      clientId: envs.GOOGLE_CLIENT_ID,
-      clientSecret: envs.GOOGLE_CLIENT_SECRET,
+      clientId: envs().GOOGLE_CLIENT_ID,
+      clientSecret: envs().GOOGLE_CLIENT_SECRET,
     },
   },
   databaseHooks: {
