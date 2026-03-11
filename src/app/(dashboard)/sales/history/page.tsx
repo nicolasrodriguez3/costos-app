@@ -164,7 +164,7 @@ export default async function SalesHistoryPage({ searchParams }: PageProps) {
                 <p
                   className={`text-xl font-bold ${(periodStats.operatingProfit || 0) >= 0 ? "text-purple-600" : "text-red-600"}`}
                 >
-                  ${(periodStats.operatingProfit || 0).toFixed(0)}
+                  ${(periodStats.operatingProfit || 0).toFixed(0)} <span className="text-sm font-normal">({marginPercent.toFixed(2)}%)</span>
                 </p>
               </div>
             </div>
@@ -212,6 +212,7 @@ export default async function SalesHistoryPage({ searchParams }: PageProps) {
                   0,
                 );
                 const saleProfit = sale.totalAmount - saleCost;
+                const saleMarginPercent = saleProfit / sale.totalAmount * 100;
 
                 return (
                   <TableRow
@@ -235,7 +236,7 @@ export default async function SalesHistoryPage({ searchParams }: PageProps) {
                     <TableCell
                       className={`text-right font-mono ${saleProfit >= 0 ? "text-purple-600" : "text-red-600"}`}
                     >
-                      ${saleProfit.toFixed(2)} ({marginPercent.toFixed(2)}%)
+                      ${saleProfit.toFixed(2)} ({saleMarginPercent.toFixed(2)}%)
                     </TableCell>
                   </TableRow>
                 );
