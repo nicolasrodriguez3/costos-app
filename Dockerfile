@@ -39,6 +39,7 @@ ENV NEXT_PUBLIC_APP_LAUNCHED=$NEXT_PUBLIC_APP_LAUNCHED
 RUN pnpm prisma generate
 
 # Build Next.js
+ENV SKIP_ENV_VALIDATION=true
 RUN pnpm build
 
 # ---------- runner ----------

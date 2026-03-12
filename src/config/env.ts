@@ -55,4 +55,6 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_DESCRIPTION: process.env.NEXT_PUBLIC_APP_DESCRIPTION,
     NEXT_PUBLIC_APP_LAUNCHED: process.env.NEXT_PUBLIC_APP_LAUNCHED,
   },
+
+  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
 });
