@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { envs } from "@/config/envs";
+import { env } from "@/config/env";
 
-const title = envs().NEXT_PUBLIC_APP_TITLE;
+const title = env.NEXT_PUBLIC_APP_TITLE;
 export default function AuthLayout({
   children,
 }: {

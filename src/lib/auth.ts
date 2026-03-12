@@ -5,19 +5,19 @@ import { admin, organization } from "better-auth/plugins";
 
 import { getActiveOrganization } from "@/actions/organization";
 import { AUTH_CONFIG } from "@/config/auth.config";
-import { envs } from "@/config/envs";
+import { env } from "@/config/env";
 import { sendPasswordResetEmail, sendVerificationEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
 
 export const auth = betterAuth({
   logger: {
-    disabled: envs().NODE_ENV === "production",
+    disabled: env.NODE_ENV === "production",
     level: "debug",
   },
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  appName: envs().NEXT_PUBLIC_APP_TITLE,
+  appName: env.NEXT_PUBLIC_APP_TITLE,
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
@@ -40,11 +40,11 @@ export const auth = betterAuth({
       });
     },
   },
-  baseURL: envs().BETTER_AUTH_URL,
+  baseURL: env.BETTER_AUTH_URL,
   socialProviders: {
     google: {
-      clientId: envs().GOOGLE_CLIENT_ID,
-      clientSecret: envs().GOOGLE_CLIENT_SECRET,
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
     },
   },
   databaseHooks: {

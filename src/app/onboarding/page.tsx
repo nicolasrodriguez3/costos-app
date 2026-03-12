@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { envs } from "@/config/envs";
+import { env } from "@/config/env";
 
 export default function OnboardingPage() {
   return (
@@ -28,7 +28,7 @@ export default function OnboardingPage() {
           <CardTitle className="text-3xl font-bold tracking-tight text-gray-900">
             Bienvenido a{" "}
             <span className="bg-linear-to-r from-orange-500 to-red-600 bg-clip-text text-transparent">
-              {envs().NEXT_PUBLIC_APP_TITLE}
+              {env.NEXT_PUBLIC_APP_TITLE}
             </span>
           </CardTitle>
           <CardDescription className="text-base">

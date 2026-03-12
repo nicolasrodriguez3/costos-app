@@ -2,7 +2,7 @@
 
 import { z } from "zod/v4";
 
-import { envs } from "@/config/envs";
+import { env } from "@/config/env";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 
@@ -21,7 +21,7 @@ export type WaitlistState = {
   };
 };
 
-const title = envs().NEXT_PUBLIC_APP_TITLE;
+const title = env.NEXT_PUBLIC_APP_TITLE;
 export async function subscribeToWaitlist(
   formData: FormData,
 ): Promise<WaitlistState> {

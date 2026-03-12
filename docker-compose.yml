@@ -27,6 +27,11 @@ services:
   app:
     build:
       context: .
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+        NEXT_PUBLIC_APP_TITLE: ${NEXT_PUBLIC_APP_TITLE}
+        NEXT_PUBLIC_APP_DESCRIPTION: ${NEXT_PUBLIC_APP_DESCRIPTION}
+        NEXT_PUBLIC_APP_LAUNCHED: ${NEXT_PUBLIC_APP_LAUNCHED}
     container_name: costos_app
     restart: unless-stopped
     env_file:
