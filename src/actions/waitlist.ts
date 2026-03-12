@@ -2,9 +2,9 @@
 
 import { z } from "zod/v4";
 
+import { envs } from "@/config/envs";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
-import { clientEnv } from "@/config/env";
 
 const WaitlistSchema = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
@@ -21,7 +21,7 @@ export type WaitlistState = {
   };
 };
 
-const title = clientEnv.NEXT_PUBLIC_APP_TITLE;
+const title = envs().NEXT_PUBLIC_APP_TITLE;
 export async function subscribeToWaitlist(
   formData: FormData,
 ): Promise<WaitlistState> {

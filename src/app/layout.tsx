@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 
 import { Toaster } from "@/components/ui/sonner";
-import { clientEnv } from "@/config/env";
+import { envs } from "@/config/envs";
 import { fontBody, fontMono, fontTitle } from "@/config/fonts";
 
 import "./globals.css";
 
-const title = clientEnv.NEXT_PUBLIC_APP_TITLE;
-const description = clientEnv.NEXT_PUBLIC_APP_DESCRIPTION;
+const title = envs().NEXT_PUBLIC_APP_TITLE;
+const description = envs().NEXT_PUBLIC_APP_DESCRIPTION;
 export const metadata: Metadata = {
   title,
   description,

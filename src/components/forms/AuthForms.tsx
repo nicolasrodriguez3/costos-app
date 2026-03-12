@@ -8,10 +8,10 @@ import { z } from "zod";
 
 import { authenticate, register } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
+import { envs } from "@/config/envs";
 import { SignInSocialButton } from "../SignInSocialButton";
-import { clientEnv } from "@/config/env";
 
-const isAppReady = clientEnv.NEXT_PUBLIC_APP_LAUNCHED;
+const isAppReady = envs().NEXT_PUBLIC_APP_LAUNCHED;
 
 // Validation schemas
 const LoginSchema = z.object({

@@ -5,21 +5,18 @@ import { redirect } from "next/navigation";
 
 import "@/app/globals.css";
 
-import {
-  getActiveOrganization,
-  getOrganizationDetails,
-} from "@/actions/organization";
+import { getActiveOrganization, getOrganizationDetails } from "@/actions/organization";
 import { MainContentWrapper } from "@/components/MainContentWrapper";
 import { Sidebar } from "@/components/Sidebar";
 import { TopBar } from "@/components/TopBar";
-import { clientEnv } from "@/config/env";
+import { envs } from "@/config/envs";
 import { getServerSession } from "@/lib/serverSession";
 import { SidebarProvider } from "@/store/sidebar-store";
 
 export const metadata: Metadata = {
   title: {
-    template: `%s | ${clientEnv.NEXT_PUBLIC_APP_TITLE}`,
-    default: `Dashboard | ${clientEnv.NEXT_PUBLIC_APP_TITLE}`,
+    template: `%s | ${envs().NEXT_PUBLIC_APP_TITLE}`,
+    default: `Dashboard | ${envs().NEXT_PUBLIC_APP_TITLE}`,
   },
   description:
     "Gestiona tus ingredientes, recetas y ventas de pizzas en tiempo real.",
@@ -55,7 +52,7 @@ export default async function RootLayout({
   const organization = await getOrganizationDetails(
     session.activeOrganizationId,
   );
-  const appTitle = clientEnv.NEXT_PUBLIC_APP_TITLE;
+  const appTitle = envs().NEXT_PUBLIC_APP_TITLE;
 
   return (
     <SidebarProvider defaultCollapsed={defaultCollapsed}>

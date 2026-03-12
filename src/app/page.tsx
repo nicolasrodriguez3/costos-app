@@ -10,7 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { WaitlistForm } from "@/components/forms/WaitlistForm";
-import { clientEnv } from "@/config/env";
+import { envs } from "@/config/envs";
 
 const features = [
   {
@@ -39,7 +39,7 @@ const features = [
   },
 ];
 
-const title = clientEnv.NEXT_PUBLIC_APP_TITLE;
+const title = envs().NEXT_PUBLIC_APP_TITLE;
 
 export default function LandingPage() {
   return (
