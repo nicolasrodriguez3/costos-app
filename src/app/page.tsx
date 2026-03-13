@@ -71,9 +71,6 @@ export default function LandingPage() {
               <Link href="/login" className="relative z-0 text-sm text-gray-300 transition-colors peer">
                 Iniciar sesión
               </Link>
-              <span className="absolute -top-3 left-1/2 z-20 px-2 py-0.5 text-sm text-orange-500 whitespace-nowrap bg-white rounded-full border opacity-0 transition-opacity -translate-x-1/2 pointer-events-none border-white/10 peer-hover:opacity-100">
-                ¡Muy pronto!
-              </span>
             </div>
           </div>
         </div>
